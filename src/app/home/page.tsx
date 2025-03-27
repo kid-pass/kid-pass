@@ -189,7 +189,7 @@ const App: React.FC = () => {
 		}
 
 		try {
-			const response = await fetch('/api/child/getChildren', {
+			const response = await fetch('/api/child/getChildrenInfo', {
 				headers: {
 					Authorization: `Bearer ${token}`,
 				},
