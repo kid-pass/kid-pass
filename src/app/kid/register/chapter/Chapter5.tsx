@@ -78,12 +78,9 @@ const Chapter5: React.FC<ChapterProps> = ({ onNext }) => {
 	// 알레르기 추가 함수
 	const addAllergic = () => {
 		const trimmedValue = allergicInputValue.trim();
-		console.log('입력된 값:', trimmedValue); // 입력값 확인
 
 		if (trimmedValue && !allergicList.includes(trimmedValue)) {
-			console.log('추가되기 전 리스트:', allergicList);
 			setAllergicList((prev) => {
-				console.log('업데이트될 리스트:', [...prev, trimmedValue]);
 				return [...prev, trimmedValue];
 			});
 			setAllergicInputValue('');
