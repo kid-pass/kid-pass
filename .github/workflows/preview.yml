@@ -18,6 +18,14 @@ permissions:
     branches: ["main"]
 >>>>>>> 09cd46a (deploy: branch main으로 변경)
 
+# 이 부분을 추가합니다
+permissions:
+  contents: read
+  pages: write
+  deployments: write
+  id-token: write
+  issues: write
+  pull-requests: write
 jobs:
     vercel-preview:
         runs-on: ubuntu-latest
@@ -58,8 +66,16 @@ jobs:
                   vercel deploy --prebuilt --token=${{ secrets.VERCEL_TOKEN }} > vercel-output.txt
                   echo "preview_url=$(cat vercel-output.txt)" >> $GITHUB_OUTPUT
 
+<<<<<<< HEAD
             - name: Comment PR with Preview URL
               uses: thollander/actions-comment-pull-request@v2
               with:
                   message: |
                       🎉 구현한 기능 Preview: ${{ steps.deploy.outputs.preview_url }}
+=======
+      - name: Comment PR with Preview URL
+        uses: thollander/actions-comment-pull-request@v2
+        with:
+          message: |
+            🎉 구현한 기능 Preview: ${{ steps.deploy.outputs.preview_url }}
+>>>>>>> 40e7858 (deploy : PR comment 권한 추가)
