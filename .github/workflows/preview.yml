@@ -1,6 +1,7 @@
 name: Preview
 
 on:
+<<<<<<< HEAD
     pull_request:
         branches: ['main']
 
@@ -12,6 +13,10 @@ permissions:
     id-token: write
     issues: write
     pull-requests: write
+=======
+  pull_request:
+    branches: ["main"]
+>>>>>>> 09cd46a (deploy: branch main으로 변경)
 
 jobs:
     vercel-preview:
