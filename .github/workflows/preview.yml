@@ -1,73 +1,60 @@
-<<<<<<< HEAD
-=======
-# preview.yml
->>>>>>> ea2a715 (PR 프리뷰 적용)
 name: Preview
 
 on:
-  pull_request:
-<<<<<<< HEAD
-    branches: ["main"]
+    pull_request:
+        branches: ['main']
 
 # 이 부분을 추가합니다
 permissions:
-  contents: read
-  pages: write
-  deployments: write
-  id-token: write
-  issues: write
-  pull-requests: write
-=======
-    branches: ["develop"]
+    contents: read
+    pages: write
+    deployments: write
+    id-token: write
+    issues: write
+    pull-requests: write
 
->>>>>>> ea2a715 (PR 프리뷰 적용)
 jobs:
-  vercel-preview:
-    runs-on: ubuntu-latest
+    vercel-preview:
+        runs-on: ubuntu-latest
 
-    env:
-      VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
-      VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+        env:
+            VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+            VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
 
-    steps:
-      - uses: actions/checkout@v4
+        steps:
+            - uses: actions/checkout@v4
 
-<<<<<<< HEAD
-      - name: Install pnpm
-        uses: pnpm/action-setup@v2
-        with:
-          version: 9.x.x
+            - name: Install pnpm
+              uses: pnpm/action-setup@v2
+              with:
+                  version: 9.x.x
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: "20"
-          cache: "pnpm"
+            - name: Setup Node.js
+              uses: actions/setup-node@v3
+              with:
+                  node-version: '20'
+                  cache: 'pnpm'
 
-      - name: Install dependencies
-        run: pnpm install
+            - name: Install dependencies
+              run: pnpm install
 
-      - name: Install Vercel CLI
-        run: pnpm add --global vercel@latest
-=======
-      - name: Install Vercel CLI
-        run: npm install --global vercel@latest
->>>>>>> ea2a715 (PR 프리뷰 적용)
+            - name: Install Vercel CLI
+              run: pnpm add --global vercel@latest
 
-      - name: Get Vercel Environment Variables
-        run: vercel pull --yes --environment=preview --token=${{ secrets.VERCEL_TOKEN }}
+            - name: Get Vercel Environment Variables
+              run: vercel pull --yes --environment=preview --token=${{ secrets.VERCEL_TOKEN }}
 
-      - name: Build Project Artifacts
-        run: vercel build --token=${{ secrets.VERCEL_TOKEN }}
+            - name: Build Project Artifacts
+              run: vercel build --token=${{ secrets.VERCEL_TOKEN }}
 
-      - name: Deploy Project Artifacts to Vercel
-        id: deploy
-        run: |
-          vercel deploy --prebuilt --token=${{ secrets.VERCEL_TOKEN }} > vercel-output.txt
-          echo "preview_url=$(cat vercel-output.txt)" >> $GITHUB_OUTPUT
+            - name: Deploy Project Artifacts to Vercel
+              id: deploy
+              run: |
+                  vercel deploy --prebuilt --token=${{ secrets.VERCEL_TOKEN }} > vercel-output.txt
+                  echo "preview_url=$(cat vercel-output.txt)" >> $GITHUB_OUTPUT
 
-      - name: Comment PR with Preview URL
-        uses: thollander/actions-comment-pull-request@v2
-        with:
-          message: |
-            🎉 구현한 기능 Preview: ${{ steps.deploy.outputs.preview_url }}
+            - name: Comment PR with Preview URL
+              uses: thollander/actions-comment-pull-request@v2
+              with:
+                  message: |
+                      🎉 구현한 기능 Preview: ${{ steps.deploy.outputs.preview_url }}
