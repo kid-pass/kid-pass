@@ -1,10 +1,17 @@
-# preview.yml
 name: Preview
 
 on:
   pull_request:
     branches: ["main"]
 
+# 이 부분을 추가합니다
+permissions:
+  contents: read
+  pages: write
+  deployments: write
+  id-token: write
+  issues: write
+  pull-requests: write
 jobs:
   vercel-preview:
     runs-on: ubuntu-latest
