@@ -312,7 +312,7 @@ const App = () => {
 							))}
 						</Box>
 					)}
-					<Text fw={700} fz="xl">
+					<Text fw={700} fz="lg">
 						아기의 예방접종 이력이에요
 					</Text>
 				</Box>
