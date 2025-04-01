@@ -384,6 +384,9 @@ const App = () => {
 							))
 						)}
 					</Box>
+					<Text fw={700} fz="lg">
+						특이사항
+					</Text>
 				</Box>
 			)}
 		</MobileLayout>
