@@ -51,9 +51,18 @@ interface ChildProfile {
 }
 
 // API 응답 인터페이스
-interface ApiResponse {
+interface GetChldrnInfo {
 	message: string;
 	data: ChildProfile;
+}
+
+// 백신 접종 타입 정의
+interface VaccinationRecord {
+	id: string;
+	vaccinationDate: string;
+	vaccineName: string;
+	totalRequiredDoses: number;
+	completedDoses: number;
 }
 
 // 만 나이 계산 함수
@@ -85,29 +94,6 @@ const formatDate = (dateString: string): string => {
 	return `${year}-${month}-${day}`;
 };
 
-// 시간 포맷 함수 (HH:MM)
-const formatTime = (dateString: string): string => {
-	const date = new Date(dateString);
-	const hours = String(date.getHours()).padStart(2, '0');
-	const minutes = String(date.getMinutes()).padStart(2, '0');
-
-	return `${hours}:${minutes}`;
-};
-
-// 심각도에 따른 색상 반환
-const getSeverityColor = (severity: string): string => {
-	switch (severity) {
-		case 'HIGH':
-			return 'red';
-		case 'MEDIUM':
-			return 'orange';
-		case 'LOW':
-			return 'green';
-		default:
-			return 'gray';
-	}
-};
-
 const App = () => {
 	const navigate = useRouter();
 	const searchParams = useSearchParams();
@@ -115,6 +101,7 @@ const App = () => {
 	const [symptoms, setSymptoms] = useState<SymptomItem[]>([]);
 	const [loading, setLoading] = useState<boolean>(true);
 	const [error, setError] = useState<string | null>(null);
+	const [vaccineData, setVaccineData] = useState<VaccinationRecord[]>([]);
 
 	useEffect(() => {
 		const fetchData = async () => {
@@ -123,7 +110,7 @@ const App = () => {
 				const chldrnNo = searchParams.get('chldrnNo');
 
 				if (chldrnNo) {
-					const response = await instance.get<ApiResponse>(
+					const response = await instance.get<GetChldrnInfo>(
 						`child/getChildInfo?childId=${chldrnNo}`
 					);
 
@@ -225,6 +212,30 @@ const App = () => {
 		fetchSymptoms();
 	}, [searchParams]);
 
+	// 백신 접종 정보를 가져오는 useEffect
+	useEffect(() => {
+		const fetchVaccineData = async () => {
+			try {
+				const childId = searchParams.get('chldrnNo');
+
+				if (childId) {
+					const response = await instance.get(
+						`/vaccine/recent/?chldrnNo=${childId}`
+					);
+
+					console.log(response.data.data);
+					setVaccineData(response.data.data);
+				} else {
+					setError('URL에 chldrnNo 파라미터가 없습니다.');
+				}
+			} catch (error) {
+				console.error('백신 접종 정보 불러오기 실패:', error);
+			}
+		};
+
+		fetchVaccineData();
+	}, [searchParams]);
+
 	const handleBack = () => navigate.back();
 
 	return (
@@ -315,6 +326,64 @@ const App = () => {
 					<Text fw={700} fz="lg">
 						아기의 예방접종 이력이에요
 					</Text>
+					<Box
+						style={{
+							display: 'flex',
+							flexDirection: 'column',
+							gap: '16px',
+						}}
+						my="16px 54px"
+					>
+						{vaccineData && vaccineData.length === 0 ? (
+							<Text>백신 기록이 없습니다</Text>
+						) : (
+							vaccineData.map((vaccine) => (
+								<Box
+									display="flex"
+									style={{
+										justifyContent: 'space-between',
+										alignItems: 'center',
+									}}
+									key={vaccine.id}
+								>
+									<Box
+										display="flex"
+										style={{
+											flexDirection: 'column',
+											gap: '8px',
+										}}
+									>
+										<Text c="#9E9E9E" fz="md" fw={500}>
+											{formatDate(
+												vaccine.vaccinationDate
+											)}
+										</Text>
+										<Text c="#000000" fz="md-lg" fw={600}>
+											{vaccine.vaccineName}
+										</Text>
+									</Box>
+									<Box display="flex" style={{ gap: '4px' }}>
+										{Array.from({
+											length: vaccine.totalRequiredDoses,
+										}).map((_, index) => (
+											<Box
+												key={`circle-${index}`}
+												w={12}
+												h={12}
+												bg={
+													index <
+													vaccine.completedDoses
+														? '#729BED'
+														: '#D9D9D9'
+												}
+												style={{ borderRadius: '50%' }}
+											/>
+										))}
+									</Box>
+								</Box>
+							))
+						)}
+					</Box>
 				</Box>
 			)}
 		</MobileLayout>
