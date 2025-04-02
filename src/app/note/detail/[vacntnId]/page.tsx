@@ -76,6 +76,7 @@ export default function VaccineDetailPage() {
 				}
 			);
 
+			console.log(response.data.data)
 			if (response.data?.data) {
 				setVaccineDetail(response.data.data);
 			}
@@ -112,7 +113,7 @@ export default function VaccineDetailPage() {
 				},
 			};
 
-			await instance.post('/vaccine/detail', body, {
+			await instance.patch('/vaccine/detail', body, {
 				headers: {
 					'Content-Type': 'application/json',
 					Authorization: `Bearer ${token}`,
