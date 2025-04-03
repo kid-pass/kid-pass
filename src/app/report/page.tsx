@@ -25,6 +25,16 @@ interface SymptomRecord {
 	memo: string | null;
 }
 
+// 필요한 타입 정의
+type CategoryRecord = {
+	id: string;
+	type: string;
+	category: string;
+	behavior?: string[];
+	startTime: string;
+	memo?: string;
+  };
+
 // 날짜별 그룹화된 기록 인터페이스
 interface GroupedRecords {
 	[date: string]: SymptomRecord[];
@@ -98,6 +108,7 @@ const App = () => {
 	const navigate = useRouter();
 	const searchParams = useSearchParams();
 	const [profile, setProfile] = useState<ChildProfile | null>(null);
+	const [categoryRecords, setCategoryRecords] = useState<CategoryRecord[]>([]);
 	const [symptoms, setSymptoms] = useState<SymptomItem[]>([]);
 	const [loading, setLoading] = useState<boolean>(true);
 	const [error, setError] = useState<string | null>(null);
@@ -111,7 +122,7 @@ const App = () => {
 
 				if (chldrnNo) {
 					const response = await instance.get<GetChldrnInfo>(
-						`child/getChildInfo?childId=${chldrnNo}`
+						`report/getChildInfo?childId=${chldrnNo}`
 					);
 
 					const childData = response.data.data;
@@ -220,10 +231,9 @@ const App = () => {
 
 				if (childId) {
 					const response = await instance.get(
-						`/vaccine/recent/?chldrnNo=${childId}`
+						`/report/recentVaccine/?chldrnNo=${childId}`
 					);
 
-					console.log(response.data.data);
 					setVaccineData(response.data.data);
 				} else {
 					setError('URL에 chldrnNo 파라미터가 없습니다.');
@@ -236,6 +246,58 @@ const App = () => {
 		fetchVaccineData();
 	}, [searchParams]);
 
+	useEffect(() => {
+		const fetchCategoryRecords = async () => {
+		  try {
+			const childId = searchParams.get('chldrnNo');
+	  
+			if (!childId) {
+			  setError('아이 정보가 없습니다.');
+			  setLoading(false);
+			  return;
+			}
+	  
+			// 오늘 날짜 구하기
+			const today = new Date();
+			const formattedToday = formatDate(today.toISOString());
+	  
+			// 첫 번째 API 호출 - 'ETC'라는 타입으로 요청
+			const response = await instance.get(
+			  `/record?childId=${childId}&type=ETC&startDate=${formattedToday}`
+			);
+	  
+			console.log('초기 응답 데이터:', response.data.data);
+	  
+			// 각 기록의 ID를 추출하여 개별 API 호출 수행
+			const recordDetails = [];
+			for (const dateKey in response.data.data) {
+			  const records = response.data.data[dateKey];
+			  
+			  // 해당 날짜의 모든 기록에 대해 반복
+			  for (const record of records) {
+				const recordId = record.id;
+				
+				// 개별 기록 조회 API 호출
+				const detailResponse = await instance.get(`/record/${recordId}?type=ETC`);
+				
+				// 상세 정보를 배열에 추가
+				recordDetails.push(detailResponse.data);
+			  }
+			}
+	  
+			console.log(recordDetails)
+
+
+		  } catch (error) {
+			console.error('카테고리 기록 조회 실패:', error);
+			setError('카테고리 기록을 불러오는 중 오류가 발생했습니다.');
+		  } finally {
+			setLoading(false);
+		  }
+		};
+	  
+		fetchCategoryRecords();
+	  }, [searchParams]);
 	const handleBack = () => navigate.back();
 
 	return (
