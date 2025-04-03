@@ -52,6 +52,7 @@ export async function POST(request: Request) {
 			medicine,
 			// 기타 관련
 			category,
+			behavior,
 			// 병원 관련
 			diagnoses,
 			hospital,
@@ -111,6 +112,7 @@ export async function POST(request: Request) {
 				medicine,
 				// 기타 관련
 				category,
+				behavior,
 				// 병원 관련
 				diagnoses,
 				hospital,
