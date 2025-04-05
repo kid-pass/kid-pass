@@ -1,104 +1,121 @@
-"use client";
+'use client';
 
-import { useRouter } from "next/navigation";
-import { hospitalRecord } from "./type/hospital";
-import MobileLayout from "../../components/mantine/MobileLayout";
-import { Paper, Flex, Text, Stack, ActionIcon, Box } from "@mantine/core";
-import { IconPlus } from "@tabler/icons-react";
-
-export interface HospitalRecord {
-  hsptlNo: string;
-  mdexmnDgnssNm: string;
-  hospital: string;
-  mdexmnRcordDt: string;
-}
+import { useRouter } from 'next/navigation';
+import { Prescription } from './type/hospital';
+import MobileLayout from '../../components/mantine/MobileLayout';
+import { Paper, Flex, Text, Stack, ActionIcon, Box } from '@mantine/core';
+import { IconPlus } from '@tabler/icons-react';
+import { useEffect, useState } from 'react';
+import useAuthStore from '@/store/useAuthStore';
+import instance from '@/utils/axios';
 
 const Hospital = () => {
-  const router = useRouter();
+	const router = useRouter();
+	const { crtChldrnNo } = useAuthStore();
+	const [prescriptions, setPrescriptions] = useState<Prescription[]>([]);
+	const [loading, setLoading] = useState(true);
+	const [error, setError] = useState<string | null>(null);
 
-  return (
-    <MobileLayout
-      showHeader={true}
-      headerType="profile"
-      title="병원 처방전"
-      showBottomNav={true}
-      currentRoute="/hospital"
-    >
-      <Stack p="md" gap="md">
-        {sampleRecords.map((record) => (
-          <Item key={record.hsptlNo} {...record} />
-        ))}
-      </Stack>
+	const getChildPrescriptions = async (childId: string) => {
+		try {
+			console.log(crtChldrnNo);
 
-      <Box pos="fixed" bottom={80} right={16} style={{ zIndex: 10 }}>
-        <ActionIcon
-          size="xl"
-          radius="xl"
-          color="blue"
-          onClick={() => router.push("/hospital/form")}
-        >
-          <IconPlus size={24} />
-        </ActionIcon>
-      </Box>
-    </MobileLayout>
-  );
+			const response = await instance.get(
+				`/child/${childId}/prescription`
+			);
+
+			console.log(response.data);
+			return response.data;
+		} catch (error) {
+			console.error('처방전 조회 오류:', error);
+			throw error;
+		}
+	};
+
+	useEffect(() => {
+		const fetchPrescriptions = async () => {
+			// crtChldrnNo가 undefined인 경우 API 요청을 하지 않음
+			if (!crtChldrnNo) {
+				setLoading(false);
+				setError('아이 정보를 찾을 수 없습니다.');
+				return;
+			}
+
+			try {
+				setLoading(true);
+				const data = await getChildPrescriptions(crtChldrnNo);
+				setPrescriptions(data);
+				setError(null);
+			} catch (err) {
+				setError('처방전을 불러오는데 실패했습니다.');
+				console.error(err);
+			} finally {
+				setLoading(false);
+			}
+		};
+
+		fetchPrescriptions();
+	}, [crtChldrnNo]);
+
+	return (
+		<MobileLayout
+			showHeader={true}
+			headerType="profile"
+			title="병원 처방전"
+			showBottomNav={true}
+			currentRoute="/hospital"
+		>
+			<Stack p="md" gap="md">
+				{prescriptions.map((record) => (
+					<Item
+						key={record.id}
+						{...record}
+						onClick={() => {
+							router.push(`/hospital/detail?id=${record.id}`);
+						}}
+					/>
+				))}
+			</Stack>
+
+			<Box pos="fixed" bottom={80} right={16} style={{ zIndex: 10 }}>
+				<ActionIcon
+					size="xl"
+					radius="xl"
+					color="blue"
+					onClick={() => router.push('/hospital/form')}
+				>
+					<IconPlus size={24} />
+				</ActionIcon>
+			</Box>
+		</MobileLayout>
+	);
 };
+const Item = (props: Prescription & { onClick?: () => void }) => {
+	// onClick과 나머지 속성 분리
+	const { onClick, ...item } = props;
 
-const Item = (item: HospitalRecord) => {
-  return (
-    <Paper withBorder p="md" radius="md" bg="white">
-      <Flex justify="space-between" align="center" mb="xs">
-        <Text fw={600} fz="md">
-          {item.mdexmnDgnssNm}
-        </Text>
-        <Text fz="md" c="dimmed">
-          {item.hospital}
-        </Text>
-      </Flex>
-      <Text fz="sm" c="gray.6">
-        {item.mdexmnRcordDt}
-      </Text>
-    </Paper>
-  );
+	return (
+		<Paper
+			withBorder
+			p="md"
+			radius="md"
+			bg="white"
+			onClick={onClick} // 여기에 onClick 이벤트 추가
+			style={{ cursor: 'pointer' }} // 클릭 가능함을 시각적으로 표시
+		>
+			<Flex justify="space-between" align="center" mb="xs">
+				<Text fw={600} fz="md">
+					{item.diagnoses}
+				</Text>
+				<Text fz="md" c="dimmed">
+					{item.hospital}
+				</Text>
+			</Flex>
+			<Text fz="sm" c="gray.6">
+				{item.date}
+			</Text>
+		</Paper>
+	);
 };
-
-const sampleRecords: hospitalRecord[] = [
-  {
-    mdexmnRcordDt: "2024.11.30",
-    hsptlNo: "H001",
-    hsptlDrctr: "김의사",
-    mdexmnMdlrt: "외용약 처방",
-    mdexmnDgnssNm: "감기",
-    mdexmnMemo: "기침과 콧물 증상으로 내원",
-    file: "file1.pdf",
-    chldrnNo: "C001",
-    drugNm: "타이레놀 시럽",
-    hospital: "서울대학교 병원",
-  },
-  {
-    mdexmnRcordDt: "2024.11.29",
-    hsptlNo: "H002",
-    hsptlDrctr: "박의사",
-    mdexmnMdlrt: "주사 치료",
-    mdexmnDgnssNm: "장염",
-    mdexmnMemo: "복통과 설사 증상",
-    file: "file2.pdf",
-    chldrnNo: "C001",
-    drugNm: "정장제",
-    hospital: "서울대학교 병원",
-  },
-  {
-    mdexmnRcordDt: "2024.11.28",
-    hsptlNo: "H003",
-    hsptlDrctr: "이의사",
-    mdexmnMdlrt: "물리치료",
-    mdexmnDgnssNm: "염좌",
-    mdexmnMemo: "발목 삠",
-    file: "file3.pdf",
-    chldrnNo: "C001",
-    drugNm: "파스",
-    hospital: "서울대학교 병원",
-  },
-];
 
 export default Hospital;

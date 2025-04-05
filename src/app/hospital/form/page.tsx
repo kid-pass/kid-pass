@@ -16,16 +16,9 @@ import { useForm } from '@mantine/form';
 import { IconCalendar, IconXboxX } from '@tabler/icons-react';
 import MobileLayout from '@/components/mantine/MobileLayout';
 import { Suspense, useRef, useState } from 'react';
-import { upload } from '@vercel/blob/client';
 import useAuth from '@/hook/useAuth';
 import useAuthStore from '@/store/useAuthStore';
 import instance from '@/utils/axios';
-
-interface Item {
-	id: string;
-	name: string;
-	[key: string]: any;
-}
 
 const diagnoses = ['감기', '코로나19', '장염', '인플루엔자', '기관지염'];
 
@@ -63,7 +56,9 @@ function HospitalFormContent() {
 	const handleSubmit = async (values: typeof form.values) => {
 		try {
 			setSubmitting(true);
+			const token = await getToken();
 
+			console.log(token);
 			// 이미지가 선택되었는지 확인
 			let imageUrl = values.prescriptionImageUrl;
 
@@ -77,6 +72,7 @@ function HospitalFormContent() {
 				const { data } = await instance.post('/image', formData, {
 					headers: {
 						'Content-Type': 'multipart/form-data', // FormData를 위한 Content-Type 설정
+						Authorization: `Bearer ${token}`,
 					},
 				});
 
@@ -96,7 +92,7 @@ function HospitalFormContent() {
 			};
 
 			// axios로 진료 기록 등록
-			await instance.post('/prescription/register', prescriptionData);
+			await instance.post('/prescription/detail', prescriptionData);
 
 			// 성공 시 페이지 이동
 			router.back();
