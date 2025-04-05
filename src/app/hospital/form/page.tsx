@@ -16,6 +16,10 @@ import { useForm } from '@mantine/form';
 import { IconCalendar, IconXboxX } from '@tabler/icons-react';
 import MobileLayout from '@/components/mantine/MobileLayout';
 import { Suspense, useRef, useState } from 'react';
+import { upload } from '@vercel/blob/client';
+import useAuth from '@/hook/useAuth';
+import useAuthStore from '@/store/useAuthStore';
+import instance from '@/utils/axios';
 
 interface Item {
 	id: string;
@@ -28,10 +32,14 @@ const diagnoses = ['감기', '코로나19', '장염', '인플루엔자', '기관
 const medicines = ['타이레놀', '써스펜', '판콜에이', '베타딘', '게보린'];
 
 function HospitalFormContent() {
+	const { getToken } = useAuth();
+	const { crtChldrnNo } = useAuthStore();
 	const router = useRouter();
 	const searchParams = useSearchParams();
 	const id = searchParams.get('id');
 	const fileInputRef = useRef<HTMLInputElement>(null);
+	const [selectedFile, setSelectedFile] = useState<File | null>(null);
+	const [submitting, setSubmitting] = useState(false);
 	const [prescriptionImage, setPrescriptionImage] = useState<string | null>(
 		null
 	);
@@ -51,26 +59,65 @@ function HospitalFormContent() {
 		},
 	});
 
-	const handleSubmit = (values: typeof form.values) => {
-		// 저장 로직 구현
-		console.log(values);
-		// 예: API 호출, 상태 업데이트 등
-		router.back();
-	};
+	// 제출 함수 수정
+	const handleSubmit = async (values: typeof form.values) => {
+		try {
+			setSubmitting(true);
 
+			// 이미지가 선택되었는지 확인
+			let imageUrl = values.prescriptionImageUrl;
+
+			// 새 이미지가 선택되었으면 업로드
+			if (selectedFile) {
+				// FormData 생성
+				const formData = new FormData();
+				formData.append('file', selectedFile);
+
+				// axios로 이미지 업로드
+				const { data } = await instance.post('/image', formData, {
+					headers: {
+						'Content-Type': 'multipart/form-data', // FormData를 위한 Content-Type 설정
+					},
+				});
+
+				imageUrl = data.url;
+			}
+
+			// 제출할 데이터 준비
+			const prescriptionData = {
+				childId: crtChldrnNo,
+				date: values.date?.toISOString(),
+				hospital: values.hospital,
+				doctor: values.doctor,
+				diagnoses: values.diagnoses,
+				treatmentMethod: values.treatmentMethod,
+				medicines: values.medicines,
+				prescriptionImageUrl: imageUrl,
+			};
+
+			// axios로 진료 기록 등록
+			await instance.post('/prescription/register', prescriptionData);
+
+			// 성공 시 페이지 이동
+			router.back();
+		} catch (error) {
+			console.error('진료 기록 저장 오류:', error);
+			// 에러 처리 로직
+		} finally {
+			setSubmitting(false);
+		}
+	};
+	// 이미지 업로드 함수 수정
 	const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
 		const file = event.target.files?.[0];
-		if (file) {
-			// 파일 미리보기 URL 생성
-			const imageUrl = URL.createObjectURL(file);
-			setPrescriptionImage(imageUrl);
+		if (!file) return;
 
-			// form 상태에 이미지 URL 저장
-			form.setFieldValue('prescriptionImageUrl', imageUrl);
+		// 파일 객체를 상태로 저장
+		setSelectedFile(file);
 
-			// 이미지 업로드 후에는 약 선택 필드를 비활성화하거나 숨길 수 있음
-			// 실제 서버에 업로드할 때는 FormData를 사용해야 합니다
-		}
+		// 로컬 미리보기용 URL 생성
+		const localPreviewUrl = URL.createObjectURL(file);
+		setPrescriptionImage(localPreviewUrl);
 	};
 
 	return (
