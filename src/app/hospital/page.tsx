@@ -3,11 +3,12 @@
 import { useRouter } from 'next/navigation';
 import { Prescription } from './type/hospital';
 import MobileLayout from '../../components/mantine/MobileLayout';
-import { Paper, Flex, Text, Stack, ActionIcon, Box } from '@mantine/core';
+import { Stack, ActionIcon, Box } from '@mantine/core';
 import { IconPlus } from '@tabler/icons-react';
 import { useEffect, useState } from 'react';
 import useAuthStore from '@/store/useAuthStore';
 import instance from '@/utils/axios';
+import PrescritionItem from './PrescriptionItem';
 
 const Hospital = () => {
 	const router = useRouter();
@@ -67,7 +68,7 @@ const Hospital = () => {
 		>
 			<Stack p="md" gap="md">
 				{prescriptions.map((record) => (
-					<Item
+					<PrescritionItem
 						key={record.id}
 						{...record}
 						onClick={() => {
@@ -88,33 +89,6 @@ const Hospital = () => {
 				</ActionIcon>
 			</Box>
 		</MobileLayout>
-	);
-};
-const Item = (props: Prescription & { onClick?: () => void }) => {
-	// onClick과 나머지 속성 분리
-	const { onClick, ...item } = props;
-
-	return (
-		<Paper
-			withBorder
-			p="md"
-			radius="md"
-			bg="white"
-			onClick={onClick} // 여기에 onClick 이벤트 추가
-			style={{ cursor: 'pointer' }} // 클릭 가능함을 시각적으로 표시
-		>
-			<Flex justify="space-between" align="center" mb="xs">
-				<Text fw={600} fz="md">
-					{item.diagnoses}
-				</Text>
-				<Text fz="md" c="dimmed">
-					{item.hospital}
-				</Text>
-			</Flex>
-			<Text fz="sm" c="gray.6">
-				{item.date}
-			</Text>
-		</Paper>
 	);
 };
 

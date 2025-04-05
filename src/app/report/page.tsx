@@ -7,6 +7,8 @@ import { Box, Flex, Image, Stack, Text } from '@mantine/core';
 import { useRouter } from 'next/navigation';
 import { useSearchParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
+import { Prescription } from '../hospital/type/hospital';
+import PrescritionItem from '../hospital/PrescriptionItem';
 
 // 증상 타입 정의
 interface SymptomItem {
@@ -105,6 +107,7 @@ const App = () => {
 	const [profile, setProfile] = useState<ChildProfile | null>(null);
 	const [categoryRecords, setCategoryRecords] = useState<CategoryItem[]>([]);
 	const [symptoms, setSymptoms] = useState<SymptomItem[]>([]);
+	const [prescriptions, setPrescriptions] = useState<Prescription[]>([]);
 	const [loading, setLoading] = useState<boolean>(true);
 	const [error, setError] = useState<string | null>(null);
 	const [vaccineData, setVaccineData] = useState<VaccinationRecord[]>([]);
@@ -216,6 +219,40 @@ const App = () => {
 		};
 
 		fetchSymptoms();
+	}, [searchParams]);
+
+	useEffect(() => {
+		const fetchPrescriptionData = async () => {
+			try {
+				const chldrnNo = searchParams.get('chldrnNo');
+
+				if (chldrnNo) {
+					// 최근 3일치 처방전 데이터 요청
+					const response = await fetch(
+						`/api/child/${chldrnNo}/prescription/recent`
+					);
+
+					if (!response.ok) {
+						throw new Error(
+							'처방전 데이터를 불러오는 데 실패했습니다.'
+						);
+					}
+
+					const data = await response.json();
+
+					console.log(data);
+					// 받아온 데이터를 상태에 저장 (처방전 데이터 상태가 필요합니다)
+					setPrescriptions(data);
+				} else {
+					setError('URL에 chldrnNo 파라미터가 없습니다.');
+				}
+			} catch (error) {
+				console.error('처방전 정보 불러오기 실패:', error);
+				setError('처방전 정보를 불러오는 데 실패했습니다.');
+			}
+		};
+
+		fetchPrescriptionData();
 	}, [searchParams]);
 
 	// 백신 접종 정보를 가져오는 useEffect
@@ -390,6 +427,16 @@ const App = () => {
 							))}
 						</Box>
 					)}
+
+					<Text fw={700} fz="lg">
+						최근 아기가 처방받은 기록이에요
+					</Text>
+					<Stack my="16px 54px" gap="md">
+						{prescriptions.map((record) => (
+							<PrescritionItem key={record.id} {...record} />
+						))}
+					</Stack>
+
 					<Text fw={700} fz="lg">
 						아기의 예방접종 이력이에요
 					</Text>
