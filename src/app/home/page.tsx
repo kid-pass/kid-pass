@@ -17,6 +17,7 @@ import {
 	Flex,
 	Container,
 	useMantineTheme,
+	Box,
 } from '@mantine/core';
 import { IconPlus } from '@tabler/icons-react';
 import useAuthStore from '@/store/useAuthStore';
@@ -255,16 +256,16 @@ const App: React.FC = () => {
 	const currentKid = kidsData[currentKidIndex];
 
 	return (
-		<MobileLayout
-			showHeader={true}
-			headerType="profile"
-			title="홈"
-			showBottomNav={true}
-			currentRoute="/"
-		>
-			<Container>
-				<Group justify="space-between" align="center" w="100%" mb="md">
-					<Text size="xl" ff="HakgyoansimWoojuR" c="#222222">
+		<>
+			<Box mt="24">
+				<Group
+					justify="space-between"
+					align="center"
+					w="100%"
+					mb="md"
+					px="16"
+				>
+					<Text size="xl" className="hakgyo-font" c="#222222">
 						오늘의아이
 					</Text>
 					<Image
@@ -276,104 +277,124 @@ const App: React.FC = () => {
 					profiles={kidsData}
 					onSlideChange={setCurrentKidIndex}
 				/>
-				<Group
-					bg={theme.colors.brand[7]}
-					p="lg"
-					align="center"
-					pos="relative"
-					style={{ borderRadius: '8px' }}
-				>
-					<IconPlus color="#FFFFFF" size={12} strokeWidth={4} />
-					<Text c="white" fw={700} fz="md">
-						오늘의 아이 증상 기록하기
-					</Text>
-
-					<Image
-						src="/record.png"
-						alt=""
-						pos="absolute"
-						right={10}
-						w={80}
-						h={80}
-					/>
-				</Group>
-
-				<Group gap="xs" align="center" mt="md">
-					<Flex
-						component={Link}
-						href="/map"
-						p="md"
-						bg="white"
-						justify="space-between"
+				<Box px="16">
+					<Group
+						bg={theme.colors.brand[7]}
+						px="16"
+						h={70}
 						align="center"
-						flex={1}
-						styles={{
-							root: {
-								border: '1px solid #d5d5d5',
-								borderRadius: '8px',
-								flex: '1',
-								textDecoration: 'none',
-							},
-						}}
+						pos="relative"
+						style={{ borderRadius: '8px' }}
+						gap={4}
 					>
-						<Stack justify="center" gap={0}>
-							<Text fw={700} fz="md" c="#222222">
-								지금 문 연
-							</Text>
-							<Text fw={700} fz="md" c="#222222">
-								병원/약국
-							</Text>
-						</Stack>
-						<Image
-							src="https://heidimoon.cafe24.com/renwal/test2/Group.png"
-							alt="병원/약국"
-							width={36}
-							height={36}
-						/>
-					</Flex>
+						<IconPlus color="#FFFFFF" size={12} strokeWidth={4} />
+						<Text
+							c="white"
+							fw={700}
+							fz="md"
+							onClick={() => {
+								router.push('/record');
+							}}
+						>
+							오늘의 아이 증상 기록하기
+						</Text>
 
-					<Flex
-						component={Link}
-						href="/map"
-						p="md"
-						bg="white"
-						justify="space-between"
-						align="center"
-						styles={{
-							root: {
-								border: '1px solid #d5d5d5',
-								borderRadius: '8px',
-								flex: '1',
-								textDecoration: 'none',
-							},
-						}}
-					>
-						<Stack justify="center" gap={0}>
-							<Text fw={700} fz="md" c="#222222">
-								진료받은
-							</Text>
-							<Text fw={700} fz="md" c="#222222">
-								기록
-							</Text>
-						</Stack>
 						<Image
-							src="https://heidimoon.cafe24.com/renwal/test2/OBJECTS.png"
-							alt="기록"
-							width={36}
-							height={36}
+							src="/record.png"
+							alt=""
+							pos="absolute"
+							right={0}
+							bottom={'-0.5rem'}
+							w={92}
+							h={92}
 						/>
-					</Flex>
-				</Group>
-				{currentKid && (
-					<MetricsSection
-						labelText={`오늘의 ${currentKid.profile.chldrnNm} 기록이에요`}
-						metricsData={currentKid.metrics}
-					/>
-				)}
-			</Container>
+					</Group>
+
+					<Group gap="xs" align="center" mt="md">
+						<Flex
+							component={Link}
+							href="/map"
+							p="md"
+							bg="white"
+							justify="space-between"
+							align="center"
+							flex={1}
+							styles={{
+								root: {
+									border: '1px solid #d5d5d5',
+									borderRadius: '8px',
+									flex: '1',
+									textDecoration: 'none',
+								},
+							}}
+						>
+							<Stack justify="center" gap={0}>
+								<Text fw={700} fz="md" c="#222222">
+									약국 재고
+								</Text>
+								<Text fw={700} fz="md" c="#222222">
+									조회
+								</Text>
+							</Stack>
+							<Image
+								src="/pharmacy.png"
+								alt="약국 재고 조회"
+								width={36}
+								height={36}
+							/>
+						</Flex>
+
+						<Flex
+							component={Link}
+							href="/map"
+							p="md"
+							bg="white"
+							justify="space-between"
+							align="center"
+							styles={{
+								root: {
+									border: '1px solid #d5d5d5',
+									borderRadius: '8px',
+									flex: '1',
+									textDecoration: 'none',
+								},
+							}}
+						>
+							<Stack justify="center" gap={0}>
+								<Text fw={700} fz="md" c="#222222">
+									진료받은
+								</Text>
+								<Text fw={700} fz="md" c="#222222">
+									기록
+								</Text>
+							</Stack>
+							<Box display="flex" style={{ gap: 2 }}>
+								<Image
+									src="/medicalRecord_left.png"
+									alt="기록"
+									width={36}
+									height={36}
+								/>
+								<Image
+									src="/medicalRecord_right.png"
+									alt="기록"
+									width={36}
+									height={36}
+								/>
+							</Box>
+						</Flex>
+					</Group>
+					{currentKid && (
+						<MetricsSection
+							labelText={`오늘의 ${currentKid.profile.chldrnNm} 기록이에요`}
+							metricsData={currentKid.metrics}
+						/>
+					)}
+				</Box>
+			</Box>
 
 			<BottomNavigation />
-		</MobileLayout>
+		</>
 	);
 };
 

@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import { Carousel } from '@mantine/carousel';
-import { Box, Flex, Text, Image, Stack, Group } from '@mantine/core';
+import { Box, Flex, Text, Image, Stack, Group, Divider } from '@mantine/core';
 import { KidRecord } from './page';
 import ProfileMetrics from '@/components/metrics/ProfileMetrics';
 import { IconChevronRight } from '@tabler/icons-react';
@@ -45,11 +45,12 @@ const ProfileCarousel: React.FC<ProfileCarouselProps> = ({
 				container: {
 					display: 'flex',
 					width: '100%',
-					gap: '8px', // 슬라이드 간겨
+					gap: '16px', // 슬라이드 간격
+					paddingLeft: '16px',
 				},
 				slide: {
 					flex: '0 0 auto',
-					width: profiles.length > 1 ? 'calc(95% - 8px)' : '100%',
+					width: profiles.length > 1 ? 'calc(95% - 12px)' : '100%',
 				},
 			}}
 		>
@@ -68,7 +69,7 @@ const ProfileCarousel: React.FC<ProfileCarouselProps> = ({
 							mb="xl"
 						>
 							<Flex justify="space-between" mb="md">
-								<Stack gap="md">
+								<Stack gap={18}>
 									<ProfileMetrics
 										label={`${profile.chldrnBrthdy?.substring(
 											0,
@@ -82,7 +83,7 @@ const ProfileCarousel: React.FC<ProfileCarouselProps> = ({
 									/>
 								</Stack>
 
-								<Stack gap={8}>
+								<Stack gap={0}>
 									<Group align="center" gap={0}>
 										<Text
 											fz="sm"
@@ -116,9 +117,19 @@ const ProfileCarousel: React.FC<ProfileCarouselProps> = ({
 									label="몸무게"
 									value={`${physicalStats.chldrnBdwgh}kg`}
 								/>
+								<Divider
+									size="xs"
+									color="#FFFFFF"
+									orientation="vertical"
+								/>
 								<ProfileMetrics
 									label="키"
 									value={`${physicalStats.chldrnHeight}cm`}
+								/>
+								<Divider
+									size="xs"
+									color="#FFFFFF"
+									orientation="vertical"
 								/>
 								<ProfileMetrics
 									label="머리 둘레"

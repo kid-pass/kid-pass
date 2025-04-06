@@ -7,6 +7,7 @@ import '@mantine/core/styles.css';
 import '@mantine/notifications/styles.css';
 import '@mantine/dates/styles.css';
 import '@mantine/charts/styles.css';
+import '../styles/global.css';
 
 const geistSans = localFont({
 	src: [
@@ -70,6 +71,14 @@ const theme = createTheme({
 		xl: '1.5rem', // 24px
 	},
 	components: {
+		Text: {
+			styles: {
+				root: {
+					// Text 컴포넌트의 기본 line-height 재정의
+					lineHeight: '1',
+				},
+			},
+		},
 		Button: {
 			defaultProps: {
 				size: 'md', // 모바일에서 더 큰 터치 영역
