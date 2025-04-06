@@ -6,6 +6,7 @@ import instance from '@/utils/axios';
 import { Box, Flex, Image, Stack, Text } from '@mantine/core';
 import { useRouter } from 'next/navigation';
 import { useSearchParams } from 'next/navigation';
+import { Suspense } from 'react';
 import { useEffect, useState } from 'react';
 import { Prescription } from '../hospital/type/hospital';
 import PrescritionItem from '../hospital/PrescriptionItem';
@@ -101,7 +102,7 @@ const formatDate = (dateString: string): string => {
 	return `${year}-${month}-${day}`;
 };
 
-const App = () => {
+const ReportContent = () => {
 	const navigate = useRouter();
 	const searchParams = useSearchParams();
 	const [profile, setProfile] = useState<ChildProfile | null>(null);
@@ -146,8 +147,7 @@ const App = () => {
 		};
 
 		fetchData();
-	}, [searchParams]); // searchParams가 변경될 때마다 재실행
-
+	}, [searchParams]);
 	useEffect(() => {
 		const fetchSymptoms = async () => {
 			try {
@@ -343,13 +343,7 @@ const App = () => {
 	const handleBack = () => navigate.back();
 
 	return (
-		<MobileLayout
-			showHeader={true}
-			headerType="back"
-			title="리포트 상세보기"
-			showBottomNav={true}
-			onBack={handleBack}
-		>
+		<Box px={16}>
 			{loading ? (
 				<Text mt="xl">데이터 로딩 중...</Text>
 			) : (
@@ -527,6 +521,25 @@ const App = () => {
 					)}
 				</Box>
 			)}
+		</Box>
+	);
+};
+
+const App = () => {
+	const navigate = useRouter();
+	const handleBack = () => navigate.back();
+
+	return (
+		<MobileLayout
+			showHeader={true}
+			headerType="back"
+			title="리포트 상세보기"
+			showBottomNav={true}
+			onBack={handleBack}
+		>
+			<Suspense fallback={<Text mt="xl">데이터 로딩 중...</Text>}>
+				<ReportContent />
+			</Suspense>
 		</MobileLayout>
 	);
 };

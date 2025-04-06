@@ -4,15 +4,7 @@ import { useEffect, useState } from 'react';
 import { useSearchParams } from 'next/navigation';
 import MobileLayout from '@/components/mantine/MobileLayout';
 import instance from '@/utils/axios';
-import {
-	Paper,
-	Text,
-	Flex,
-	Divider,
-	Skeleton,
-	Alert,
-	Box,
-} from '@mantine/core';
+import { Paper, Text, Alert, Box } from '@mantine/core';
 import Metrics from './Metrics';
 
 // 처방전 상세 정보 타입
@@ -31,7 +23,7 @@ interface PrescriptionDetail {
 	updatedAt: string;
 }
 
-const PrescriptionDetailPage = () => {
+const App = () => {
 	const searchParams = useSearchParams();
 	const prescriptionId = searchParams.get('id');
 
@@ -53,7 +45,7 @@ const PrescriptionDetailPage = () => {
 			try {
 				// 처방전 상세 정보를 가져오는 API 호출
 				const response = await instance.get(
-					`/prescription/${prescriptionId}`
+					`/prescription/detail/${prescriptionId}`
 				);
 				console.log('처방전 상세 정보:', response.data);
 
@@ -152,4 +144,4 @@ const PrescriptionDetailPage = () => {
 	);
 };
 
-export default PrescriptionDetailPage;
+export default App;

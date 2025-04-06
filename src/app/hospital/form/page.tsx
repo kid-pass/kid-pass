@@ -92,7 +92,7 @@ function HospitalFormContent() {
 			};
 
 			// axios로 진료 기록 등록
-			await instance.post('/prescription/detail', prescriptionData);
+			await instance.post('/prescription', prescriptionData);
 
 			// 성공 시 페이지 이동
 			router.back();
