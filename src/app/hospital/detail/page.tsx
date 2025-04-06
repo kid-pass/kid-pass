@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { Suspense, useEffect, useState } from 'react';
 import { useSearchParams } from 'next/navigation';
 import MobileLayout from '@/components/mantine/MobileLayout';
 import instance from '@/utils/axios';
@@ -23,7 +23,7 @@ interface PrescriptionDetail {
 	updatedAt: string;
 }
 
-const App = () => {
+const PrescriptionDetailContent = () => {
 	const searchParams = useSearchParams();
 	const prescriptionId = searchParams.get('id');
 
@@ -141,6 +141,14 @@ const App = () => {
 				</div>
 			)}
 		</MobileLayout>
+	);
+};
+
+const App = () => {
+	return (
+		<Suspense fallback={<div>로딩중입니다...</div>}>
+			<PrescriptionDetailContent />
+		</Suspense>
 	);
 };
 
