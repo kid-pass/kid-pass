@@ -55,8 +55,6 @@ const ProfileCarousel: React.FC<ProfileCarouselProps> = ({
 		>
 			{profiles.map((kidRecord) => {
 				const { profile } = kidRecord;
-
-				console.log(profile);
 				const [physicalStats] = profile.chldrnInfoList;
 
 				return (

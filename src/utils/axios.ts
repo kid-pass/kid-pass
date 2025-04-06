@@ -27,20 +27,4 @@ instance.interceptors.request.use(
 	}
 );
 
-// 응답 인터셉터
-// instance.interceptors.response.use(
-//   (response) => {
-//     // 응답 데이터 가공
-//     return response;
-//   },
-//   (error) => {
-//     // 에러 처리
-//     if (error.response.status === 401) {
-//       // 인증 에러 처리
-//       localStorage.removeItem('token');
-//     }
-//     return Promise.reject(error);
-//   }
-// );
-
 export default instance;
