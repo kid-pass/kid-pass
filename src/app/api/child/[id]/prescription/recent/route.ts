@@ -10,7 +10,8 @@ export async function GET(
 	{ params }: { params: { id: string } }
 ) {
 	try {
-		const childId = params.id;
+		const { id } = params;
+		const childId = id;
 
 		// 3일 전 날짜 계산
 		const threeDaysAgo = new Date();
