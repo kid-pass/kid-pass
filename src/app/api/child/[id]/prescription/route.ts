@@ -9,7 +9,8 @@ export async function GET(
 	{ params }: { params: { id: string } }
 ) {
 	try {
-		const childId = params.id;
+		const { id } = params;
+		const childId = id;
 
 		// 해당 childId에 연결된 모든 처방전 조회
 		const prescriptions = await prisma.prescription.findMany({
