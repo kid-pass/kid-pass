@@ -3,15 +3,16 @@ import { PrismaClient } from '@prisma/client';
 
 const prisma = new PrismaClient();
 
-// GET 요청 처리 - childId로 처방전 조회
-export async function GET(
-	request: NextRequest,
-	{ params }: { params: { id: string } }
-) {
-	try {
-		const { id } = params;
-		const childId = id;
+type Props = {
+	params: Promise<{
+		id: string;
+	}>;
+};
 
+export async function GET(request: NextRequest, { params }: Props) {
+	try {
+		const { id } = await params;
+		const childId = id;
 		// 해당 childId에 연결된 모든 처방전 조회
 		const prescriptions = await prisma.prescription.findMany({
 			where: {
