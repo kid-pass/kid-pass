@@ -45,12 +45,12 @@ const App = () => {
 			try {
 				// 처방전 상세 정보를 가져오는 API 호출
 				const response = await instance.get(
-					`/prescription/detail/${prescriptionId}`
+					`/prescription/${prescriptionId}`
 				);
 				console.log('처방전 상세 정보:', response.data);
 
 				if (response.data) {
-					setPrescription(response.data);
+					setPrescription(response.data.data);
 				} else {
 					setError('처방전 정보를 찾을 수 없습니다.');
 				}
