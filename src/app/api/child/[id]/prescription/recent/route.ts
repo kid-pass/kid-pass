@@ -4,13 +4,15 @@ import { PrismaClient } from '@prisma/client';
 
 const prisma = new PrismaClient();
 
-// GET 요청 처리 - childId로 최근 3일치 처방전 조회
-export async function GET(
-	request: NextRequest,
-	{ params }: { params: { id: string } }
-) {
+type Props = {
+	params: Promise<{
+		id: string;
+	}>;
+};
+
+export async function GET(request: NextRequest, { params }: Props) {
 	try {
-		const { id } = params;
+		const { id } = await params;
 		const childId = id;
 
 		// 3일 전 날짜 계산
