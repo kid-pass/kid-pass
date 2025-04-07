@@ -26,7 +26,7 @@ const ProfileCarousel: React.FC<ProfileCarouselProps> = ({
 
 	return (
 		<Carousel
-			slideSize="100%"
+			slideSize="calc(100% - 32px)" // 간격을 고려한 슬라이드 크기 조정
 			slidesToScroll={1}
 			dragFree={false}
 			containScroll="keepSnaps"
@@ -36,21 +36,20 @@ const ProfileCarousel: React.FC<ProfileCarouselProps> = ({
 			withControls={false}
 			styles={{
 				root: {
-					width: '95%',
+					width: '97%',
 				},
 				viewport: {
-					overflow: 'hidden',
 					width: '100%',
 				},
 				container: {
 					display: 'flex',
 					width: '100%',
-					gap: '16px', // 슬라이드 간격
+					gap: '16px',
 					padding: '0 16px',
 				},
 				slide: {
 					flex: '0 0 auto',
-					width: profiles.length > 1 ? 'calc(100% - 16px)' : '100%',
+					width: '100%', // 단순화된 너비 설정
 				},
 			}}
 		>
