@@ -347,18 +347,18 @@ const App: React.FC = () => {
 							href="/map"
 							p="16"
 							bg="white"
-							justify="space-between"
 							align="center"
 							styles={{
 								root: {
 									border: '1px solid #d5d5d5',
 									borderRadius: '8px',
-									flex: '1',
 									textDecoration: 'none',
+									justifyContent: 'space-between',
+									flex: '1',
 								},
 							}}
 						>
-							<Stack justify="center" gap={0}>
+							<Stack justify="center" gap={0} w={100}>
 								<Text fw={700} fz="md" c="#222222">
 									진료받은
 								</Text>
@@ -370,6 +370,7 @@ const App: React.FC = () => {
 								display="flex"
 								style={{
 									gap: 2,
+									justifyContent: 'flex-end',
 								}}
 							>
 								<Image
