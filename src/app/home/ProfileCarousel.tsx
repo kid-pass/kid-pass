@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import { Carousel } from '@mantine/carousel';
 import { Box, Flex, Text, Image, Stack, Group, Divider } from '@mantine/core';
 import { KidRecord } from './page';
@@ -26,7 +26,7 @@ const ProfileCarousel: React.FC<ProfileCarouselProps> = ({
 
 	return (
 		<Carousel
-			slideSize="95%"
+			slideSize="100%"
 			slidesToScroll={1}
 			dragFree={false}
 			containScroll="keepSnaps"
@@ -36,7 +36,7 @@ const ProfileCarousel: React.FC<ProfileCarouselProps> = ({
 			withControls={false}
 			styles={{
 				root: {
-					width: '100%',
+					width: '95%',
 				},
 				viewport: {
 					overflow: 'hidden',
@@ -46,11 +46,11 @@ const ProfileCarousel: React.FC<ProfileCarouselProps> = ({
 					display: 'flex',
 					width: '100%',
 					gap: '16px', // 슬라이드 간격
-					paddingLeft: '16px',
+					padding: '0 16px',
 				},
 				slide: {
 					flex: '0 0 auto',
-					width: profiles.length > 1 ? 'calc(95% - 12px)' : '100%',
+					width: profiles.length > 1 ? 'calc(100% - 16px)' : '100%',
 				},
 			}}
 		>
@@ -65,7 +65,7 @@ const ProfileCarousel: React.FC<ProfileCarouselProps> = ({
 								borderRadius: '8px',
 							}}
 							bg="brand.0"
-							p="md"
+							p="16 24"
 							mb="xl"
 						>
 							<Flex justify="space-between" mb="md">
@@ -93,7 +93,7 @@ const ProfileCarousel: React.FC<ProfileCarouselProps> = ({
 												handleReport(profile.chldrnNo)
 											}
 										>
-											리포트 업데이트
+											리포트 상세보기
 										</Text>
 										<IconChevronRight
 											size={24}

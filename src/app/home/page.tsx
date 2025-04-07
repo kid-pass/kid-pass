@@ -8,14 +8,12 @@ import useAuth from '@/hook/useAuth';
 import { useRouter } from 'next/navigation';
 import BottomNavigation from '@/components/bottomNavigation/BottomNavigation';
 import useChldrnListStore from '@/store/useChldrnListStore';
-import MobileLayout from '@/components/mantine/MobileLayout';
 import {
 	Group,
 	Text,
 	Image,
 	Stack,
 	Flex,
-	Container,
 	useMantineTheme,
 	Box,
 } from '@mantine/core';
@@ -347,7 +345,7 @@ const App: React.FC = () => {
 						<Flex
 							component={Link}
 							href="/map"
-							p="md"
+							p="16"
 							bg="white"
 							justify="space-between"
 							align="center"
@@ -368,7 +366,12 @@ const App: React.FC = () => {
 									기록
 								</Text>
 							</Stack>
-							<Box display="flex" style={{ gap: 2 }}>
+							<Box
+								display="flex"
+								style={{
+									gap: 2,
+								}}
+							>
 								<Image
 									src="/medicalRecord_left.png"
 									alt="기록"
@@ -380,6 +383,7 @@ const App: React.FC = () => {
 									alt="기록"
 									width={36}
 									height={36}
+									visibleFrom="xss"
 								/>
 							</Box>
 						</Flex>
