@@ -168,19 +168,28 @@ const App: React.FC = () => {
   const [currentKidIndex, setCurrentKidIndex] = useState(0);
   const { setChldrnList, setCurrentKid } = useChldrnListStore();
   const { getToken } = useAuth();
-  const { setCrtChldrnNo } = useAuthStore();
+  const { setCrtChldrnNo, token } = useAuthStore();
 
   useEffect(() => {
-    fetchChildrenData();
-  }, []);
+    // 토큰이 이미 있으면 바로 데이터 가져오기
+    if (token) {
+      fetchChildrenData();
+    }
+
+    // 토큰이 설정되면 데이터 가져오기
+    const handleTokenSet = (event: CustomEvent) => {
+      fetchChildrenData();
+    };
+
+    window.addEventListener("tokenSet", handleTokenSet as EventListener);
+
+    return () => {
+      window.removeEventListener("tokenSet", handleTokenSet as EventListener);
+    };
+  }, [token]);
 
   const fetchChildrenData = async () => {
     const token = await getToken();
-
-    if (!token) {
-      router.push("auth/login");
-      return;
-    }
 
     try {
       const response = await fetch("/api/child/getChildren", {

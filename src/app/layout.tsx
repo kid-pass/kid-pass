@@ -3,11 +3,11 @@ import localFont from "next/font/local";
 import { MantineProvider, createTheme } from "@mantine/core";
 import { ModalsProvider } from "@mantine/modals";
 import { Notifications } from "@mantine/notifications";
-import FlutterTokenHandler from "@/components/FlutterTokenHandler";
 import "@mantine/core/styles.css";
 import "@mantine/notifications/styles.css";
 import "@mantine/dates/styles.css";
 import "@mantine/charts/styles.css";
+import RNTokenHandler from "@/components/RNTokenHandler";
 
 const geistSans = localFont({
   src: [
@@ -158,7 +158,7 @@ export default function RootLayout({
         <MantineProvider theme={theme}>
           <ModalsProvider>
             <Notifications />
-            <FlutterTokenHandler />
+            <RNTokenHandler />
             {children}
           </ModalsProvider>
         </MantineProvider>

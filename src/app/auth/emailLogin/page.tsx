@@ -14,12 +14,12 @@ import {
   AppShell,
 } from "@mantine/core";
 import { IconEye, IconEyeOff } from "@tabler/icons-react";
-import useAuthStore from "@/store/useAuthStore";
+import { useAuthStore } from "@/store/useAuthStore";
 import MobileLayout from "@/components/mantine/MobileLayout";
 
 const LoginPage = () => {
   const router = useRouter();
-  const { setAccessToken, setRefreshToken } = useAuthStore();
+  const { setToken, setRefreshToken } = useAuthStore();
 
   const [userId, setUserId] = useState("");
   const [password, setPassword] = useState("");
@@ -41,12 +41,16 @@ const LoginPage = () => {
       const data = await response.json();
 
       if (response.ok) {
-        setAccessToken(data.data.accessToken);
-        setRefreshToken(data.data.refreshToken);
-        document.cookie = `refreshToken=${
-          data.data.refreshToken
-        }; path=/; max-age=${7 * 24 * 60 * 60}; secure`;
-        router.push("/home");
+        // React Native 웹뷰로 토큰 전송
+        if (window.ReactNativeWebView) {
+          window.ReactNativeWebView.postMessage(
+            JSON.stringify({
+              type: "token",
+              token: data.data.accessToken,
+              refreshToken: data.data.refreshToken,
+            })
+          );
+        }
       } else {
         alert(data.message);
       }
