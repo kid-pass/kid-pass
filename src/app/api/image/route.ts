@@ -19,6 +19,8 @@ export async function POST(request: Request) {
 		// FormData 추출
 		const formData = await request.formData();
 		const file = formData.get('file') as File;
+		// 파일명 접두사 추출 (기본값은 'prescription'으로 설정)
+		const filePrefix = (formData.get('filePrefix') as string) || 'Image';
 
 		if (!file) {
 			return NextResponse.json(
@@ -27,9 +29,9 @@ export async function POST(request: Request) {
 			);
 		}
 
-		// 파일명 생성
+		// 파일명 생성 - filePrefix를 사용
 		const timestamp = new Date().getTime();
-		const filename = `prescription_${timestamp}_${file.name.replace(
+		const filename = `${filePrefix}_${timestamp}_${file.name.replace(
 			/\s+/g,
 			'_'
 		)}`;

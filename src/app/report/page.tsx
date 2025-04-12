@@ -548,6 +548,20 @@ const App = () => {
 						</Box>
 					</Box>
 				)}
+
+				<Box
+					mt="48px"
+					display="flex"
+					w="100%"
+					style={{ justifyContent: 'space-around' }}
+				>
+					<Text c="#000000" fw={600} fz="md-lg">
+						수정하기
+					</Text>
+					<Text c="#000000" fw={600} fz="md-lg">
+						발행하기
+					</Text>
+				</Box>
 			</Box>
 		</MobileLayout>
 	);

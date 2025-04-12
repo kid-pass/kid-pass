@@ -1,7 +1,7 @@
 'use client';
 
 import { Suspense, useEffect, useState } from 'react';
-import { useSearchParams } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import MobileLayout from '@/components/mantine/MobileLayout';
 import instance from '@/utils/axios';
 import { Paper, Text, Alert, Box } from '@mantine/core';
@@ -26,7 +26,7 @@ interface PrescriptionDetail {
 const PrescriptionDetailContent = () => {
 	const searchParams = useSearchParams();
 	const prescriptionId = searchParams.get('id');
-
+	const router = useRouter();
 	const [prescription, setPrescription] = useState<PrescriptionDetail | null>(
 		null
 	);
@@ -87,8 +87,11 @@ const PrescriptionDetailContent = () => {
 		}
 	};
 
+	const handleBack = () => router.back();
+
 	return (
 		<MobileLayout
+			onBack={handleBack}
 			showHeader={true}
 			headerType="back"
 			title="진료기록 상세"

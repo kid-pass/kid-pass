@@ -67,6 +67,7 @@ function HospitalFormContent() {
 				// FormData 생성
 				const formData = new FormData();
 				formData.append('file', selectedFile);
+				formData.append('filePrefix', 'prescription');
 
 				// axios로 이미지 업로드
 				const { data } = await instance.post('/image', formData, {
