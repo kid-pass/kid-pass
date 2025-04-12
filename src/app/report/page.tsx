@@ -9,6 +9,7 @@ import { useSearchParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { Prescription } from '../hospital/type/hospital';
 import PrescritionItem from '../hospital/PrescriptionItem';
+import ActionTab from './ActionTab';
 
 // 증상 타입 정의
 interface SymptomItem {
@@ -112,6 +113,11 @@ const App = () => {
 	const [loading, setLoading] = useState<boolean>(true);
 	const [error, setError] = useState<string | null>(null);
 	const [vaccineData, setVaccineData] = useState<VaccinationRecord[]>([]);
+	const [isEditing, setIsEditing] = useState(false);
+
+	const handleEditingChange = (editing: boolean) => {
+		setIsEditing(editing);
+	};
 
 	const fetchProfileData = async () => {
 		try {
@@ -431,6 +437,15 @@ const App = () => {
 									))
 								)}
 							</Stack>
+							{isEditing && (
+								<Text
+									c="#729BED"
+									fw={500}
+									style={{ cursor: 'pointer' }}
+								>
+									추가하기
+								</Text>
+							)}
 						</Box>
 						<Box mt="xl">
 							<Text fw={700} fz="lg" mb="xl">
@@ -549,19 +564,7 @@ const App = () => {
 					</Box>
 				)}
 
-				<Box
-					mt="48px"
-					display="flex"
-					w="100%"
-					style={{ justifyContent: 'space-around' }}
-				>
-					<Text c="#000000" fw={600} fz="md-lg">
-						수정하기
-					</Text>
-					<Text c="#000000" fw={600} fz="md-lg">
-						발행하기
-					</Text>
-				</Box>
+				<ActionTab onEditingChange={handleEditingChange} />
 			</Box>
 		</MobileLayout>
 	);
