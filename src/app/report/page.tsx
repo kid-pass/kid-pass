@@ -324,6 +324,12 @@ const App = () => {
 		fetchAllData();
 	}, [searchParams]);
 
+	// 발행이 성공적으로 완료된 후 호출될 함수
+	const handlePublishSuccess = (data: any) => {
+		// 필요한 추가 작업 (예: DB에 URL 저장, 다른 페이지로 이동 등)
+		console.log('발행 완료:', data);
+	};
+
 	return (
 		<MobileLayout
 			showHeader={true}
@@ -358,17 +364,6 @@ const App = () => {
 											label="나이 (만)"
 											value={String(profile.age)}
 										/>
-									</Stack>
-
-									<Stack gap={8}>
-										<Flex align="end" justify="end">
-											<Image
-												src="https://heidimoon.cafe24.com/renwal/test2/barcode.png"
-												width={76}
-												height={76}
-												alt="바코드"
-											/>
-										</Flex>
 									</Stack>
 								</Flex>
 
@@ -564,7 +559,10 @@ const App = () => {
 					</Box>
 				)}
 
-				<ActionTab onEditingChange={handleEditingChange} />
+				<ActionTab
+					onEditingChange={handleEditingChange}
+					onPublishSuccess={handlePublishSuccess}
+				/>
 			</Box>
 		</MobileLayout>
 	);
