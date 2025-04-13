@@ -8,15 +8,15 @@ import { useViewportSize } from "@mantine/hooks";
 import { KakaoLoginProvider } from "../kakao";
 import { GoogleLoginProvider } from "../google";
 import { useEffect, useState, Suspense } from "react";
-import useAuthStore from "@/store/useAuthStore";
 import { notifications } from "@mantine/notifications";
 import { firebaseConfig } from "../useAuthSocial";
+import { useAuthStore } from "@/store/useAuthStore";
 
 function LoginContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { height } = useViewportSize();
-  const { setAccessToken, setRefreshToken } = useAuthStore();
+  const { setToken, setRefreshToken } = useAuthStore();
   const [isLoading, setIsLoading] = useState(false);
   const [isKakaoLoading, setIsKakaoLoading] = useState(false);
   const [isGoogleLoading, setIsGoogleLoading] = useState(false);
@@ -77,11 +77,10 @@ function LoginContent() {
       }
 
       const data = await response.json();
-      console.log("소셜 로그인 응답:", data); // 응답 구조 확인
 
       // 토큰 저장 및 리다이렉트
       if (data.data.accessToken) {
-        setAccessToken(data.data.accessToken);
+        setToken(data.data.accessToken);
 
         // refreshToken이 있는지 확인하고 저장
         if (data.data.refreshToken) {
@@ -91,13 +90,17 @@ function LoginContent() {
           }; path=/; max-age=${7 * 24 * 60 * 60}; secure`;
         }
 
-        notifications.show({
-          title: "로그인 성공",
-          message: "환영합니다!",
-          color: "green",
-        });
+        // React Native 웹뷰로 토큰 전송
+        if (window.ReactNativeWebView) {
+          window.ReactNativeWebView.postMessage(
+            JSON.stringify({
+              type: "token",
+              token: data.data.accessToken,
+              refreshToken: data.data.refreshToken,
+            })
+          );
+        }
 
-        router.push("/home");
         return true;
       } else {
         throw new Error("토큰이 없습니다.");
