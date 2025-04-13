@@ -139,7 +139,6 @@ const VaccineCalendar = () => {
 
 				if (response.ok) {
 					const data = await response.json();
-					console.log('백신 일정 데이터:', data.data); // 로그 추가로 데이터 확인
 					setVaccineSchedules(data.data);
 				} else {
 					console.error('백신 일정 조회 실패');

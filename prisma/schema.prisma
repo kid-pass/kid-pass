@@ -109,6 +109,7 @@ model Child {
   createdAt        DateTime @default(now())
   updatedAt        DateTime @updatedAt
   records          Record[]
+  prescriptions    Prescription[]
   vacntnInfo       VacntnInfo[]
 
   @@map("children")
@@ -145,4 +146,22 @@ model EmailVerification {
   verified  Boolean  @default(false)
   expiresAt DateTime
   createdAt DateTime @default(now())
+}
+
+model Prescription {
+  id                  String   @id @default(auto()) @map("_id") @db.ObjectId
+  childId             String   @db.ObjectId
+  child               Child    @relation(fields: [childId], references: [id])
+  date                DateTime // 진찰 날짜
+  hospital            String   // 병원 이름
+  doctor              String?  // 의사 이름
+  diagnoses           String?  // 진단명
+  treatmentMethod     String?  // 치료 방법
+  medicines           String?  // 처방 약품
+  prescriptionImageUrl String? // 처방전 이미지 URL
+  memo                String?  // 메모
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+
+  @@map("prescriptions")
 }

@@ -245,3 +245,71 @@ export async function POST(request: Request) {
     );
   }
 }
+
+// PATCH 메서드 추가
+export async function PATCH(request: Request) {
+  try {
+    const { childId, vaccinationData } = await request.json();
+
+    // JWT 토큰 검증 부분은 동일
+
+    // 기존 백신 접종 기록 조회
+    const existingRecord = await prisma.vacntnInfo.findFirst({
+      where: {
+        childId: childId,
+        vacntnId: vaccinationData.vacntnId,
+        vacntnDoseNumber: vaccinationData.vacntnDoseNumber,
+        vacntnIctsd: vaccinationData.vacntnIctsd
+      }
+    });
+
+    let vacntnInfo;
+
+    if (existingRecord) {
+      // 기존 기록이 있으면 업데이트
+      vacntnInfo = await prisma.vacntnInfo.update({
+        where: { id: existingRecord.id },
+        data: {
+          vacntnInoclDt: vaccinationData.vacntnInoclDt,
+          isCompleted: true,
+          actualDate: vaccinationData.vacntnInoclDt
+        }
+      });
+      
+      return NextResponse.json(
+        { 
+          message: "백신 접종 정보가 업데이트되었습니다.", 
+          data: { vacntnInfo } 
+        },
+        { status: 200 }
+      );
+    } else {
+      // 기존 기록이 없으면 새로 생성 (기존 POST 로직과 유사)
+      vacntnInfo = await prisma.vacntnInfo.create({
+        data: {
+          vacntnId: vaccinationData.vacntnId,
+          vacntnIctsd: vaccinationData.vacntnIctsd,
+          vacntnDoseNumber: vaccinationData.vacntnDoseNumber,
+          vacntnInoclDt: vaccinationData.vacntnInoclDt,
+          childId: childId,
+          isCompleted: true,
+          actualDate: vaccinationData.vacntnInoclDt,
+        },
+      });
+      
+      return NextResponse.json(
+        { 
+          message: "백신 접종 정보가 생성되었습니다.", 
+          data: { vacntnInfo } 
+        },
+        { status: 201 }
+      );
+    }
+  } catch (error) {
+    console.error("백신 접종 정보 업데이트 에러:", error);
+    return NextResponse.json(
+      { message: "백신 접종 정보 업데이트 중 오류가 발생했습니다." },
+      { status: 500 }
+    );
+  }
+}
