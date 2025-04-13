@@ -25,6 +25,7 @@ model User {
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
   children     Child[]
+  reports      Report[]
 
   // socialId와 provider가 모두 있을 때만 unique 제약 적용
   @@index([socialId, provider])
@@ -164,4 +165,15 @@ model Prescription {
   updatedAt           DateTime @updatedAt
 
   @@map("prescriptions")
+}
+
+model Report {
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  userId      String   @db.ObjectId
+  user        User     @relation(fields: [userId], references: [id])
+  imageUrl    String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("reports")
 }

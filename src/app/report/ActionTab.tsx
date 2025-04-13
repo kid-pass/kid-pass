@@ -17,7 +17,11 @@ interface ActionTabProps {
 	onPublishError?: (error: any) => void;
 }
 
-const ActionTab = ({ onEditingChange }: ActionTabProps) => {
+const ActionTab = ({
+	onEditingChange,
+	onPublishSuccess,
+	onPublishError,
+}: ActionTabProps) => {
 	const [isEditing, setIsEditing] = useState(false);
 	const [isPublishing, setIsPublishing] = useState(false);
 	const { getToken } = useAuth();
@@ -54,8 +58,6 @@ const ActionTab = ({ onEditingChange }: ActionTabProps) => {
 			// 2. 페이지 전체 요소 찾기 (HTML 전체)
 			const pageElement = document.documentElement;
 
-			// 3. html2canvas로 페이지 캡처
-			console.log('리포트 캡처 시작...');
 			const canvas = await html2canvas(pageElement, {
 				useCORS: true,
 				scrollX: 0,
@@ -73,6 +75,7 @@ const ActionTab = ({ onEditingChange }: ActionTabProps) => {
 					if (!blob) {
 						console.error('이미지 생성 실패');
 						setIsPublishing(false);
+						onPublishError?.('이미지 생성 실패');
 						return;
 					}
 
@@ -83,7 +86,7 @@ const ActionTab = ({ onEditingChange }: ActionTabProps) => {
 
 					// 6. 서버로 전송
 					try {
-						// 인스턴스 생성 및 API 호출
+						// 인스턴스 생성 및 이미지 API 호출
 						const instance = axios.create({
 							baseURL: process.env.NEXT_PUBLIC_API_URL,
 						});
@@ -99,16 +102,42 @@ const ActionTab = ({ onEditingChange }: ActionTabProps) => {
 							}
 						);
 
-						console.log('리포트 업로드 성공:', data);
-						alert('리포트가 성공적으로 발행되었습니다.');
+						// 이미지 업로드 성공 후, 리포트 생성 API 호출
+						if (data && data.url) {
+							const reportTitle = `의료 리포트 ${new Date().toLocaleDateString(
+								'ko-KR'
+							)}`;
 
-						// 성공 후 추가 처리 (예: 리다이렉트 등)
+							// 리포트 생성 API 호출
+							const reportResponse = await instance.post(
+								'/report',
+								{
+									imageUrl: data.url,
+									title: reportTitle,
+								},
+								{
+									headers: {
+										'Content-Type': 'application/json',
+										Authorization: `Bearer ${token}`,
+									},
+								}
+							);
+
+							if (reportResponse.data) {
+								// 성공 콜백 호출
+								onPublishSuccess?.(reportResponse.data);
+
+								// 사용자에게 성공 메시지 표시
+								console.log(reportResponse.data);
+							}
+						}
 					} catch (error) {
-						console.error('리포트 업로드 실패:', error);
+						console.error('서버 요청 중 오류:', error);
 						alert('리포트 발행 중 오류가 발생했습니다.');
+						onPublishError?.(error);
+					} finally {
+						setIsPublishing(false);
 					}
-
-					setIsPublishing(false);
 				},
 				'image/png',
 				0.9
@@ -117,6 +146,7 @@ const ActionTab = ({ onEditingChange }: ActionTabProps) => {
 			console.error('리포트 캡처 중 오류:', error);
 			alert('리포트 캡처 중 오류가 발생했습니다.');
 			setIsPublishing(false);
+			onPublishError?.(error);
 		}
 	};
 
