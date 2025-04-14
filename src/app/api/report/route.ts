@@ -22,7 +22,7 @@ export async function POST(request: Request) {
 		};
 
 		// 요청 본문 파싱
-		const { imageUrl, title } = await request.json();
+		const { imageUrl, childId } = await request.json();
 
 		if (!imageUrl) {
 			return NextResponse.json(
@@ -45,10 +45,25 @@ export async function POST(request: Request) {
 			);
 		}
 
+		// 해당 아이가 현재 사용자의 자녀인지 확인
+		const child = await prisma.child.findFirst({
+			where: {
+				id: childId,
+				userId: user.id,
+			},
+		});
+
+		if (!child) {
+			return NextResponse.json(
+				{ message: '자녀 정보를 찾을 수 없거나 접근 권한이 없습니다.' },
+				{ status: 404 }
+			);
+		}
+
 		// 리포트 생성
 		const report = await prisma.report.create({
 			data: {
-				userId: user.id,
+				childId: childId,
 				imageUrl,
 			},
 		});
@@ -84,10 +99,6 @@ export async function GET(request: Request) {
 			userId: string;
 		};
 
-		// URL에서 reportId 파라미터 가져오기
-		const { searchParams } = new URL(request.url);
-		const reportId = searchParams.get('reportId');
-
 		// 사용자 정보 가져오기
 		const user = await prisma.user.findFirst({
 			where: {
@@ -102,41 +113,49 @@ export async function GET(request: Request) {
 			);
 		}
 
-		// 특정 리포트 ID가 제공된 경우 단일 리포트 조회
-		if (reportId) {
-			const report = await prisma.report.findFirst({
-				where: {
-					id: reportId,
-					userId: user.id, // 보안을 위해 현재 인증된 사용자의 리포트인지 확인
-				},
-			});
-
-			if (!report) {
-				return NextResponse.json(
-					{ message: '리포트를 찾을 수 없습니다.' },
-					{ status: 404 }
-				);
-			}
-
-			return NextResponse.json({
-				message: '리포트 정보를 성공적으로 가져왔습니다.',
-				data: report,
-			});
-		}
-
-		// 리포트 ID가 없으면 사용자의 모든 리포트 조회
-		const reports = await prisma.report.findMany({
+		// 사용자의 모든 자녀 정보 가져오기
+		const children = await prisma.child.findMany({
 			where: {
 				userId: user.id,
+			},
+			select: {
+				id: true,
+			},
+		});
+
+		const childIds = children.map((child) => child.id);
+
+		// 모든 자녀의 리포트 조회 (각 리포트에 해당 아이의 이름 포함)
+		const reports = await prisma.report.findMany({
+			where: {
+				childId: {
+					in: childIds,
+				},
 			},
 			orderBy: {
 				createdAt: 'desc', // 최신순 정렬
 			},
+			include: {
+				child: {
+					select: {
+						id: true,
+						name: true,
+					},
+				},
+			},
 		});
+
+		// 응답 데이터를 보기 좋게 가공 (선택 사항)
+		const formattedReports = reports.map((report) => ({
+			id: report.id,
+			childId: report.childId,
+			childName: report.child.name,
+			date: report.createdAt,
+		}));
 
 		return NextResponse.json({
 			message: '리포트 목록을 성공적으로 가져왔습니다.',
-			data: reports,
+			data: formattedReports,
 		});
 	} catch (error) {
 		console.error('리포트 조회 오류:', error);

@@ -3,7 +3,7 @@
 import MobileLayout from '@/components/mantine/MobileLayout';
 import ProfileMetrics from '@/components/metrics/ProfileMetrics';
 import instance from '@/utils/axios';
-import { Box, Flex, Image, LoadingOverlay, Stack, Text } from '@mantine/core';
+import { Box, Flex, LoadingOverlay, Stack, Text } from '@mantine/core';
 import { useRouter } from 'next/navigation';
 import { useSearchParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
@@ -113,11 +113,6 @@ const App = () => {
 	const [loading, setLoading] = useState<boolean>(true);
 	const [error, setError] = useState<string | null>(null);
 	const [vaccineData, setVaccineData] = useState<VaccinationRecord[]>([]);
-	const [isEditing, setIsEditing] = useState(false);
-
-	const handleEditingChange = (editing: boolean) => {
-		setIsEditing(editing);
-	};
 
 	const fetchProfileData = async () => {
 		try {
@@ -432,15 +427,6 @@ const App = () => {
 									))
 								)}
 							</Stack>
-							{isEditing && (
-								<Text
-									c="#729BED"
-									fw={500}
-									style={{ cursor: 'pointer' }}
-								>
-									추가하기
-								</Text>
-							)}
 						</Box>
 						<Box mt="xl">
 							<Text fw={700} fz="lg" mb="xl">
@@ -559,10 +545,7 @@ const App = () => {
 					</Box>
 				)}
 
-				<ActionTab
-					onEditingChange={handleEditingChange}
-					onPublishSuccess={handlePublishSuccess}
-				/>
+				<ActionTab onPublishSuccess={handlePublishSuccess} />
 			</Box>
 		</MobileLayout>
 	);
