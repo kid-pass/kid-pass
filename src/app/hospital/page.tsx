@@ -6,7 +6,7 @@ import MobileLayout from '../../components/mantine/MobileLayout';
 import { Stack, ActionIcon, Box } from '@mantine/core';
 import { IconPlus } from '@tabler/icons-react';
 import { useEffect, useState } from 'react';
-import useAuthStore from '@/store/useAuthStore';
+import { useAuthStore } from '@/store/useAuthStore';
 import instance from '@/utils/axios';
 import PrescritionItem from './PrescriptionItem';
 
