@@ -1,41 +1,82 @@
 import { create } from "zustand";
-import { persist } from "zustand/middleware";
+import { persist, createJSONStorage } from "zustand/middleware";
 
-interface AuthState {
-  setAccessToken: (name: string) => void;
-  setRefreshToken: (name: string) => void;
-  setCrtChldrnNo: (key: string) => void;
-  setUserInfo: (userInfo: {
-    name: string;
-    email: string;
-    profileImage: string;
-  }) => void;
-  accessToken?: string;
-  refreshToken?: string;
-  crtChldrnNo?: string;
-  userInfo?: {
-    name: string;
-    email: string;
-    profileImage: string;
-  };
+interface UserInfo {
+  name: string;
+  email: string;
+  profileImage: string;
 }
 
-const useAuthStore = create<AuthState>()(
+interface AuthState {
+  token: string | null;
+  refreshToken: string | null;
+  crtChldrnNo: string | null;
+  userInfo: UserInfo | null;
+  isAuthenticated: boolean;
+
+  // 토큰 관련 액션
+  setToken: (token: string) => void;
+  setRefreshToken: (token: string) => void;
+  clearTokens: () => void;
+
+  // 사용자 정보 관련 액션
+  setCrtChldrnNo: (childNo: string) => void;
+  setUserInfo: (info: UserInfo) => void;
+  clearUserInfo: () => void;
+
+  // 모든 인증 정보 초기화
+  clearAll: () => void;
+}
+
+export const useAuthStore = create<AuthState>()(
   persist(
     (set) => ({
-      accessToken: undefined,
-      refreshToken: undefined,
-      crtChldrnNo: undefined,
-      setAccessToken: (v: string) => set(() => ({ accessToken: v })),
-      setRefreshToken: (v: string) => set(() => ({ refreshToken: v })),
-      setCrtChldrnNo: (v: string) => set(() => ({ crtChldrnNo: v })),
-      setUserInfo: (v: { name: string; email: string; profileImage: string }) =>
-        set(() => ({ userInfo: v })),
+      token: null,
+      refreshToken: null,
+      crtChldrnNo: null,
+      userInfo: null,
+      isAuthenticated: false,
+
+      // 토큰 관련 액션
+      setToken: (token: string) =>
+        set((state) => ({
+          token,
+          isAuthenticated: !!token,
+        })),
+
+      setRefreshToken: (refreshToken: string) => set({ refreshToken }),
+
+      clearTokens: () =>
+        set({
+          token: null,
+          refreshToken: null,
+          isAuthenticated: false,
+        }),
+
+      // 사용자 정보 관련 액션
+      setCrtChldrnNo: (crtChldrnNo: string) => set({ crtChldrnNo }),
+
+      setUserInfo: (userInfo: UserInfo) => set({ userInfo }),
+
+      clearUserInfo: () =>
+        set({
+          userInfo: null,
+          crtChldrnNo: null,
+        }),
+
+      // 모든 인증 정보 초기화
+      clearAll: () =>
+        set({
+          token: null,
+          refreshToken: null,
+          crtChldrnNo: null,
+          userInfo: null,
+          isAuthenticated: false,
+        }),
     }),
     {
-      name: "kidlove", // localstorage key
+      name: "auth-storage", // 로컬 스토리지에 저장될 키 이름
+      storage: createJSONStorage(() => localStorage),
     }
   )
 );
-
-export default useAuthStore;

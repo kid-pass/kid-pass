@@ -1,104 +1,126 @@
-import useAuthStore from '@/store/useAuthStore';
+import { useAuthStore } from "@/store/useAuthStore";
 
 const useAuth = () => {
-	const { accessToken, setAccessToken, crtChldrnNo, setCrtChldrnNo } =
-		useAuthStore();
+  const {
+    token,
+    refreshToken,
+    setToken,
+    setRefreshToken,
+    clearAll,
+    crtChldrnNo,
+    setCrtChldrnNo,
+  } = useAuthStore();
 
-	const getToken = async () => {
-		// 1. 먼저 Zustand store 확인
-		if (accessToken) {
-			return accessToken;
-		}
+  const refreshAccessToken = async () => {
+    if (!refreshToken) {
+      clearAll();
+      return null;
+    }
 
-		// 2. store에 없으면 localStorage 확인
-		if (typeof localStorage !== 'undefined') {
-			const stored = localStorage.getItem('kidlove');
-			if (stored) {
-				try {
-					const parsedData = JSON.parse(stored);
-					const storedToken = parsedData.state.accessToken;
-					const storedRefreshToken = parsedData.state.refreshToken;
+    try {
+      console.log("토큰 갱신 시도:", {
+        refreshToken: refreshToken.substring(0, 10) + "...",
+      });
 
-					if (!storedToken) {
-						return null;
-					}
+      const response = await fetch("/api/auth/refresh", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ refreshToken }),
+      });
 
-					// 토큰 검증
-					const response = await fetch('/api/auth/verify', {
-						headers: {
-							Authorization: `Bearer ${storedToken}`,
-						},
-					});
+      if (!response.ok) {
+        console.error("토큰 갱신 응답 오류:", response.status);
+        clearAll();
+        return null;
+      }
 
-					if (response.ok) {
-						setAccessToken(storedToken);
-						return storedToken;
-					} else {
-						// 토큰이 만료되었다면 리프레시 토큰으로 새로운 액세스 토큰 발급
-						const refreshResponse = await fetch(
-							'/api/auth/refresh',
-							{
-								headers: {
-									Authorization: `Bearer ${storedRefreshToken}`,
-								},
-							}
-						);
+      const data = await response.json();
+      console.log("토큰 갱신 성공");
 
-						if (refreshResponse.ok) {
-							const { accessToken: newAccessToken } =
-								await refreshResponse.json();
-							setAccessToken(newAccessToken);
-							return newAccessToken;
-						}
-					}
-				} catch (error) {
-					return null;
-				}
-			}
-		}
+      if (data.accessToken) {
+        setToken(data.accessToken);
 
-		return null;
-	};
+        // 새로운 리프레시 토큰이 있으면 업데이트
+        if (data.refreshToken) {
+          setRefreshToken(data.refreshToken);
+        }
 
-	// 현재 접속중인 아이번호 가져오기
-	const getCrtChldNo = () => {
-		if (crtChldrnNo) {
-			return crtChldrnNo;
-		}
+        // 토큰 설정 이벤트 발생
+        const event = new CustomEvent("tokenSet");
+        window.dispatchEvent(event);
 
-		const stored = localStorage.getItem('kidlove');
-		if (stored) {
-			const parsedData = JSON.parse(stored);
-			// 수정: state 객체에서 crtChldrnNo 값만 추출
-			const storedCurrentChldrnNo = parsedData.state.crtChldrnNo;
-			if (
-				storedCurrentChldrnNo &&
-				typeof storedCurrentChldrnNo === 'string'
-			) {
-				setCrtChldrnNo(storedCurrentChldrnNo);
-				return storedCurrentChldrnNo;
-			}
-		}
+        return data.accessToken;
+      }
 
-		return null;
-	};
+      return null;
+    } catch (error) {
+      console.error("토큰 갱신 오류:", error);
+      clearAll();
+      return null;
+    }
+  };
 
-	const getUserInfo = async () => {
-		const response = await fetch('/api/auth/user', {
-			headers: {
-				Authorization: `Bearer ${accessToken}`,
-			},
-		});
+  const getToken = async () => {
+    // 토큰이 없으면 null 반환
+    if (!token) {
+      return null;
+    }
 
-		if (response.ok) {
-			const { user } = await response.json();
-			return user;
-		}
+    // JWT 토큰 만료 확인 (간단한 방법)
+    try {
+      const payload = JSON.parse(atob(token.split(".")[1]));
+      const isExpired = payload.exp * 1000 < Date.now();
 
-		return null;
-	};
+      if (isExpired) {
+        // 토큰이 만료되었으면 갱신 시도
+        return await refreshAccessToken();
+      }
 
-	return { getToken, getCrtChldNo, getUserInfo };
+      return token;
+    } catch (error) {
+      console.error("토큰 검증 오류:", error);
+      return await refreshAccessToken();
+    }
+  };
+
+  // 현재 접속중인 아이번호 가져오기
+  const getCrtChldNo = () => {
+    if (crtChldrnNo) {
+      return crtChldrnNo;
+    }
+
+    const stored = localStorage.getItem("kidlove");
+    if (stored) {
+      const parsedData = JSON.parse(stored);
+      // 수정: state 객체에서 crtChldrnNo 값만 추출
+      const storedCurrentChldrnNo = parsedData.state.crtChldrnNo;
+      if (storedCurrentChldrnNo && typeof storedCurrentChldrnNo === "string") {
+        setCrtChldrnNo(storedCurrentChldrnNo);
+        return storedCurrentChldrnNo;
+      }
+    }
+
+    return null;
+  };
+
+  const getUserInfo = async () => {
+    const response = await fetch("/api/auth/user", {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    if (response.ok) {
+      const { user } = await response.json();
+      return user;
+    }
+
+    return null;
+  };
+
+  return { getToken, getCrtChldNo, getUserInfo, refreshAccessToken };
 };
 
 export default useAuth;
