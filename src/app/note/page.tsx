@@ -35,7 +35,6 @@ interface VaccinationData {
 const App = () => {
 	const router = useRouter();
 	const { getToken } = useAuth();
-	const token = getToken();
 	const [isLoading, setIsLoading] = useState(false);
 	const [vaccinationData, setVaccinationData] = useState<VaccinationData>({
 		vacntnInfo: [],
@@ -56,6 +55,8 @@ const App = () => {
 				setIsLoading(true);
 
 				try {
+					const token = await getToken();
+
 					const response = await instance.get(
 						`/vaccine/info?chldrnNo=${currentKid}`,
 						{

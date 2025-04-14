@@ -14,8 +14,8 @@ instance.interceptors.request.use(
 	(config) => {
 		// 요청 보내기 전 수행할 작업
 
-		const localStorageKid = localStorage.getItem('kidlove');
-		const token = JSON.parse(localStorageKid ?? '{}').state.accessToken;
+		const localStorageKid = localStorage.getItem('auth-storage');
+		const token = JSON.parse(localStorageKid ?? '{}').state.token;
 
 		if (token) {
 			config.headers.Authorization = `Bearer ${token}`;
