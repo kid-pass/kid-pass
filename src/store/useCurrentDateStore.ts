@@ -7,7 +7,7 @@ interface CurrentDateStore {
 }
 
 const useCurrentDateStore = create<CurrentDateStore>((set) => ({
-  currentDate: dayjs(),
+  currentDate: dayjs().hour(23).minute(59).second(59),
   setCurrentDate: (date: Dayjs) => set({ currentDate: date }),
 }));
 
