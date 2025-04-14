@@ -17,7 +17,7 @@ import { IconCalendar, IconXboxX } from '@tabler/icons-react';
 import MobileLayout from '@/components/mantine/MobileLayout';
 import { Suspense, useRef, useState } from 'react';
 import useAuth from '@/hook/useAuth';
-import useAuthStore from '@/store/useAuthStore';
+import { useAuthStore } from '@/store/useAuthStore';
 import instance from '@/utils/axios';
 
 const diagnoses = ['감기', '코로나19', '장염', '인플루엔자', '기관지염'];

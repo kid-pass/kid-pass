@@ -1,21 +1,25 @@
 'use client';
 
 import { Button } from '@mantine/core';
-import { useState } from 'react';
+import { RefObject, useState } from 'react';
 import html2canvas from 'html2canvas';
 import useAuth from '@/hook/useAuth';
-import useAuthStore from '@/store/useAuthStore';
 import instance from '@/utils/axios';
+import { useAuthStore } from '@/store/useAuthStore';
 
 interface ActionTabProps {
 	// 발행 성공 콜백
 	onPublishSuccess?: (data: any) => void;
-
+	captureRef: RefObject<HTMLElement>;
 	// 발행 실패 콜백 (선택적)
 	onPublishError?: (error: any) => void;
 }
 
-const ActionTab = ({ onPublishSuccess, onPublishError }: ActionTabProps) => {
+const ActionTab = ({
+	onPublishSuccess,
+	onPublishError,
+	captureRef,
+}: ActionTabProps) => {
 	const [isPublishing, setIsPublishing] = useState(false);
 	const { getToken } = useAuth();
 	const { crtChldrnNo } = useAuthStore();
@@ -33,15 +37,21 @@ const ActionTab = ({ onPublishSuccess, onPublishError }: ActionTabProps) => {
 			}
 
 			// 2. 페이지 전체 요소 찾기 (HTML 전체)
-			const pageElement = document.documentElement;
+			const element = captureRef.current;
 
-			const canvas = await html2canvas(pageElement, {
+			if (!element) {
+				console.error('캡처할 요소를 찾을 수 없습니다.');
+				setIsPublishing(false);
+				return;
+			}
+
+			const canvas = await html2canvas(element, {
 				useCORS: true,
 				scrollX: 0,
 				scrollY: 0,
-				windowWidth: document.documentElement.offsetWidth,
-				windowHeight: document.documentElement.offsetHeight,
-				scale: 1,
+				windowWidth: element.scrollWidth,
+				windowHeight: element.scrollHeight,
+				scale: window.devicePixelRatio,
 				logging: true,
 				allowTaint: true,
 			});
@@ -65,42 +75,43 @@ const ActionTab = ({ onPublishSuccess, onPublishError }: ActionTabProps) => {
 					try {
 						// 인스턴스 생성 및 이미지 API 호출
 
-						const { data } = await instance.post(
-							'/image',
-							formData,
-							{
-								headers: {
-									'Content-Type': 'multipart/form-data',
-									Authorization: `Bearer ${token}`,
-								},
-							}
-						);
+						console.log(captureRef.current);
+						// const { data } = await instance.post(
+						// 	'/image',
+						// 	formData,
+						// 	{
+						// 		headers: {
+						// 			'Content-Type': 'multipart/form-data',
+						// 			Authorization: `Bearer ${token}`,
+						// 		},
+						// 	}
+						// );
 
 						// 이미지 업로드 성공 후, 리포트 생성 API 호출
-						if (data && data.url) {
-							// 리포트 생성 API 호출
-							const reportResponse = await instance.post(
-								'/report',
-								{
-									imageUrl: data.url,
-									childId: crtChldrnNo,
-								},
-								{
-									headers: {
-										'Content-Type': 'application/json',
-										Authorization: `Bearer ${token}`,
-									},
-								}
-							);
+						// if (data && data.url) {
+						// 	// 리포트 생성 API 호출
+						// 	const reportResponse = await instance.post(
+						// 		'/report',
+						// 		{
+						// 			imageUrl: data.url,
+						// 			childId: crtChldrnNo,
+						// 		},
+						// 		{
+						// 			headers: {
+						// 				'Content-Type': 'application/json',
+						// 				Authorization: `Bearer ${token}`,
+						// 			},
+						// 		}
+						// 	);
 
-							if (reportResponse.data) {
-								// 성공 콜백 호출
-								onPublishSuccess?.(reportResponse.data);
+						// 	if (reportResponse.data) {
+						// 		// 성공 콜백 호출
+						// 		onPublishSuccess?.(reportResponse.data);
 
-								// 사용자에게 성공 메시지 표시
-								console.log(reportResponse.data);
-							}
-						}
+						// 		// 사용자에게 성공 메시지 표시
+						// 		console.log(reportResponse.data);
+						// 	}
+						// }
 					} catch (error) {
 						console.error('서버 요청 중 오류:', error);
 						onPublishError?.(error);
