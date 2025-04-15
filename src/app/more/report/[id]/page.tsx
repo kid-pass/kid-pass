@@ -4,7 +4,7 @@ import { usePathname, useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import instance from '@/utils/axios';
 import MobileLayout from '@/components/mantine/MobileLayout';
-import { LoadingOverlay } from '@mantine/core';
+import { Image, LoadingOverlay } from '@mantine/core';
 
 const DetailPage = () => {
 	const pathname = usePathname();
@@ -37,7 +37,7 @@ const DetailPage = () => {
 			title="리포트 상세이미지"
 		>
 			{imageUrl ? (
-				<img src={imageUrl} alt="리포트 이미지" />
+				<Image src={imageUrl} alt="리포트 이미지" w="100%" />
 			) : (
 				<LoadingOverlay visible={isLoading}></LoadingOverlay>
 			)}
