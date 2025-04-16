@@ -15,6 +15,21 @@ export interface VaccineType {
 	vaccines: VaccineInfo[]; // 해당 질병에 사용되는 백신 목록
 }
 
+export const vaccineColorMap: Record<string, string> = {
+	BCG: '#6b7ae3', // 결핵
+	HepB: '#f0ad4e', // B형간염
+	DTaP: '#5bc0de', // 디프테리아/파상풍/백일해
+	Tdap: '#5bc0de', // 파상풍/디프테리아/백일해 추가접종
+	IPV: '#5cb85c', // 폴리오
+	Hib: '#d9534f', // b형 헤모필루스
+	PCV: '#17a2b8', // 폐렴구균
+	MMR: '#f06292', // 홍역/유행성이하선염/풍진
+	VAR: '#ba68c8', // 수두
+	HepA: '#ff7043', // A형간염
+	IJEV: '#9575cd', // 일본뇌염 불활성화
+	LJEV: '#7986cb', // 일본뇌염
+};
+
 export const VACCINE_LIST: VaccineType[] = [
 	{
 		id: 1,

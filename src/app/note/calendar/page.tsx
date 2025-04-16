@@ -6,7 +6,6 @@ import {
 	Group,
 	Title,
 	Button,
-	SegmentedControl,
 	Grid,
 	Text,
 	Container,

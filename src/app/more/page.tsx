@@ -145,6 +145,13 @@ const App = () => {
 										router.push('/more/report');
 									}}
 								/>
+								<MenuItem
+									label="건강뉴스"
+									hasArrow
+									onClick={() => {
+										router.push('/more/news');
+									}}
+								/>
 							</Box>
 						</Box>
 

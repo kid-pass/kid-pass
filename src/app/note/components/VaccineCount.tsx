@@ -4,7 +4,7 @@ import React from 'react';
 import { useRouter } from 'next/navigation';
 import { Box, Flex, Group, Text, rem } from '@mantine/core';
 import { IconChevronRight } from '@tabler/icons-react';
-import { VACCINE_LIST } from '../vaccine';
+import { VACCINE_LIST } from '../../../utils/vaccine';
 import useChldrnListStore from '@/store/useChldrnListStore';
 import { VacntnInfo } from '../page';
 
