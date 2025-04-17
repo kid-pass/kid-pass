@@ -178,3 +178,14 @@ model Report {
 
   @@map("reports")
 }
+
+
+model News {
+
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  title       String[]
+	content     String[]
+	imageUrl    String[]
+
+  @@map("news")
+}

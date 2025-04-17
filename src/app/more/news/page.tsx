@@ -1,9 +1,21 @@
 'use client';
 
+import instance from '@/utils/axios';
 import { newsItems } from '@/utils/news';
 import { Box, Image, Paper, Stack, Text } from '@mantine/core';
+import { useEffect } from 'react';
 
 const App = () => {
+	const fetchNewsData = async () => {
+		const response = await instance.get('/news');
+
+		return response.data;
+	};
+
+	useEffect(() => {
+		fetchNewsData();
+	}, []);
+
 	return (
 		<Stack p="md" gap="md">
 			{newsItems.map((news) => (
