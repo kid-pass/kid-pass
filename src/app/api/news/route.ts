@@ -4,7 +4,7 @@ import { PrismaClient } from '@prisma/client';
 
 const prisma = new PrismaClient();
 
-// GET - 리포트 목록 조회 API
+// GET - 뉴스 목록 조회 API
 export async function GET(request: Request) {
 	try {
 		// JWT 토큰에서 사용자 정보 가져오기
@@ -39,13 +39,13 @@ export async function GET(request: Request) {
 		const news = await prisma.news.findMany();
 
 		return NextResponse.json({
-			message: '리포트 목록을 성공적으로 가져왔습니다.',
+			message: '건강뉴스 목록을 성공적으로 가져왔습니다.',
 			data: news,
 		});
 	} catch (error) {
-		console.error('리포트 조회 오류:', error);
+		console.error('건강뉴스 조회 오류:', error);
 		return NextResponse.json(
-			{ message: '리포트 정보를 가져오는 중 오류가 발생했습니다.' },
+			{ message: '건강뉴스 목록을 가져오는 중 오류가 발생했습니다.' },
 			{ status: 500 }
 		);
 	}

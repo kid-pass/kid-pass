@@ -1,25 +1,51 @@
 'use client';
 
+import MobileLayout from '@/components/mantine/MobileLayout';
 import instance from '@/utils/axios';
-import { newsItems } from '@/utils/news';
 import { Box, Image, Paper, Stack, Text } from '@mantine/core';
-import { useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+import { useEffect, useState } from 'react';
+
+export interface NewsItem {
+	id: string;
+	title: string[];
+	content: string[];
+	imageUrl: string[];
+}
+
+
 
 const App = () => {
+
+	const [newsData,setNewsData] = useState<NewsItem[]>([])
+	const router = useRouter()
+
 	const fetchNewsData = async () => {
 		const response = await instance.get('/news');
 
-		return response.data;
+		setNewsData(response.data.data)
+
 	};
 
 	useEffect(() => {
 		fetchNewsData();
+
+
 	}, []);
 
 	return (
-		<Stack p="md" gap="md">
-			{newsItems.map((news) => (
-				<Paper key={news.id}>
+		<MobileLayout
+		headerType='back'
+		title="건강뉴스"
+		currentRoute='/more/news'
+		>
+			<Stack px="md" gap="md">
+			{newsData.map((news) => (
+				<Paper key={news.id}
+				onClick={() => {
+					router.push(`/more/news/${news.id}`);
+				  }}
+				>
 					<Image
 						src={news.imageUrl[0].replace('/public', '')}
 						radius="18px 18px 0 0"
@@ -41,6 +67,8 @@ const App = () => {
 				</Paper>
 			))}
 		</Stack>
+		</MobileLayout>
+
 	);
 };
 

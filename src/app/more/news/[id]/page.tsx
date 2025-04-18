@@ -1,27 +1,35 @@
 'use client';
 
-import { newsItems } from '@/utils/news';
+import instance from '@/utils/axios';
 import { Box, Image } from '@mantine/core';
+import { usePathname } from 'next/navigation';
+import { useEffect } from 'react';
 
-interface NewsDetailPageProps {
-	params: {
-		slug: string;
-	};
-}
 
-export function generateStaticParams() {
-	return newsItems.map((news) => ({
-		slug: news.id,
-	}));
-}
 
-export default function NewsDetailPage({ params }: NewsDetailPageProps) {
-	const { slug } = params;
-	const newsItem = newsItems.find((item) => item.id === slug);
+
+const App =()=> {
+
+	const pathname = usePathname();
+	const id = pathname.split('/').pop();
+
+	const fetchReportDetail = async ()=>{
+
+		const response = await instance.get(`/news/${id}`)
+
+		console.log(response.data)
+	}
+
+	useEffect(()=>{
+		fetchReportDetail()
+	},[])
 
 	return (
 		<Box>
-			<Image src={newsItem?.imageUrl} />
+
+			{/* <Image src={newsItem?.imageUrl} /> */}
 		</Box>
 	);
 }
+
+export default App;
