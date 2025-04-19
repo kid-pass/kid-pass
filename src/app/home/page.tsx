@@ -5,7 +5,6 @@ import { MetricsSection } from '@/components/metrics/MetricsSection';
 import Link from 'next/link';
 import ProfileCarousel from './ProfileCarousel';
 import useAuth from '@/hook/useAuth';
-import { useRouter } from 'next/navigation';
 import useChldrnListStore from '@/store/useChldrnListStore';
 import MobileLayout from '@/components/mantine/MobileLayout';
 import {
@@ -207,6 +206,7 @@ const App: React.FC = () => {
 			});
 
 			const data = await response.json();
+
 			if (response.ok && data.data) {
 				handleChildrenData(data.data);
 			}

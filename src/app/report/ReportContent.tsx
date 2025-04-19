@@ -52,7 +52,6 @@ interface ChildProfile {
 	memo: string;
 	createdAt: string;
 	updatedAt: string;
-	// 추가 계산 필드
 	age?: number;
 	formattedBirthDate?: string;
 }
@@ -319,14 +318,7 @@ const ReportContent = () => {
 	}, [searchParams]);
 
 	// 발행이 성공적으로 완료된 후 호출될 함수
-	const handlePublishSuccess = (data: any) => {
-		// 필요한 추가 작업 (예: DB에 URL 저장, 다른 페이지로 이동 등)
-		console.log('발행 완료:', data);
-	};
-
-	useEffect(() => {
-		console.log(captureRef.current);
-	}, [captureRef.current]);
+	const handlePublishSuccess = (data: any) => {};
 
 	return (
 		<Box>

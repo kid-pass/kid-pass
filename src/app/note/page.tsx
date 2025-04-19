@@ -8,7 +8,7 @@ import instance from '@/utils/axios';
 import useChldrnListStore from '@/store/useChldrnListStore';
 import Spacer from '@/elements/spacer/Spacer';
 import LoadingFullScreen from '@/components/loading/LoadingFullScreen';
-import { Group, Box, Text, Progress, Flex } from '@mantine/core';
+import { Group, Box, Text, Flex } from '@mantine/core';
 import MobileLayout from '@/components/mantine/MobileLayout';
 import { useRouter } from 'next/navigation';
 
@@ -21,16 +21,15 @@ export interface VacntnInfo {
 	childId: string;
 	createdAt: Date;
 	updatedAt: Date;
-	// 새로 추가된 필드
-	isCompleted?: boolean; // 옵션으로 추가
-	actualDate?: string | null; // 옵션으로 추가
+	isCompleted?: boolean;
+	actualDate?: string | null;
 }
 interface VaccinationData {
 	vacntnInfo: VacntnInfo[];
 	totalCompletedDoses: number;
 	totalRequiredDoses: number;
 	completionPercentage: number;
-	vaccineStatusMap: Record<string, VaccineStatusInfo>; // 이 속성 추가
+	vaccineStatusMap: Record<string, VaccineStatusInfo>;
 }
 const App = () => {
 	const router = useRouter();

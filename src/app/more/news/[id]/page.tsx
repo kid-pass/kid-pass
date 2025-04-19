@@ -15,7 +15,6 @@ const App = () => {
 		try {
 			const response = await instance.get(`/news/${id}`);
 			setNewsDetail(response.data.data[0]);
-			console.log('API 응답:', response.data.data);
 		} catch (error) {
 			console.error('Error fetching news detail:', error);
 		}
@@ -39,8 +38,6 @@ const App = () => {
 			Array.isArray(title) ? title.length : 0,
 			Array.isArray(content) ? content.length : 0
 		);
-
-		console.log('최대 길이:', maxLength);
 
 		const newsItems = [];
 

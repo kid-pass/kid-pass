@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useRef, useEffect } from 'react';
-import { Box, CSSProperties, MantineTheme } from '@mantine/core';
+import { Box, CSSProperties } from '@mantine/core';
 import { useDateStore } from '@/store/useDateStore';
 
 // Mantine 스타일 정의

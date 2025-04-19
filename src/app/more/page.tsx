@@ -26,6 +26,7 @@ const App = () => {
 	const handleWithdraw = async () => {
 		try {
 			const accessToken = await getToken();
+
 			const response = await fetch('/api/auth/withdraw', {
 				method: 'DELETE',
 				headers: {
@@ -84,6 +85,9 @@ const App = () => {
 							justifyContent: 'space-between',
 							alignItems: 'center',
 							backgroundColor: 'white',
+						}}
+						onClick={() => {
+							router.push('/more/profile');
 						}}
 					>
 						<Box

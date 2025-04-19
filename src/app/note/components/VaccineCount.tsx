@@ -10,7 +10,7 @@ import { VacntnInfo } from '../page';
 
 export interface VaccineStatusInfo {
 	vaccineName: string;
-	totalDoses: number; // 명시적으로 타입 지정
+	totalDoses: number;
 	completedDoses: number;
 	vaccineRecords: VacntnInfo[];
 }
