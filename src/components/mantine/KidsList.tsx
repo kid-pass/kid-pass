@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { Text, Avatar, Stack, Group, UnstyledButton } from '@mantine/core';
 import useAuth from '@/hook/useAuth';
+import useChldrnListStore from '@/store/useChldrnListStore';
 
 // Kid 타입 정의
 interface Kid {
@@ -22,6 +23,8 @@ interface KidsListProps {
 const KidsList: React.FC<KidsListProps> = ({ onSelectKid }) => {
 	const [kids, setKids] = useState<Kid[]>();
 	const { getToken } = useAuth();
+	const { setCurrentKid } = useChldrnListStore();
+
 	const handleSelectKid = (kid: Kid) => {
 		// Update active status
 		const updatedKids = kids?.map((k) => ({
@@ -30,6 +33,7 @@ const KidsList: React.FC<KidsListProps> = ({ onSelectKid }) => {
 		}));
 
 		setKids(updatedKids);
+		setCurrentKid(kid.id.toString());
 
 		// Callback to parent component
 		if (onSelectKid) {

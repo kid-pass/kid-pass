@@ -76,7 +76,6 @@ const Register: React.FC = () => {
 
 				if (response.ok) {
 					const childId = data.data.id;
-					localStorage.setItem('currentKid', childId);
 
 					// 2. 백신 일정 생성 API 호출
 					const vaccineResponse = await fetch(

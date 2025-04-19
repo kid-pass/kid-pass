@@ -7,8 +7,7 @@ import { useEffect, useState } from 'react';
 import instance from '@/utils/axios';
 import useChldrnListStore from '@/store/useChldrnListStore';
 import Spacer from '@/elements/spacer/Spacer';
-import LoadingFullScreen from '@/components/loading/LoadingFullScreen';
-import { Group, Box, Text, Flex } from '@mantine/core';
+import { Group, Box, Text, Flex, LoadingOverlay } from '@mantine/core';
 import MobileLayout from '@/components/mantine/MobileLayout';
 import { useRouter } from 'next/navigation';
 
@@ -97,10 +96,7 @@ const App = () => {
 			calendar={true}
 		>
 			<Box p="0 20">
-				<LoadingFullScreen
-					isVisible={isLoading}
-					text="백신 정보를 불러오는 중입니다..."
-				/>
+				<LoadingOverlay visible={isLoading} />
 				<Text fw={700} size="md-lg" c="#222222">
 					예방접종 진행률
 				</Text>
