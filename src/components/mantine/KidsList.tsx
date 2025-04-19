@@ -3,7 +3,6 @@
 import React, { useState, useEffect } from 'react';
 import { Text, Avatar, Stack, Group, UnstyledButton } from '@mantine/core';
 import useAuth from '@/hook/useAuth';
-import useChldrnListStore from '@/store/useChldrnListStore';
 import { useAuthStore } from '@/store/useAuthStore';
 
 // Kid 타입 정의
