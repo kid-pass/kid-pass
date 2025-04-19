@@ -10,6 +10,7 @@ import Spacer from '@/elements/spacer/Spacer';
 import { Group, Box, Text, Flex, LoadingOverlay } from '@mantine/core';
 import MobileLayout from '@/components/mantine/MobileLayout';
 import { useRouter } from 'next/navigation';
+import { useAuthStore } from '@/store/useAuthStore';
 
 export interface VacntnInfo {
 	id: string;
@@ -42,21 +43,21 @@ const App = () => {
 		vaccineStatusMap: {},
 	});
 
-	// Zustand store에서 currentKid 가져오기
-	const currentKid = useChldrnListStore((state) => state.currentKid);
+	// Zustand store에서 crtChldrnNo 가져오기
+	const { crtChldrnNo } = useAuthStore();
 
 	const handleBack = () => router.push('/');
 
 	useEffect(() => {
 		const fetchData = async () => {
-			if (currentKid) {
+			if (crtChldrnNo) {
 				setIsLoading(true);
 
 				try {
 					const token = await getToken();
 
 					const response = await instance.get(
-						`/vaccine/info?chldrnNo=${currentKid}`,
+						`/vaccine/info?chldrnNo=${crtChldrnNo}`,
 						{
 							headers: {
 								Authorization: `Bearer ${token}`,
@@ -84,7 +85,7 @@ const App = () => {
 
 		// 컴포넌트 마운트 시 초기 데이터 로드
 		fetchData();
-	}, [currentKid]);
+	}, [crtChldrnNo]);
 
 	return (
 		<MobileLayout

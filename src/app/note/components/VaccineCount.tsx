@@ -5,8 +5,8 @@ import { useRouter } from 'next/navigation';
 import { Box, Flex, Group, Text, rem } from '@mantine/core';
 import { IconChevronRight } from '@tabler/icons-react';
 import { VACCINE_LIST } from '../../../utils/vaccine';
-import useChldrnListStore from '@/store/useChldrnListStore';
 import { VacntnInfo } from '../page';
+import { useAuthStore } from '@/store/useAuthStore';
 
 export interface VaccineStatusInfo {
 	vaccineName: string;
@@ -21,10 +21,10 @@ interface VaccineCountProps {
 
 const VaccineCount = ({ vaccineStatusMap = {} }: VaccineCountProps) => {
 	const router = useRouter();
-	const currentKid = useChldrnListStore((state) => state.currentKid);
+	const { crtChldrnNo } = useAuthStore();
 
 	const handleVaccineClick = (vaccineId: number) => {
-		router.push(`/note/detail/${vaccineId}?currentKid=${currentKid}`);
+		router.push(`/note/detail/${vaccineId}?crtChldrnNo=${crtChldrnNo}`);
 	};
 
 	return (

@@ -19,6 +19,7 @@ import WeeklyDatePicker from '@/components/datePicker/WeekCarousel';
 import dayjs from 'dayjs';
 import MobileLayout from '@/components/mantine/MobileLayout';
 import useAuth from '@/hook/useAuth';
+import { useAuthStore } from '@/store/useAuthStore';
 
 // 백신 유형별 색상 매핑
 const vaccineColorMap = {
@@ -80,6 +81,7 @@ const VaccineCalendar = () => {
 	const [selectedFilter, setSelectedFilter] = useState('all');
 	const { getToken } = useAuth();
 	const theme = useMantineTheme();
+	const { crtChldrnNo } = useAuthStore();
 
 	const year = currentDate.getFullYear();
 	const month = currentDate.getMonth();
@@ -118,15 +120,10 @@ const VaccineCalendar = () => {
 		const fetchVaccineSchedules = async () => {
 			try {
 				setLoading(true);
-				const childId = localStorage.getItem('currentKid');
-				if (!childId) {
-					console.error('선택된 아이가 없습니다.');
-					return;
-				}
 
 				const token = await getToken();
 				const response = await fetch(
-					`/api/vaccine/schedule?childId=${childId}&year=${year}&month=${
+					`/api/vaccine/schedule?childId=${crtChldrnNo}&year=${year}&month=${
 						month + 1
 					}`,
 					{

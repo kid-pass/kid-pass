@@ -169,8 +169,8 @@ const processChildData = (
 const App: React.FC = () => {
 	const theme = useMantineTheme();
 	const [kidsData, setKidsData] = useState<KidRecord[]>([]);
-	const [currentKidIndex, setCurrentKidIndex] = useState(0);
-	const { setChldrnList, setCurrentKid } = useChldrnListStore();
+	const [crtChldrnNoKidIndex, setCrtChldrnNoKidIndex] = useState(0);
+	const { setChldrnList } = useChldrnListStore();
 	const { getToken } = useAuth();
 	const { setCrtChldrnNo, token } = useAuthStore();
 
@@ -219,7 +219,6 @@ const App: React.FC = () => {
 	const handleChildrenData = (children: Child[]) => {
 		if (children.length > 0) {
 			// 로그인과 동시에 아이번호  zustand 에 저장
-			setCurrentKid(children[0].id);
 			setCrtChldrnNo(children[0].id);
 		}
 
@@ -261,7 +260,7 @@ const App: React.FC = () => {
 		});
 	};
 
-	const currentKid = kidsData[currentKidIndex];
+	const currentSlide = kidsData[crtChldrnNoKidIndex];
 
 	return (
 		<MobileLayout
@@ -283,7 +282,7 @@ const App: React.FC = () => {
 				</Group>
 				<ProfileCarousel
 					profiles={kidsData}
-					onSlideChange={setCurrentKidIndex}
+					onSlideChange={setCrtChldrnNoKidIndex}
 				/>
 				<Box px="16">
 					<Group
@@ -374,10 +373,10 @@ const App: React.FC = () => {
 							/>
 						</Flex>
 					</Group>
-					{currentKid && (
+					{currentSlide && (
 						<MetricsSection
-							labelText={`오늘의 ${currentKid.profile.chldrnNm} 기록이에요`}
-							metricsData={currentKid.metrics}
+							labelText={`오늘의 ${currentSlide.profile.chldrnNm} 기록이에요`}
+							metricsData={currentSlide.metrics}
 						/>
 					)}
 				</Box>

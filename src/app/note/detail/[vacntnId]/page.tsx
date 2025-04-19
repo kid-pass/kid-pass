@@ -59,16 +59,16 @@ export default function VaccineDetailPage() {
 
 	// URL에서 vaccineId 추출
 	const vaccineId = params?.vacntnId as string;
-	const currentKid = searchParams.get('currentKid');
+	const crtChldrnNo = searchParams.get('crtChldrnNo');
 
 	// 백신 상세 정보 가져오기
 	const fetchVaccineDetail = useCallback(async () => {
-		if (!vaccineId || !currentKid) return;
+		if (!vaccineId || !crtChldrnNo) return;
 
 		try {
 			setLoading(true);
 			const response = await instance.get(
-				`/vaccine/detail?chldrnNo=${currentKid}&vaccineId=${vaccineId}`,
+				`/vaccine/detail?chldrnNo=${crtChldrnNo}&vaccineId=${vaccineId}`,
 				{
 					headers: {
 						Authorization: `Bearer ${token}`,
@@ -76,7 +76,7 @@ export default function VaccineDetailPage() {
 				}
 			);
 
-			console.log(response.data.data)
+			console.log(response.data.data);
 			if (response.data?.data) {
 				setVaccineDetail(response.data.data);
 			}
@@ -87,7 +87,7 @@ export default function VaccineDetailPage() {
 		} finally {
 			setLoading(false);
 		}
-	}, [currentKid, vaccineId]);
+	}, [crtChldrnNo, vaccineId]);
 
 	useEffect(() => {
 		fetchVaccineDetail();
@@ -95,7 +95,7 @@ export default function VaccineDetailPage() {
 
 	// 백신 접종 등록
 	const handleConfirm = useCallback(async () => {
-		if (!vaccineDetail?.nextVaccineInfo || !currentKid) return;
+		if (!vaccineDetail?.nextVaccineInfo || !crtChldrnNo) return;
 
 		try {
 			const { year, month, day } = useDateStore.getState();
@@ -104,7 +104,7 @@ export default function VaccineDetailPage() {
 				.padStart(2, '0')}-${day.toString().padStart(2, '0')}`;
 
 			const body = {
-				childId: currentKid,
+				childId: crtChldrnNo,
 				vaccinationData: {
 					vacntnId: vaccineId,
 					vacntnIctsd: vaccineDetail.nextVaccineInfo.vaccineCode,
@@ -125,7 +125,7 @@ export default function VaccineDetailPage() {
 		} catch (error) {
 			console.error('백신 접종 기록 생성 중 오류 발생:', error);
 		}
-	}, [vaccineDetail, currentKid, vaccineId, token, fetchVaccineDetail]);
+	}, [vaccineDetail, crtChldrnNo, vaccineId, token, fetchVaccineDetail]);
 
 	// 모달 콘텐츠 설정 및 열기
 	const handleOpenVaccineModal = useCallback(() => {

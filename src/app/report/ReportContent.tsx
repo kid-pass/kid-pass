@@ -101,7 +101,6 @@ const formatDate = (dateString: string): string => {
 };
 
 const ReportContent = () => {
-	const navigate = useRouter();
 	const searchParams = useSearchParams();
 	const [profile, setProfile] = useState<ChildProfile | null>(null);
 	const [categoryRecords, setCategoryRecords] = useState<CategoryItem[]>([]);

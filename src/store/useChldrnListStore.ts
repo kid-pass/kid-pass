@@ -1,31 +1,25 @@
-import { create } from "zustand";
-import { persist } from "zustand/middleware";
+import { create } from 'zustand';
+import { persist } from 'zustand/middleware';
 
 export interface ChildInfo {
-  chldrnNo: string;
-  chldrnNm: string;
-  chldrnSexdstn: string;
+	chldrnNo: string;
+	chldrnNm: string;
+	chldrnSexdstn: string;
 }
 interface ChldrnListState {
-  children: ChildInfo[];
-  currentKid: string | null;
-  setChldrnList: (info: ChildInfo[]) => void;
-  setCurrentKid: (kidNo: string) => void;
+	children: ChildInfo[];
+	setChldrnList: (info: ChildInfo[]) => void;
 }
 
 const useChldrnListStore = create<ChldrnListState>()(
-  persist(
-    (set) => ({
-      children: [],
-      currentKid: null,
-      setChldrnList: (info) => set(() => ({ children: info })),
-      setCurrentKid: (kidNo) => {
-        set(() => ({ currentKid: kidNo }));
-      },
-    }),
-    {
-      name: "chldrnList",
-    }
-  )
+	persist(
+		(set) => ({
+			children: [],
+			setChldrnList: (info) => set(() => ({ children: info })),
+		}),
+		{
+			name: 'chldrnList',
+		}
+	)
 );
 export default useChldrnListStore;
