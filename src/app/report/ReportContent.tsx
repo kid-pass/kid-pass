@@ -1,6 +1,5 @@
 'use client';
 
-import MobileLayout from '@/components/mantine/MobileLayout';
 import ProfileMetrics from '@/components/metrics/ProfileMetrics';
 import instance from '@/utils/axios';
 import { Box, Flex, LoadingOverlay, Stack, Text } from '@mantine/core';
@@ -325,15 +324,20 @@ const ReportContent = () => {
 		console.log('발행 완료:', data);
 	};
 
+	useEffect(() => {
+		console.log(captureRef.current);
+	}, [captureRef.current]);
+
 	return (
-		<Box px={16}>
+		<Box>
 			{loading ? (
 				<LoadingOverlay visible={loading} />
 			) : (
-				<Box>
+				<Box px={16} ref={captureRef}>
 					{profile && (
 						<Box
 							style={{
+								visibility: 'visible',
 								borderRadius: '8px',
 							}}
 							bg="brand.0"
