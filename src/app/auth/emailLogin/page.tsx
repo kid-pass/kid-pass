@@ -14,12 +14,10 @@ import {
   AppShell,
 } from "@mantine/core";
 import { IconEye, IconEyeOff } from "@tabler/icons-react";
-import { useAuthStore } from "@/store/useAuthStore";
 import MobileLayout from "@/components/mantine/MobileLayout";
 
 const LoginPage = () => {
   const router = useRouter();
-  const { setToken, setRefreshToken } = useAuthStore();
 
   const [userId, setUserId] = useState("");
   const [password, setPassword] = useState("");
@@ -61,15 +59,13 @@ const LoginPage = () => {
     }
   };
 
-  const handleBack = () => router.push("/");
-
   return (
     <MobileLayout
       showHeader={true}
       headerType="back"
       title="로그인"
       showBottomNav={false}
-      onBack={handleBack}
+      onBack={() => router.replace("/auth/login")}
     >
       <Box pos="relative" px="md" style={{ height: "100%" }}>
         <LoadingOverlay visible={loading} />

@@ -174,17 +174,12 @@ function LoginContent() {
     }
   };
 
-  const handleBack = () => {
-    router.back();
-  };
-
   return (
     <MobileLayout
       showHeader={false}
       headerType="back"
       title="로그인"
       showBottomNav={false}
-      onBack={handleBack}
     >
       {(isKakaoLoading || isGoogleLoading) && (
         <Box

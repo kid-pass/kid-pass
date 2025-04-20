@@ -139,9 +139,9 @@ const DiaperFields = ({ form }: DiaperFieldsProps) => {
           양
         </Text>
         <SimpleGrid cols={3} spacing="xs">
-          {AMTS.map((amount) => (
+          {AMTS.map((amount, index) => (
             <Box
-              key={amount}
+              key={`${amount}-${index}`}
               p="md"
               style={{
                 borderRadius: "8px",

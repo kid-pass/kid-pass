@@ -26,7 +26,6 @@ const App = () => {
 	const handleWithdraw = async () => {
 		try {
 			const accessToken = await getToken();
-
 			const response = await fetch('/api/auth/withdraw', {
 				method: 'DELETE',
 				headers: {
@@ -194,8 +193,14 @@ const App = () => {
 								rightElement={null}
 								hasArrow={false}
 								onClick={() => {
-									localStorage.removeItem('kidlove');
-									router.push('/auth/login');
+									localStorage.removeItem('auth-storage');
+									if (window.ReactNativeWebView) {
+										window.ReactNativeWebView.postMessage(
+											JSON.stringify({
+												type: 'logout',
+											})
+										);
+									}
 								}}
 							/>
 							<MenuItem
