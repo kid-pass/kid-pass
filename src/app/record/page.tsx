@@ -53,7 +53,7 @@ const RecordPage = () => {
           },
         }
       );
-
+      alert(response);
       if (response.ok) {
         const { data } = await response.json();
         const formattedData = formatRecordData(data);
