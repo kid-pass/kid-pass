@@ -230,6 +230,7 @@ const App: React.FC = () => {
 			chldrnNm: child.name,
 			chldrnSexdstn: child.gender,
 			profileImageUrl: child.profileImageUrl,
+			birthDate: child.birthDate,
 		}));
 
 		setChldrnList(childrenToStore);

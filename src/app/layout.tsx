@@ -136,6 +136,7 @@ const theme = createTheme({
 			'#5d7cbb',
 			'#485e8a',
 			'#334058', // 가장 어두운 색상
+			'#FFEDF5',
 		],
 	},
 	primaryColor: 'brand',

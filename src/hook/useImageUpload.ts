@@ -1,10 +1,6 @@
+// /hook/useImageUpload.ts
 'use client';
 
-import { useState } from 'react';
-import type { PutBlobResult } from '@vercel/blob';
-
-const useImageUpload = () => {
-	const [blob, setBlob] = useState<PutBlobResult | null>(null);
-};
+const useImageUpload = () => {};
 
 export default useImageUpload;
