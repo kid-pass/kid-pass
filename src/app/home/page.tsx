@@ -67,6 +67,7 @@ interface Child {
 	allergies: string[];
 	symptoms: string[];
 	memo: string | null;
+	profileImageUrl: string | null;
 }
 
 const calculateAgeInWeeksAndDays = (birthDate: string) => {
@@ -217,6 +218,8 @@ const App: React.FC = () => {
 
 	// 데이터 처리 함수를 분리
 	const handleChildrenData = (children: Child[]) => {
+		console.log(children);
+
 		if (children.length > 0) {
 			// 로그인과 동시에 아이번호  zustand 에 저장
 			setCrtChldrnNo(children[0].id);
@@ -226,6 +229,7 @@ const App: React.FC = () => {
 			chldrnNo: child.id,
 			chldrnNm: child.name,
 			chldrnSexdstn: child.gender,
+			profileImageUrl: child.profileImageUrl,
 		}));
 
 		setChldrnList(childrenToStore);

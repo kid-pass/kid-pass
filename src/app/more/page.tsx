@@ -140,7 +140,6 @@ const App = () => {
 							</Text>
 							<Box style={{ backgroundColor: 'white' }}>
 								<MenuItem label="찜한 병원/약국" hasArrow />
-								<MenuItem label="건강뉴스 즐겨찾기" hasArrow />
 								<MenuItem
 									label="리포트 리스트"
 									hasArrow

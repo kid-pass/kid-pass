@@ -29,7 +29,7 @@ const ActionTab = ({
 			const element = captureRef.current;
 
 			if (!element) {
-				console.error('❌ 캡처할 요소가 없습니다 (ref가 null)');
+				console.error('캡처할 요소가 없습니다');
 				return null;
 			}
 

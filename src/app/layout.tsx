@@ -71,6 +71,10 @@ const theme = createTheme({
 		lg: '1.25rem', // 20px
 		xl: '1.5rem', // 24px
 	},
+	radius: {
+		md: '1.25rem',
+	},
+
 	components: {
 		Text: {
 			styles: {

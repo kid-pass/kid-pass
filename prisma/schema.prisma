@@ -113,6 +113,7 @@ model Child {
   prescriptions    Prescription[]
   vacntnInfo       VacntnInfo[]
   reports          Report[]
+  profileImageUrl  String?
 
   @@map("children")
 }

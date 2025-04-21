@@ -5,6 +5,7 @@ export interface ChildInfo {
 	chldrnNo: string;
 	chldrnNm: string;
 	chldrnSexdstn: string;
+	profileImageUrl: string | null;
 }
 interface ChldrnListState {
 	children: ChildInfo[];
