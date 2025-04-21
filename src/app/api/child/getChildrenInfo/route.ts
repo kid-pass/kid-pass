@@ -26,7 +26,7 @@ export async function GET(request: Request) {
 			include: {
 				children: {
 					orderBy: {
-						createdAt: 'desc',
+						createdAt: 'asc',
 					},
 					select: {
 						id: true,

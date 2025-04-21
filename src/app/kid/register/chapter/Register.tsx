@@ -16,23 +16,15 @@ import { useRouter } from 'next/navigation';
 const Register: React.FC = () => {
 	const router = useRouter();
 	const { getToken } = useAuth();
-	const [token, setToken] = useState();
 	const [loading, setLoading] = useState(false);
-
-	useEffect(() => {
-		const fetchToken = async () => {
-			const accessToken = await getToken();
-			setToken(accessToken);
-		};
-
-		fetchToken();
-	}, []);
 
 	const { chapter, nextChapter, goToChapter } = useChapter({
 		totalChapters: 6,
 		onComplete: async () => {
 			try {
 				setLoading(true);
+
+				const token = await getToken();
 				const store = useChldrnInfoStore.getState();
 				const [
 					chldrnNm,
