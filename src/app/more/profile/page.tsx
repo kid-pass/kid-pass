@@ -11,7 +11,6 @@ import {
 	Text,
 	useMantineTheme,
 } from '@mantine/core';
-import { PutBlobResult } from '@vercel/blob';
 import { useRef, useState } from 'react';
 
 const childrenOrder = [

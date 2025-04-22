@@ -9,6 +9,7 @@ import { useEffect, useRef, useState } from 'react';
 import { Prescription } from '../hospital/type/hospital';
 import PrescritionItem from '../hospital/PrescriptionItem';
 import ActionTab from './ActionTab';
+import EmptyState from '@/components/EmptyState/EmptyState';
 
 // 증상 타입 정의
 interface SymptomItem {
@@ -371,9 +372,7 @@ const ReportContent = () => {
 							아기의 증상은요
 						</Text>
 						{symptoms.length === 0 ? (
-							<Text c="#FFB6D7" fw={500}>
-								증상이 없습니다
-							</Text>
+							<EmptyState />
 						) : (
 							<Box display="flex" my="12 40" style={{ gap: 4 }}>
 								{symptoms.map((item) => (
@@ -397,11 +396,7 @@ const ReportContent = () => {
 						</Text>
 						<Stack gap="md">
 							{prescriptions.length === 0 ? (
-								<>
-									<Text c="#FFB6D7" fw={500}>
-										처방 기록이 없습니다.
-									</Text>
-								</>
+								<EmptyState />
 							) : (
 								prescriptions.map((record) => (
 									<PrescritionItem
@@ -424,7 +419,7 @@ const ReportContent = () => {
 							}}
 						>
 							{vaccineData && vaccineData.length === 0 ? (
-								<Text>백신 기록이 없습니다</Text>
+								<EmptyState />
 							) : (
 								vaccineData.map((vaccine) => (
 									<Box
@@ -488,9 +483,7 @@ const ReportContent = () => {
 							특이사항
 						</Text>
 						{categoryRecords.length === 0 ? (
-							<Text c="#FFB6D7" fw={500}>
-								특이 사항이 없습니다.
-							</Text>
+							<EmptyState />
 						) : (
 							<Box display="flex" my="12 40" style={{ gap: 4 }}>
 								{categoryRecords

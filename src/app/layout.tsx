@@ -137,6 +137,7 @@ const theme = createTheme({
 			'#485e8a',
 			'#334058', // 가장 어두운 색상
 			'#FFEDF5',
+			'#F9f9f9',
 		],
 	},
 	primaryColor: 'brand',
@@ -148,6 +149,7 @@ const theme = createTheme({
 		// 커스텀 변수를 저장하는 공간
 		fontColors: {
 			primary: '#222222',
+			empty: '#BDBDBD',
 			sub1: '#646464',
 			sub2: '#707070',
 			sub3: '#9E9E9E',
