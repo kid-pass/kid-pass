@@ -1,9 +1,16 @@
 'use client';
 
+import heic2any from 'heic2any';
 import MobileLayout from '@/components/mantine/MobileLayout';
 import useChldrnListStore from '@/store/useChldrnListStore';
 import instance from '@/utils/axios';
-import { Box, Image, Text, useMantineTheme } from '@mantine/core';
+import {
+	Box,
+	Image,
+	LoadingOverlay,
+	Text,
+	useMantineTheme,
+} from '@mantine/core';
 import { PutBlobResult } from '@vercel/blob';
 import { useRef, useState } from 'react';
 
@@ -24,32 +31,69 @@ const App = () => {
 	const theme = useMantineTheme();
 	const { children, updateChild } = useChldrnListStore();
 	const inputFileRef = useRef<HTMLInputElement>(null);
-	const [blob, setBlob] = useState<PutBlobResult | null>(null);
+	const [selectedChildId, setSelectedChildId] = useState<string | null>(null);
+	const [isUploading, setIsUploading] = useState<boolean>(false);
 
-	// 이미지 클릭 시 파일 선택 창 열기
-	const handleImageClick = () => {
+	// 이미지 클릭 시 해당 아이의 ID를 저장하고 파일 선택 창 열기
+	const handleImageClick = (childId: string) => {
+		setSelectedChildId(childId);
 		inputFileRef.current?.click();
 	};
 
 	const handleFileChange = async (event: any) => {
-		const file = event.target.files?.[0];
-		if (!file) return;
+		let file = event.target.files?.[0];
+		if (!file || !selectedChildId) return;
 
-		// FormData 객체 생성
-		const formData = new FormData();
-		formData.append('file', file);
+		setIsUploading(true);
 
 		// Axios로 요청 보내기
 		try {
+			if (
+				file.type === 'image/heic' ||
+				file.name.toLowerCase().endsWith('.heic')
+			) {
+				console.log('HEIC 파일 변환 시작');
+				const convertedBlob = await heic2any({
+					blob: file,
+					toType: 'image/jpeg',
+					quality: 0.8,
+				});
+
+				// 변환된 Blob을 File 객체로 변환
+				file = new File(
+					[convertedBlob as Blob],
+					file.name.replace(/\.heic$/i, '.jpg'),
+					{ type: 'image/jpeg' }
+				);
+				console.log('HEIC 파일 변환 완료:', file.name);
+			}
+
+			// FormData 객체 생성
+			const formData = new FormData();
+			formData.append('file', file);
+			formData.append('childId', selectedChildId);
+			formData.append('filePrefix', 'profileImage');
+
 			const response = await instance.post('/image/upload', formData, {
 				headers: {
 					'Content-Type': 'multipart/form-data',
 				},
 			});
 
-			const newBlob = response.data as PutBlobResult;
+			const data = response.data;
+
+			if (data.success && data.imageUrl) {
+				if (selectedChildId) {
+					updateChild(selectedChildId, {
+						profileImageUrl: data.imageUrl,
+					});
+				}
+			}
 		} catch (error) {
 			console.error('이미지 업로드 오류:', error);
+		} finally {
+			setIsUploading(false);
+			setSelectedChildId(null); // 선택 상태 초기화
 		}
 	};
 
@@ -82,6 +126,7 @@ const App = () => {
 							borderRadius: `${theme.radius.md}`,
 							justifyContent: 'space-between',
 							padding: `${theme.spacing.md}`,
+							position: 'relative', // 로딩 오버레이를 위한 position 설정
 						}}
 						bg={
 							child.chldrnSexdstn === 'M'
@@ -93,6 +138,9 @@ const App = () => {
 						display="flex"
 						key={child.chldrnNo}
 					>
+						{isUploading && selectedChildId === child.chldrnNo && (
+							<LoadingOverlay visible={isUploading} />
+						)}
 						<Box
 							display="flex"
 							style={{ alignItems: 'center', gap: '12px' }}
@@ -103,9 +151,16 @@ const App = () => {
 										? '/profile.png'
 										: child.profileImageUrl
 								}
-								w="88px"
-								height="88px"
-								onClick={handleImageClick}
+								w="88"
+								h="88"
+								onClick={() => handleImageClick(child.chldrnNo)}
+								style={{
+									borderRadius: '100%',
+									objectFit: 'cover',
+									flex: '0 0 88px', // flex-grow:0, flex-shrink:0, flex-basis:88px
+									minWidth: '88px',
+									minHeight: '88px',
+								}}
 							/>
 							<Box
 								display="flex"

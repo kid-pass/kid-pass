@@ -20,7 +20,10 @@ const useChldrnListStore = create<ChldrnListState>()(
 		(set) => ({
 			children: [],
 			setChldrnList: (info) => set(() => ({ children: info })),
-			updateChild: (chldrnNo, updates) =>
+			updateChild: (
+				chldrnNo,
+				updates // 매개변수 2개로 수정
+			) =>
 				set((state) => ({
 					children: state.children.map((child) =>
 						child.chldrnNo === chldrnNo
