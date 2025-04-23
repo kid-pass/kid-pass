@@ -2,7 +2,7 @@
 
 import ProfileMetrics from '@/components/metrics/ProfileMetrics';
 import instance from '@/utils/axios';
-import { Box, Flex, LoadingOverlay, Stack, Text } from '@mantine/core';
+import { Box, Flex, LoadingOverlay, Stack, Text, useMantineTheme } from '@mantine/core';
 import { useRouter } from 'next/navigation';
 import { useSearchParams } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
@@ -10,6 +10,7 @@ import { Prescription } from '../hospital/type/hospital';
 import PrescritionItem from '../hospital/PrescriptionItem';
 import ActionTab from './ActionTab';
 import EmptyState from '@/components/EmptyState/EmptyState';
+import { common } from '@/utils/common';
 
 // 증상 타입 정의
 interface SymptomItem {
@@ -72,34 +73,6 @@ interface VaccinationRecord {
 	completedDoses: number;
 }
 
-// 만 나이 계산 함수
-const calculateAge = (birthDate: string): number => {
-	const birth = new Date(birthDate);
-	const today = new Date();
-
-	let age = today.getFullYear() - birth.getFullYear();
-	const monthDiff = today.getMonth() - birth.getMonth();
-
-	// 생일이 아직 지나지 않았으면 나이에서 1을 뺌
-	if (
-		monthDiff < 0 ||
-		(monthDiff === 0 && today.getDate() < birth.getDate())
-	) {
-		age--;
-	}
-
-	return age;
-};
-
-// 날짜 포맷 함수 (YYYY-MM-DD)
-const formatDate = (dateString: string): string => {
-	const date = new Date(dateString);
-	const year = date.getFullYear();
-	const month = String(date.getMonth() + 1).padStart(2, '0');
-	const day = String(date.getDate()).padStart(2, '0');
-
-	return `${year}-${month}-${day}`;
-};
 
 const ReportContent = () => {
 	const searchParams = useSearchParams();
@@ -111,6 +84,9 @@ const ReportContent = () => {
 	const [error, setError] = useState<string | null>(null);
 	const [vaccineData, setVaccineData] = useState<VaccinationRecord[]>([]);
 	const captureRef = useRef<HTMLDivElement>(null);
+	const {getToday,getFormatDate,getAge} = common()
+	const today=getToday()
+	const theme = useMantineTheme()
 
 	const fetchProfileData = async () => {
 		try {
@@ -127,8 +103,8 @@ const ReportContent = () => {
 				// 데이터에 만 나이 추가
 				const profileData: ChildProfile = {
 					...childData,
-					age: calculateAge(childData.birthDate),
-					formattedBirthDate: formatDate(childData.birthDate),
+					age: getAge(childData.birthDate),
+					formattedBirthDate: getFormatDate(childData.birthDate),
 				};
 
 				setProfile(profileData);
@@ -145,14 +121,9 @@ const ReportContent = () => {
 	const fetchSymptomData = async () => {
 		try {
 			const childId = searchParams.get('chldrnNo');
-
-			// 오늘 날짜 구하기
-			const today = new Date();
-			const formattedToday = formatDate(today.toISOString());
-
 			// API 호출
 			const response = await instance.get(
-				`/record?childId=${childId}&type=SYMPTOM&startDate=${formattedToday}`
+				`/record?childId=${childId}&type=SYMPTOM&startDate=${today}`
 			);
 
 			const allRecords = response.data.data;
@@ -251,13 +222,9 @@ const ReportContent = () => {
 		try {
 			const childId = searchParams.get('chldrnNo');
 
-			// 오늘 날짜 구하기
-			const today = new Date();
-			const formattedToday = formatDate(today.toISOString());
-
 			// 첫 번째 API 호출 - 'ETC'라는 타입으로 요청
 			const response = await instance.get(
-				`/record?childId=${childId}&type=ETC&startDate=${formattedToday}`
+				`/record?childId=${childId}&type=ETC&startDate=${today}`
 			);
 
 			// 객체 배열을 저장하는 방식으로 변경
@@ -326,6 +293,7 @@ const ReportContent = () => {
 				<LoadingOverlay visible={loading} />
 			) : (
 				<Box px={16} ref={captureRef}>
+					<Text fw={500} fz={theme.fontSizes.sm} c={theme.other.fontColors.empty} mb={theme.spacing.s}>발행일 {today}</Text>
 					{profile && (
 						<Box
 							style={{
@@ -438,7 +406,7 @@ const ReportContent = () => {
 											}}
 										>
 											<Text c="#9E9E9E" fz="md" fw={500}>
-												{formatDate(
+												{getFormatDate(
 													vaccine.vaccinationDate
 												)}
 											</Text>

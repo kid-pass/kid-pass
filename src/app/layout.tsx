@@ -66,6 +66,7 @@ const theme = createTheme({
 	spacing: {
 		xxs: '0.25rem', // 4px
 		xs: '0.5rem', // 8px
+		s: '0.625rem', //10px
 		sm: '0.75rem', // 12px
 		md: '1rem', // 16px
 		lg: '1.25rem', // 20px
