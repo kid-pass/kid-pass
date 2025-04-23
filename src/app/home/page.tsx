@@ -16,6 +16,7 @@ import {
 	Container,
 	useMantineTheme,
 	Box,
+	Anchor,
 } from '@mantine/core';
 import { IconPlus } from '@tabler/icons-react';
 import { useAuthStore } from '@/store/useAuthStore';
@@ -290,28 +291,37 @@ const App: React.FC = () => {
 					onSlideChange={setCrtChldrnNoKidIndex}
 				/>
 				<Box px="16">
-					<Group
-						bg={theme.colors.brand[7]}
-						p="lg"
-						align="center"
-						pos="relative"
-						style={{ borderRadius: '8px' }}
+					<Anchor
+						component={Link}
+						href="/record"
+						style={{ textDecoration: 'none' }}
 					>
-						<IconPlus color="#FFFFFF" size={12} strokeWidth={4} />
-						<Text c="white" fw={700} fz="md">
-							오늘의 아이 증상 기록하기
-						</Text>
+						<Group
+							bg={theme.colors.brand[7]}
+							p="lg"
+							align="center"
+							pos="relative"
+							style={{ borderRadius: '8px' }}
+						>
+							<IconPlus
+								color="#FFFFFF"
+								size={12}
+								strokeWidth={4}
+							/>
+							<Text c="white" fw={700} fz="md">
+								오늘의 아이 증상 기록하기
+							</Text>
 
-						<Image
-							src="/record.png"
-							alt=""
-							pos="absolute"
-							right={10}
-							w={80}
-							h={80}
-						/>
-					</Group>
-
+							<Image
+								src="/record.png"
+								alt=""
+								pos="absolute"
+								right={10}
+								w={80}
+								h={80}
+							/>
+						</Group>
+					</Anchor>
 					<Group gap="xs" align="center" mt="md">
 						<Flex
 							component={Link}
@@ -348,7 +358,7 @@ const App: React.FC = () => {
 
 						<Flex
 							component={Link}
-							href="/map"
+							href="/hospital"
 							p="md"
 							bg="white"
 							justify="space-between"

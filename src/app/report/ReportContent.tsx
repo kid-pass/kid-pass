@@ -2,7 +2,14 @@
 
 import ProfileMetrics from '@/components/metrics/ProfileMetrics';
 import instance from '@/utils/axios';
-import { Box, Flex, LoadingOverlay, Stack, Text, useMantineTheme } from '@mantine/core';
+import {
+	Box,
+	Flex,
+	LoadingOverlay,
+	Stack,
+	Text,
+	useMantineTheme,
+} from '@mantine/core';
 import { useRouter } from 'next/navigation';
 import { useSearchParams } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
@@ -73,7 +80,6 @@ interface VaccinationRecord {
 	completedDoses: number;
 }
 
-
 const ReportContent = () => {
 	const searchParams = useSearchParams();
 	const [profile, setProfile] = useState<ChildProfile | null>(null);
@@ -84,9 +90,9 @@ const ReportContent = () => {
 	const [error, setError] = useState<string | null>(null);
 	const [vaccineData, setVaccineData] = useState<VaccinationRecord[]>([]);
 	const captureRef = useRef<HTMLDivElement>(null);
-	const {getToday,getFormatDate,getAge} = common()
-	const today=getToday()
-	const theme = useMantineTheme()
+	const { getToday, getFormatDate, getAge } = common();
+	const today = getToday();
+	const theme = useMantineTheme();
 
 	const fetchProfileData = async () => {
 		try {
@@ -293,7 +299,14 @@ const ReportContent = () => {
 				<LoadingOverlay visible={loading} />
 			) : (
 				<Box px={16} ref={captureRef}>
-					<Text fw={500} fz={theme.fontSizes.sm} c={theme.other.fontColors.empty} mb={theme.spacing.s}>발행일 {today}</Text>
+					<Text
+						fw={500}
+						fz={theme.fontSizes.sm}
+						c={theme.other.fontColors.empty}
+						mb={theme.spacing.s}
+					>
+						발행일 {today}
+					</Text>
 					{profile && (
 						<Box
 							style={{
@@ -360,7 +373,7 @@ const ReportContent = () => {
 					</Box>
 					<Box mt="xl">
 						<Text fw={700} fz="lg" mb="xl">
-							최근 아기가 처방받은 기록이에요
+							최근 아기가 치료받은 기록이에요
 						</Text>
 						<Stack gap="md">
 							{prescriptions.length === 0 ? (
@@ -380,10 +393,13 @@ const ReportContent = () => {
 							아기의 예방접종 이력이에요
 						</Text>
 						<Box
+							p={theme.spacing.lg}
 							style={{
 								display: 'flex',
 								flexDirection: 'column',
 								gap: '16px',
+								boxShadow: `${theme.other.shadow.basic}`,
+								borderRadius: '10px',
 							}}
 						>
 							{vaccineData && vaccineData.length === 0 ? (
@@ -393,23 +409,29 @@ const ReportContent = () => {
 									<Box
 										display="flex"
 										style={{
-											justifyContent: 'space-between',
-											alignItems: 'center',
+											flexDirection: 'column',
+											gap: `${theme.spacing.sm}`,
+											borderBottom: '1px solid #F4F4F4',
 										}}
 										key={vaccine.id}
 									>
+										<Text
+											c={theme.other.fontColors.sub3}
+											fz="md"
+											fw={500}
+										>
+											{getFormatDate(
+												vaccine.vaccinationDate
+											)}
+										</Text>
 										<Box
 											display="flex"
 											style={{
-												flexDirection: 'column',
-												gap: '8px',
+												alignItems: 'center',
+												justifyContent: 'space-between',
 											}}
+											pb={theme.spacing.lg}
 										>
-											<Text c="#9E9E9E" fz="md" fw={500}>
-												{getFormatDate(
-													vaccine.vaccinationDate
-												)}
-											</Text>
 											<Text
 												c="#000000"
 												fz="md-lg"
@@ -417,11 +439,7 @@ const ReportContent = () => {
 											>
 												{vaccine.vaccineName}
 											</Text>
-										</Box>
-										<Box
-											display="flex"
-											style={{ gap: '4px' }}
-										>
+
 											{Array.from({
 												length: vaccine.totalRequiredDoses,
 											}).map((_, index) => (
@@ -464,7 +482,7 @@ const ReportContent = () => {
 										<Box
 											key={item.id}
 											p="10 20"
-											bg="#FF7B7B"
+											bg={theme.colors.brand[13]}
 											style={{ borderRadius: '20px' }}
 										>
 											<Text c="#FFFFFF" fz="md" fw={600}>

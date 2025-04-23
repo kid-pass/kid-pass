@@ -99,6 +99,14 @@ const RecordForm = ({ type }: RecordFormProps) => {
 
 	const handleSubmit = async (values: FormValues) => {
 		try {
+			const dataToSubmit = {
+				...values,
+				behavior:
+					values.behavior && typeof values.behavior === 'string'
+						? [values.behavior]
+						: values.behavior,
+			};
+
 			const token = await getToken();
 
 			const response = await fetch(
@@ -114,7 +122,7 @@ const RecordForm = ({ type }: RecordFormProps) => {
 						type,
 						startTime: values.startDate,
 						endTime: values.endDate,
-						...values,
+						...dataToSubmit,
 					}),
 				}
 			);

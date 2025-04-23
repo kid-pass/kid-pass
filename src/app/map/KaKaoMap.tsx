@@ -1,7 +1,6 @@
 'use client';
 import { Map, MapMarker, useKakaoLoader } from 'react-kakao-maps-sdk';
 import React, { useState, useEffect } from 'react';
-import useGeolocation from '@/hook/useGeolocation';
 import axios from 'axios';
 import { Label } from '@/elements/label/Label';
 import styles from './map.module.css';
@@ -65,33 +64,31 @@ const KakaoMap = () => {
 
 	const [mapCenter, setMapCenter] = useState({ lat: 0, lng: 0 });
 
-	const { location } = useGeolocation();
+	// useEffect(() => {
+	// 	const fetchHospitalData = async () => {
+	// 		if (location?.latitude && location?.longitude) {
+	// 			try {
+	// 				const response = await axios.get(
+	// 					`http://localhost:8071/api/data/hsptl/getNearHsptl?page=1&pageSize=5&lon=${location.longitude}&lat=${location.latitude}&limit=100000`
+	// 				);
+	// 				setHospitalData(response.data.data.list);
+	// 			} catch (error) {
+	// 				console.error('Error fetching hospital data:', error);
+	// 			}
+	// 		}
+	// 	};
 
-	useEffect(() => {
-		const fetchHospitalData = async () => {
-			if (location?.latitude && location?.longitude) {
-				try {
-					const response = await axios.get(
-						`http://localhost:8071/api/data/hsptl/getNearHsptl?page=1&pageSize=5&lon=${location.longitude}&lat=${location.latitude}&limit=100000`
-					);
-					setHospitalData(response.data.data.list);
-				} catch (error) {
-					console.error('Error fetching hospital data:', error);
-				}
-			}
-		};
-
-		if (location?.latitude && location?.longitude) {
-			setMapCenter({ lat: location.latitude, lng: location.longitude });
-			fetchHospitalData();
-		}
-	}, [location]);
+	// 	if (location?.latitude && location?.longitude) {
+	// 		setMapCenter({ lat: location.latitude, lng: location.longitude });
+	// 		fetchHospitalData();
+	// 	}
+	// }, [location]);
 
 	if (loading) return <div>Loading...</div>;
 
 	return (
 		<>
-			{location && (
+			{/* {location && (
 				<Map
 					center={mapCenter}
 					style={{ width: '100%', height: '450px' }}
@@ -153,7 +150,7 @@ const KakaoMap = () => {
 							</div>
 						</div>
 					);
-				})}
+				})} */}
 
 			{/*
                     운영시간 표시 UI

@@ -73,6 +73,7 @@ const theme = createTheme({
 		xl: '1.5rem', // 24px
 	},
 	radius: {
+		s: '0.625rem',
 		md: '1.25rem',
 	},
 
@@ -139,6 +140,7 @@ const theme = createTheme({
 			'#334058', // 가장 어두운 색상
 			'#FFEDF5',
 			'#F9f9f9',
+			'#71E0E0',
 		],
 	},
 	primaryColor: 'brand',
@@ -155,6 +157,9 @@ const theme = createTheme({
 			sub2: '#707070',
 			sub3: '#9E9E9E',
 			sub4: '#d9d9d9',
+		},
+		shadow: {
+			basic: '0px 0px 10px 0px rgba(0, 0, 0, 0.15)',
 		},
 	},
 });

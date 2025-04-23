@@ -9,6 +9,7 @@ import { useEffect, useState } from 'react';
 import { useAuthStore } from '@/store/useAuthStore';
 import instance from '@/utils/axios';
 import PrescritionItem from './PrescriptionItem';
+import EmptyState from '@/components/EmptyState/EmptyState';
 
 const Hospital = () => {
 	const router = useRouter();
@@ -65,9 +66,7 @@ const Hospital = () => {
 		>
 			<Stack p="md" gap="md">
 				{prescriptions.length === 0 ? (
-					<Text c="#FFB6D7" fw={500} style={{ textAlign: 'center' }}>
-						처방전이 없습니다.
-					</Text>
+					<EmptyState />
 				) : (
 					prescriptions.map((record) => (
 						<PrescritionItem
