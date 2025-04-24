@@ -24,6 +24,7 @@ const Hospital = () => {
 				`/child/${childId}/prescription`
 			);
 
+			console.log(response.data)
 			return response.data;
 		} catch (error) {
 			console.error('처방전 조회 오류:', error);

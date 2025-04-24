@@ -10,7 +10,6 @@ import {
 	Text,
 	useMantineTheme,
 } from '@mantine/core';
-import { useRouter } from 'next/navigation';
 import { useSearchParams } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
 import { Prescription } from '../hospital/type/hospital';
@@ -194,6 +193,7 @@ const ReportContent = () => {
 
 				const data = await response.json();
 
+				console.log(data)
 				// 받아온 데이터를 상태에 저장 (처방전 데이터 상태가 필요합니다)
 				setPrescriptions(data);
 			} else {
@@ -389,7 +389,7 @@ const ReportContent = () => {
 						</Stack>
 					</Box>
 					<Box mt="xl">
-						<Text fw={700} fz="lg" mb="xl">
+						<Text fw={600} fz="md" mb="xl">
 							아기의 예방접종 이력이에요
 						</Text>
 						<Box
