@@ -35,15 +35,26 @@ export async function GET(request: Request) {
 			);
 		}
 
-		// 모든 뉴스 조회
-		const news = await prisma.news.findMany();
+		// URL에서 쿼리 파라미터 추출
+		const url = new URL(request.url);
+		const limit = url.searchParams.get('limit')
+			? parseInt(url.searchParams.get('limit')!)
+			: undefined;
+
+		// 뉴스 조회 (파라미터에 따라 필터링)
+		const news = await prisma.news.findMany({
+			...(limit && { take: limit }),
+		});
 
 		return NextResponse.json({
 			message: '건강뉴스 목록을 성공적으로 가져왔습니다.',
 			data: news,
 		});
 	} catch (error) {
-		console.error('건강뉴스 조회 오류:', error);
+		console.error(
+			'건강뉴스 조회 오류 상세정보:',
+			error instanceof Error ? error.message : error
+		);
 		return NextResponse.json(
 			{ message: '건강뉴스 목록을 가져오는 중 오류가 발생했습니다.' },
 			{ status: 500 }

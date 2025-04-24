@@ -17,9 +17,14 @@ import {
 	useMantineTheme,
 	Box,
 	Anchor,
+	Paper,
 } from '@mantine/core';
 import { IconPlus } from '@tabler/icons-react';
 import { useAuthStore } from '@/store/useAuthStore';
+import { common } from '@/utils/common';
+import instance from '@/utils/axios';
+import { NewsItem } from '../more/news/page';
+import { useRouter } from 'next/navigation';
 
 interface PhysicalStats {
 	chldrnBdwgh: number;
@@ -71,31 +76,6 @@ interface Child {
 	profileImageUrl: string | null;
 }
 
-const calculateAgeInWeeksAndDays = (birthDate: string) => {
-	const birth = new Date(birthDate);
-	const today = new Date();
-
-	// 나이 계산 (만 나이)
-	let age = today.getFullYear() - birth.getFullYear();
-	const monthDiff = today.getMonth() - birth.getMonth();
-	if (
-		monthDiff < 0 ||
-		(monthDiff === 0 && today.getDate() < birth.getDate())
-	) {
-		age--;
-	}
-
-	// 일수와 주수 계산
-	const diffTime = Math.abs(today.getTime() - birth.getTime());
-	const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
-
-	return {
-		weeks: diffDays / 7,
-		days: diffDays,
-		age: age, // 만 나이로 변경
-	};
-};
-
 const createMockMetrics = (
 	kidName: string,
 	kidIndex: number,
@@ -139,10 +119,10 @@ const processChildData = (
 	children: Child[],
 	toggleMetric: (kidIndex: number, metricIndex: number) => void
 ) => {
+	const { getKoreanAge } = common();
+
 	return children.map((child, index) => {
-		const { weeks, days, age } = calculateAgeInWeeksAndDays(
-			child.birthDate
-		);
+		const { weeks, days, age } = getKoreanAge(child.birthDate);
 
 		return {
 			profile: {
@@ -171,10 +151,12 @@ const processChildData = (
 const App: React.FC = () => {
 	const theme = useMantineTheme();
 	const [kidsData, setKidsData] = useState<KidRecord[]>([]);
+	const [newsData, setNewsData] = useState<NewsItem[]>([]);
 	const [crtChldrnNoKidIndex, setCrtChldrnNoKidIndex] = useState(0);
 	const { setChldrnList } = useChldrnListStore();
 	const { getToken } = useAuth();
 	const { setCrtChldrnNo, token } = useAuthStore();
+	const router = useRouter();
 
 	useEffect(() => {
 		// 토큰이 이미 있으면 바로 데이터 가져오기
@@ -182,6 +164,7 @@ const App: React.FC = () => {
 			fetchChildrenData();
 		}
 
+		fetchNewsData();
 		// 토큰이 설정되면 데이터 가져오기
 		const handleTokenSet = (event: CustomEvent) => {
 			fetchChildrenData();
@@ -217,10 +200,19 @@ const App: React.FC = () => {
 		}
 	};
 
+	const fetchNewsData = async () => {
+		try {
+			// 처방전 상세 정보를 가져오는 API 호출
+			const response = await instance.get('/news?limit=3');
+
+			setNewsData(response.data.data);
+		} catch (err) {
+			console.error('뉴스 정보 조회 오류:', err);
+		}
+	};
+
 	// 데이터 처리 함수를 분리
 	const handleChildrenData = (children: Child[]) => {
-		console.log(children);
-
 		if (children.length > 0) {
 			// 로그인과 동시에 아이번호  zustand 에 저장
 			setCrtChldrnNo(children[0].id);
@@ -290,7 +282,7 @@ const App: React.FC = () => {
 					profiles={kidsData}
 					onSlideChange={setCrtChldrnNoKidIndex}
 				/>
-				<Box px="16">
+				<Box px="1rem" mb="8rem">
 					<Anchor
 						component={Link}
 						href="/record"
@@ -394,6 +386,51 @@ const App: React.FC = () => {
 							metricsData={currentSlide.metrics}
 						/>
 					)}
+					<Box>
+						<Text
+							c={theme.other.fontColors.primary}
+							fz={theme.fontSizes.lg}
+							fw={600}
+						>
+							아이 건강 꿀팁
+						</Text>
+						<Stack gap="md" mt="md">
+							{newsData.map((news) => (
+								<Paper
+									key={news.id}
+									onClick={() => {
+										router.push(`/more/news/${news.id}`);
+									}}
+								>
+									<Image
+										src={news.imageUrl[0].replace(
+											'/public',
+											''
+										)}
+										radius="18px 18px 0 0"
+										w="100%"
+										h="200px"
+									/>
+									<Box
+										p="20"
+										style={{
+											width: '100%',
+											borderRadius: '0 0 18px 18px',
+										}}
+										bg="#F8FFC9"
+									>
+										<Text
+											c="#000000"
+											fz="1.625rem"
+											fw={700}
+										>
+											{news.title[0]}
+										</Text>
+									</Box>
+								</Paper>
+							))}
+						</Stack>
+					</Box>
 				</Box>
 			</Container>
 		</MobileLayout>

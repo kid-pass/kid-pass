@@ -65,15 +65,6 @@ const PrescriptionDetailContent = () => {
 		fetchPrescriptionDetail();
 	}, [prescriptionId]);
 
-	const formatDate = (dateString: string) => {
-		const date = new Date(dateString);
-		return date.toLocaleDateString('ko-KR', {
-			year: 'numeric',
-			month: 'long',
-			day: 'numeric',
-		});
-	};
-
 	const getOriginalFileName = (url: string) => {
 		try {
 			// URL에서 파일명 부분 추출

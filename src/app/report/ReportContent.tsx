@@ -193,7 +193,7 @@ const ReportContent = () => {
 
 				const data = await response.json();
 
-				console.log(data)
+				console.log(data);
 				// 받아온 데이터를 상태에 저장 (처방전 데이터 상태가 필요합니다)
 				setPrescriptions(data);
 			} else {
@@ -392,20 +392,21 @@ const ReportContent = () => {
 						<Text fw={600} fz="md" mb="xl">
 							아기의 예방접종 이력이에요
 						</Text>
-						<Box
-							p={theme.spacing.lg}
-							style={{
-								display: 'flex',
-								flexDirection: 'column',
-								gap: '16px',
-								boxShadow: `${theme.other.shadow.basic}`,
-								borderRadius: '10px',
-							}}
-						>
-							{vaccineData && vaccineData.length === 0 ? (
-								<EmptyState />
-							) : (
-								vaccineData.map((vaccine) => (
+
+						{vaccineData && vaccineData.length === 0 ? (
+							<EmptyState />
+						) : (
+							<Box
+								p={theme.spacing.lg}
+								style={{
+									display: 'flex',
+									flexDirection: 'column',
+									gap: '16px',
+									boxShadow: `${theme.other.shadow.basic}`,
+									borderRadius: '10px',
+								}}
+							>
+								{vaccineData.map((vaccine) => (
 									<Box
 										display="flex"
 										style={{
@@ -460,9 +461,9 @@ const ReportContent = () => {
 											))}
 										</Box>
 									</Box>
-								))
-							)}
-						</Box>
+								))}
+							</Box>
+						)}
 					</Box>
 					<Box mt="xl">
 						<Text fw={700} fz="lg" mb="xl">
