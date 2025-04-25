@@ -391,6 +391,7 @@ const App: React.FC = () => {
 							c={theme.other.fontColors.primary}
 							fz={theme.fontSizes.lg}
 							fw={600}
+							
 						>
 							아이 건강 꿀팁
 						</Text>
