@@ -152,6 +152,7 @@ const App: React.FC = () => {
 	const theme = useMantineTheme();
 	const [kidsData, setKidsData] = useState<KidRecord[]>([]);
 	const [newsData, setNewsData] = useState<NewsItem[]>([]);
+	const [vaccineData, setVaccineData] = useState<NewsItem[]>([]);
 	const [crtChldrnNoKidIndex, setCrtChldrnNoKidIndex] = useState(0);
 	const { setChldrnList } = useChldrnListStore();
 	const { getToken } = useAuth();
@@ -165,6 +166,7 @@ const App: React.FC = () => {
 		}
 
 		fetchNewsData();
+		fetchNextVaccinData();
 		// 토큰이 설정되면 데이터 가져오기
 		const handleTokenSet = (event: CustomEvent) => {
 			fetchChildrenData();
@@ -210,6 +212,20 @@ const App: React.FC = () => {
 			console.error('뉴스 정보 조회 오류:', err);
 		}
 	};
+
+	const fetchNextVaccinData = async ()=>{
+
+		try{
+
+			console.log(kidsData)
+			// const response = await instance.get('vaccine/next');
+
+			// setVaccineData(response.data.data)
+
+		}catch(err){
+			console.error('다음 백신 이력 조회 오류',err)
+		}
+	}
 
 	// 데이터 처리 함수를 분리
 	const handleChildrenData = (children: Child[]) => {
@@ -391,7 +407,7 @@ const App: React.FC = () => {
 							c={theme.other.fontColors.primary}
 							fz={theme.fontSizes.lg}
 							fw={600}
-							
+
 						>
 							아이 건강 꿀팁
 						</Text>
