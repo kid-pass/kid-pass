@@ -1,15 +1,25 @@
 'use client';
 
 import useAuth from '@/hook/useAuth';
-import { useParams, useRouter, useSearchParams } from 'next/navigation';
+import { useParams, useSearchParams } from 'next/navigation';
 import React, { useEffect, useState, useCallback } from 'react';
 import instance from '@/utils/axios';
 import Spacer from '@/elements/spacer/Spacer';
 import ScrollPicker from '../../components/ScrollPicker';
 import { useDateStore } from '@/store/useDateStore';
 import MobileLayout from '@/components/mantine/MobileLayout';
-import { Box, Button, Divider, Flex, Group, Image, Text } from '@mantine/core';
+import {
+	Box,
+	Button,
+	Divider,
+	Flex,
+	Group,
+	Image,
+	Text,
+	useMantineTheme,
+} from '@mantine/core';
 import { modals } from '@mantine/modals';
+import useNavigation from '@/hook/useNavigation';
 
 // 백신 기록 데이터 타입
 interface VacntnInfo {
@@ -46,7 +56,8 @@ interface VaccineDetailResponse {
 }
 
 export default function VaccineDetailPage() {
-	const router = useRouter();
+	const theme = useMantineTheme();
+	const { goBack } = useNavigation();
 	const { getToken } = useAuth();
 	const token = getToken();
 	const params = useParams();
@@ -55,20 +66,19 @@ export default function VaccineDetailPage() {
 	const [error, setError] = useState<string | null>(null);
 	const [vaccineDetail, setVaccineDetail] =
 		useState<VaccineDetailResponse | null>(null);
-	const handleBack = () => router.push('/');
 
 	// URL에서 vaccineId 추출
 	const vaccineId = params?.vacntnId as string;
-	const currentKid = searchParams.get('currentKid');
+	const crtChldrnNo = searchParams.get('crtChldrnNo');
 
 	// 백신 상세 정보 가져오기
 	const fetchVaccineDetail = useCallback(async () => {
-		if (!vaccineId || !currentKid) return;
+		if (!vaccineId || !crtChldrnNo) return;
 
 		try {
 			setLoading(true);
 			const response = await instance.get(
-				`/vaccine/detail?chldrnNo=${currentKid}&vaccineId=${vaccineId}`,
+				`/vaccine/detail?chldrnNo=${crtChldrnNo}&vaccineId=${vaccineId}`,
 				{
 					headers: {
 						Authorization: `Bearer ${token}`,
@@ -76,7 +86,7 @@ export default function VaccineDetailPage() {
 				}
 			);
 
-			console.log(response.data.data)
+			console.log(response.data.data);
 			if (response.data?.data) {
 				setVaccineDetail(response.data.data);
 			}
@@ -87,7 +97,7 @@ export default function VaccineDetailPage() {
 		} finally {
 			setLoading(false);
 		}
-	}, [currentKid, vaccineId]);
+	}, [crtChldrnNo, vaccineId]);
 
 	useEffect(() => {
 		fetchVaccineDetail();
@@ -95,7 +105,7 @@ export default function VaccineDetailPage() {
 
 	// 백신 접종 등록
 	const handleConfirm = useCallback(async () => {
-		if (!vaccineDetail?.nextVaccineInfo || !currentKid) return;
+		if (!vaccineDetail?.nextVaccineInfo || !crtChldrnNo) return;
 
 		try {
 			const { year, month, day } = useDateStore.getState();
@@ -104,7 +114,7 @@ export default function VaccineDetailPage() {
 				.padStart(2, '0')}-${day.toString().padStart(2, '0')}`;
 
 			const body = {
-				childId: currentKid,
+				childId: crtChldrnNo,
 				vaccinationData: {
 					vacntnId: vaccineId,
 					vacntnIctsd: vaccineDetail.nextVaccineInfo.vaccineCode,
@@ -125,7 +135,7 @@ export default function VaccineDetailPage() {
 		} catch (error) {
 			console.error('백신 접종 기록 생성 중 오류 발생:', error);
 		}
-	}, [vaccineDetail, currentKid, vaccineId, token, fetchVaccineDetail]);
+	}, [vaccineDetail, crtChldrnNo, vaccineId, token, fetchVaccineDetail]);
 
 	// 모달 콘텐츠 설정 및 열기
 	const handleOpenVaccineModal = useCallback(() => {
@@ -206,7 +216,7 @@ export default function VaccineDetailPage() {
 					headerType="back"
 					title={vaccineDetail.vaccineName}
 					showBottomNav={true}
-					onBack={handleBack}
+					onBack={goBack}
 				>
 					<Box px={16}>
 						<Text fw={700} fz="xl">
@@ -221,7 +231,11 @@ export default function VaccineDetailPage() {
 							}}
 						>
 							<Flex>
-								<Text fw={600} fz="md-lg" c="#729BED">
+								<Text
+									fw={600}
+									fz={theme.fontSizes.mdLg}
+									c="#729BED"
+								>
 									완료 {vaccineDetail.completedDoses}
 								</Text>
 								<Divider
@@ -231,7 +245,11 @@ export default function VaccineDetailPage() {
 									h={16}
 									color="#D9D9D9"
 								/>
-								<Text fw={600} fz="md-lg" c="#BFBFBF">
+								<Text
+									fw={600}
+									fz={theme.fontSizes.mdLg}
+									c="#BFBFBF"
+								>
 									미접종
 									{vaccineDetail.totalDoses -
 										vaccineDetail.completedDoses}

@@ -11,28 +11,20 @@ import useAuth from '@/hook/useAuth';
 import Chapter6 from './Chapter6';
 import { useChldrnInfoStore } from '@/store/useChldrnInfoStore';
 import MobileLayout from '@/components/mantine/MobileLayout';
-import { useRouter } from 'next/navigation';
+import useNavigation from '@/hook/useNavigation';
 
 const Register: React.FC = () => {
-	const router = useRouter();
+	const { goHome } = useNavigation();
 	const { getToken } = useAuth();
-	const [token, setToken] = useState();
 	const [loading, setLoading] = useState(false);
-
-	useEffect(() => {
-		const fetchToken = async () => {
-			const accessToken = await getToken();
-			setToken(accessToken);
-		};
-
-		fetchToken();
-	}, []);
 
 	const { chapter, nextChapter, goToChapter } = useChapter({
 		totalChapters: 6,
 		onComplete: async () => {
 			try {
 				setLoading(true);
+
+				const token = await getToken();
 				const store = useChldrnInfoStore.getState();
 				const [
 					chldrnNm,
@@ -76,7 +68,6 @@ const Register: React.FC = () => {
 
 				if (response.ok) {
 					const childId = data.data.id;
-					localStorage.setItem('currentKid', childId);
 
 					// 2. 백신 일정 생성 API 호출
 					const vaccineResponse = await fetch(
@@ -103,7 +94,7 @@ const Register: React.FC = () => {
 					}
 
 					// 등록 완료 후 홈
-					router.push('/');
+					goHome();
 				} else {
 					throw new Error(data.message);
 				}

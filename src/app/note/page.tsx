@@ -5,12 +5,18 @@ import ProgressBar from '@/components/progressBar/progressBar';
 import useAuth from '@/hook/useAuth';
 import { useEffect, useState } from 'react';
 import instance from '@/utils/axios';
-import useChldrnListStore from '@/store/useChldrnListStore';
 import Spacer from '@/elements/spacer/Spacer';
-import LoadingFullScreen from '@/components/loading/LoadingFullScreen';
-import { Group, Box, Text, Progress, Flex } from '@mantine/core';
+import {
+	Group,
+	Box,
+	Text,
+	Flex,
+	LoadingOverlay,
+	useMantineTheme,
+} from '@mantine/core';
 import MobileLayout from '@/components/mantine/MobileLayout';
-import { useRouter } from 'next/navigation';
+import { useAuthStore } from '@/store/useAuthStore';
+import useNavigation from '@/hook/useNavigation';
 
 export interface VacntnInfo {
 	id: string;
@@ -21,19 +27,19 @@ export interface VacntnInfo {
 	childId: string;
 	createdAt: Date;
 	updatedAt: Date;
-	// 새로 추가된 필드
-	isCompleted?: boolean; // 옵션으로 추가
-	actualDate?: string | null; // 옵션으로 추가
+	isCompleted?: boolean;
+	actualDate?: string | null;
 }
 interface VaccinationData {
 	vacntnInfo: VacntnInfo[];
 	totalCompletedDoses: number;
 	totalRequiredDoses: number;
 	completionPercentage: number;
-	vaccineStatusMap: Record<string, VaccineStatusInfo>; // 이 속성 추가
+	vaccineStatusMap: Record<string, VaccineStatusInfo>;
 }
 const App = () => {
-	const router = useRouter();
+	const theme = useMantineTheme();
+	const { goBack } = useNavigation();
 	const { getToken } = useAuth();
 	const [isLoading, setIsLoading] = useState(false);
 	const [vaccinationData, setVaccinationData] = useState<VaccinationData>({
@@ -44,21 +50,19 @@ const App = () => {
 		vaccineStatusMap: {},
 	});
 
-	// Zustand store에서 currentKid 가져오기
-	const currentKid = useChldrnListStore((state) => state.currentKid);
-
-	const handleBack = () => router.push('/');
+	// Zustand store에서 crtChldrnNo 가져오기
+	const { crtChldrnNo } = useAuthStore();
 
 	useEffect(() => {
 		const fetchData = async () => {
-			if (currentKid) {
+			if (crtChldrnNo) {
 				setIsLoading(true);
 
 				try {
 					const token = await getToken();
 
 					const response = await instance.get(
-						`/vaccine/info?chldrnNo=${currentKid}`,
+						`/vaccine/info?chldrnNo=${crtChldrnNo}`,
 						{
 							headers: {
 								Authorization: `Bearer ${token}`,
@@ -86,7 +90,7 @@ const App = () => {
 
 		// 컴포넌트 마운트 시 초기 데이터 로드
 		fetchData();
-	}, [currentKid]);
+	}, [crtChldrnNo]);
 
 	return (
 		<MobileLayout
@@ -94,15 +98,12 @@ const App = () => {
 			headerType="profile"
 			title="아기수첩"
 			showBottomNav={true}
-			onBack={handleBack}
+			onBack={goBack}
 			calendar={true}
 		>
 			<Box p="0 20">
-				<LoadingFullScreen
-					isVisible={isLoading}
-					text="백신 정보를 불러오는 중입니다..."
-				/>
-				<Text fw={700} size="md-lg" c="#222222">
+				<LoadingOverlay visible={isLoading} />
+				<Text fw={700} fz={theme.fontSizes.mdLg} c="#222222">
 					예방접종 진행률
 				</Text>
 
@@ -182,7 +183,7 @@ const App = () => {
       */}
 				</Box>
 
-				<Text fw={700} size="md-lg" c="#222222">
+				<Text fw={700} fz={theme.fontSizes.mdLg} c="#222222">
 					예방접종 자세히 보기
 				</Text>
 				<VaccineCount

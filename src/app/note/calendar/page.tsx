@@ -6,7 +6,6 @@ import {
 	Group,
 	Title,
 	Button,
-	SegmentedControl,
 	Grid,
 	Text,
 	Container,
@@ -20,6 +19,8 @@ import WeeklyDatePicker from '@/components/datePicker/WeekCarousel';
 import dayjs from 'dayjs';
 import MobileLayout from '@/components/mantine/MobileLayout';
 import useAuth from '@/hook/useAuth';
+import { useAuthStore } from '@/store/useAuthStore';
+import useNavigation from '@/hook/useNavigation';
 
 // 백신 유형별 색상 매핑
 const vaccineColorMap = {
@@ -71,16 +72,24 @@ interface VaccineSchedule {
 	actualDate?: string; // 실제 접종일
 }
 
+interface MonthWithVaccine {
+	year: number;
+	month: number;
+}
+
 const VaccineCalendar = () => {
-	const [viewType, setViewType] = useState('calendar');
+	const { goBack } = useNavigation();
+	const [viewType] = useState('calendar');
 	const [currentDate, setCurrentDate] = useState(new Date());
 	const [vaccineSchedules, setVaccineSchedules] = useState<VaccineSchedule[]>(
 		[]
 	);
 	const [loading, setLoading] = useState(false);
+	const [monthsLoading, setMonthsLoading] = useState(true);
 	const [selectedFilter, setSelectedFilter] = useState('all');
 	const { getToken } = useAuth();
 	const theme = useMantineTheme();
+	const { crtChldrnNo } = useAuthStore();
 
 	const year = currentDate.getFullYear();
 	const month = currentDate.getMonth();
@@ -111,23 +120,101 @@ const VaccineCalendar = () => {
 		'12월',
 	];
 	const [monthsWithVaccines, setMonthsWithVaccines] = useState<
-		{ year: number; month: number }[]
+		MonthWithVaccine[]
 	>([]);
+
+	// 백신 일정이 있는 월 목록 조회
+	useEffect(() => {
+		const fetchVaccineMonths = async () => {
+			if (!crtChldrnNo) return;
+
+			try {
+				setMonthsLoading(true);
+				const token = await getToken();
+				const response = await fetch(
+					`/api/vaccine/months?childId=${crtChldrnNo}`,
+					{
+						headers: {
+							Authorization: `Bearer ${token}`,
+						},
+					}
+				);
+
+				if (response.ok) {
+					const data = await response.json();
+					setMonthsWithVaccines(data.data);
+
+					// 만약 현재 달에 백신 일정이 없다면, 가장 가까운 백신 일정이 있는 달로 이동
+					if (data.data.length > 0) {
+						const currentYearMonth = { year, month: month + 1 };
+						const hasCurrentMonth = data.data.some(
+							(m: MonthWithVaccine) =>
+								m.year === currentYearMonth.year &&
+								m.month === currentYearMonth.month
+						);
+
+						if (!hasCurrentMonth) {
+							// 현재 날짜와 가장 가까운 달 찾기
+							const closest = findClosestMonth(
+								data.data,
+								currentYearMonth
+							);
+							if (closest) {
+								setCurrentDate(
+									new Date(closest.year, closest.month - 1, 1)
+								);
+							}
+						}
+					}
+				} else {
+					console.error('백신 일정 월 목록 조회 실패');
+				}
+			} catch (error) {
+				console.error('백신 일정 월 목록 조회 에러:', error);
+			} finally {
+				setMonthsLoading(false);
+			}
+		};
+
+		fetchVaccineMonths();
+	}, [crtChldrnNo]);
+
+	// 현재 날짜와 가장 가까운 백신 일정이 있는 달 찾기
+	const findClosestMonth = (
+		months: MonthWithVaccine[],
+		current: { year: number; month: number }
+	) => {
+		if (months.length === 0) return null;
+
+		// 날짜 차이 계산 (절대값 기준)
+		return months.reduce((closest, month) => {
+			const currentDiff = Math.abs(
+				current.year * 12 +
+					current.month -
+					(closest.year * 12 + closest.month)
+			);
+
+			const newDiff = Math.abs(
+				current.year * 12 +
+					current.month -
+					(month.year * 12 + month.month)
+			);
+
+			return newDiff < currentDiff ? month : closest;
+		}, months[0]);
+	};
 
 	// 백신 일정 조회
 	useEffect(() => {
 		const fetchVaccineSchedules = async () => {
+			if (!crtChldrnNo) return;
+
 			try {
 				setLoading(true);
-				const childId = localStorage.getItem('currentKid');
-				if (!childId) {
-					console.error('선택된 아이가 없습니다.');
-					return;
-				}
 
 				const token = await getToken();
 				const response = await fetch(
-					`/api/vaccine/schedule?childId=${childId}&year=${year}&month=${
+					`/api/vaccine/schedule?childId=${crtChldrnNo}&year=${year}&month=${
 						month + 1
 					}`,
 					{
@@ -151,7 +238,7 @@ const VaccineCalendar = () => {
 		};
 
 		fetchVaccineSchedules();
-	}, [year, month]); // currentDate가 변경될 때마다 새로운 데이터 요청
+	}, [year, month, crtChldrnNo]); // currentDate가 변경될 때마다 새로운 데이터 요청
 
 	// 달력에 표시할 날짜 배열 생성
 	const getDatesArray = () => {
@@ -240,15 +327,31 @@ const VaccineCalendar = () => {
 		}));
 	};
 
+	// 현재 월이 백신 일정이 있는 월인지 확인
+	const isCurrentMonthWithVaccines = () => {
+		return monthsWithVaccines.some(
+			(m) => m.year === year && m.month === month + 1
+		);
+	};
+
+	// 이전 백신 일정이 있는 달로 이동 가능한지 확인
+	const hasPrevMonth = () => {
+		return monthsWithVaccines.some(
+			(m) => m.year < year || (m.year === year && m.month < month + 1)
+		);
+	};
+
+	// 다음 백신 일정이 있는 달로 이동 가능한지 확인
+	const hasNextMonth = () => {
+		return monthsWithVaccines.some(
+			(m) => m.year > year || (m.year === year && m.month > month + 1)
+		);
+	};
+
 	// 이전 백신 일정이 있는 달로 이동
 	const handlePrevMonth = () => {
-		// 백신 일정이 있는 달 정보가 아직 로드되지 않았으면 기본 동작
-		if (monthsWithVaccines.length === 0) {
-			setCurrentDate(new Date(year, month - 1, 1));
-			return;
-		}
+		if (monthsLoading || !hasPrevMonth()) return;
 
-		// 현재 표시 중인 달의 이전에 백신 일정이 있는 달 찾기
 		const currentYearMonth = { year, month: month + 1 }; // JavaScript month는 0부터 시작
 
 		// 이전 달 중 가장 가까운 백신 일정이 있는 달 찾기
@@ -269,21 +372,13 @@ const VaccineCalendar = () => {
 			// 가장 가까운 이전 백신 일정이 있는 달로 이동
 			const prevMonth = prevMonths[0];
 			setCurrentDate(new Date(prevMonth.year, prevMonth.month - 1, 1));
-		} else {
-			// 이전 백신 일정이 없으면 기본 동작
-			setCurrentDate(new Date(year, month - 1, 1));
 		}
 	};
 
 	// 다음 백신 일정이 있는 달로 이동
 	const handleNextMonth = () => {
-		// 백신 일정이 있는 달 정보가 아직 로드되지 않았으면 기본 동작
-		if (monthsWithVaccines.length === 0) {
-			setCurrentDate(new Date(year, month + 1, 1));
-			return;
-		}
+		if (monthsLoading || !hasNextMonth()) return;
 
-		// 현재 표시 중인 달의 다음에 백신 일정이 있는 달 찾기
 		const currentYearMonth = { year, month: month + 1 }; // JavaScript month는 0부터 시작
 
 		// 다음 달 중 가장 가까운 백신 일정이 있는 달 찾기
@@ -304,9 +399,6 @@ const VaccineCalendar = () => {
 			// 가장 가까운 다음 백신 일정이 있는 달로 이동
 			const nextMonth = nextMonths[0];
 			setCurrentDate(new Date(nextMonth.year, nextMonth.month - 1, 1));
-		} else {
-			// 다음 백신 일정이 없으면 기본 동작
-			setCurrentDate(new Date(year, month + 1, 1));
 		}
 	};
 
@@ -355,7 +447,7 @@ const VaccineCalendar = () => {
 	};
 
 	return (
-		<MobileLayout title="접종 달력">
+		<MobileLayout title="접종 달력" onBack={goBack}>
 			<Container size="sm" p={0}>
 				<Group justify="space-between" mb="md" px="16">
 					<Group gap="xs">
@@ -367,8 +459,15 @@ const VaccineCalendar = () => {
 								variant="subtle"
 								p={0}
 								h={24}
-								style={{ all: 'unset', cursor: 'pointer' }}
+								style={{
+									all: 'unset',
+									cursor: hasPrevMonth()
+										? 'pointer'
+										: 'not-allowed',
+									opacity: hasPrevMonth() ? 1 : 0.5,
+								}}
 								onClick={handlePrevMonth}
+								disabled={monthsLoading || !hasPrevMonth()}
 							>
 								<IconChevronUp size={20} />
 							</Button>
@@ -376,59 +475,24 @@ const VaccineCalendar = () => {
 								variant="subtle"
 								p={0}
 								h={24}
-								style={{ all: 'unset', cursor: 'pointer' }}
+								style={{
+									all: 'unset',
+									cursor: hasNextMonth()
+										? 'pointer'
+										: 'not-allowed',
+									opacity: hasNextMonth() ? 1 : 0.5,
+								}}
 								onClick={handleNextMonth}
+								disabled={monthsLoading || !hasNextMonth()}
 							>
 								<IconChevronDown size={20} />
 							</Button>
 						</Box>
 					</Group>
-
-					{/* <SegmentedControl
-						value={viewType}
-						onChange={setViewType}
-						data={[
-							{ value: 'calendar', label: '달력' },
-							{ value: 'list', label: '목록' },
-						]}
-						styles={{
-							root: {
-								backgroundColor: theme.colors.gray[1],
-								padding: 0,
-								overflow: 'hidden',
-								boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)',
-							},
-							indicator: {
-								backgroundColor: theme.white,
-								borderRadius: theme.radius.md,
-								boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)',
-							},
-							label: {
-								fontSize: theme.fontSizes.sm,
-								fontWeight: 600,
-								color: 'black',
-								padding: '8px 16px',
-								height: '100%',
-								display: 'flex',
-								alignItems: 'center',
-								justifyContent: 'center',
-							},
-							control: {
-								border: 'none',
-								height: '100%',
-							},
-						}}
-					/> */}
 				</Group>
 
 				{/* 백신 필터 */}
-				<Group
-					gap="xs"
-					px="16"
-					mb="md"
-					wrap="nowrap"
-					style={{ overflowX: 'auto' }}
-				>
+				<Group gap="xs" px="md" mb="md" style={{ overflowX: 'auto' }}>
 					{getAvailableVaccineFilters().map((option) => (
 						<Badge
 							key={option.value}
@@ -472,12 +536,20 @@ const VaccineCalendar = () => {
 					</Group>
 				</Box>
 
-				{loading ? (
+				{loading || monthsLoading ? (
 					<Box
 						py="xl"
 						style={{ display: 'flex', justifyContent: 'center' }}
 					>
 						<Loader />
+					</Box>
+				) : !isCurrentMonthWithVaccines() &&
+				  monthsWithVaccines.length > 0 ? (
+					<Box py="xl" px="md" style={{ textAlign: 'center' }}>
+						<Text>현재 월에는 백신 일정이 없습니다.</Text>
+						<Text size="sm" mt="sm">
+							화살표를 클릭하여 백신 일정이 있는 달로 이동하세요.
+						</Text>
 					</Box>
 				) : viewType === 'calendar' ? (
 					<>

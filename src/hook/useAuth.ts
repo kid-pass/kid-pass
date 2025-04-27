@@ -109,9 +109,15 @@ const useAuth = () => {
 	};
 
 	const getUserInfo = async () => {
+		const currentToken = await getToken();
+
+		if (!currentToken) {
+			return null;
+		}
+
 		const response = await fetch('/api/auth/user', {
 			headers: {
-				Authorization: `Bearer ${token}`,
+				Authorization: `Bearer ${currentToken}`,
 			},
 		});
 
@@ -122,7 +128,6 @@ const useAuth = () => {
 
 		return null;
 	};
-
 	return { getToken, getCrtChldNo, getUserInfo, refreshAccessToken };
 };
 

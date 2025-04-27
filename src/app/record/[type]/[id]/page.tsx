@@ -42,11 +42,6 @@ const RecordDetail = ({ params }: RecordDetailProps) => {
 		const fetchRecord = async () => {
 			try {
 				const token = await getToken();
-				const currentKid = localStorage.getItem('currentKid');
-
-				if (!token || !currentKid) {
-					return;
-				}
 
 				const response = await fetch(
 					`/api/record/${resolvedParams.id}?type=${resolvedParams.type}`,

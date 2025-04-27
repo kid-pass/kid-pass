@@ -113,6 +113,7 @@ model Child {
   prescriptions    Prescription[]
   vacntnInfo       VacntnInfo[]
   reports          Report[]
+  profileImageUrl  String?
 
   @@map("children")
 }
@@ -177,4 +178,15 @@ model Report {
   updatedAt   DateTime @updatedAt
 
   @@map("reports")
+}
+
+
+model News {
+
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  title       String[]
+	content     String[]
+	imageUrl    String[]
+
+  @@map("news")
 }

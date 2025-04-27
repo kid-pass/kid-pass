@@ -1,8 +1,0 @@
-.mantine-SegmentedControl-label[data-active='true'] {
-	color: #000000 !important;
-}
-
-/* 선택되지 않은 라벨에 대한 스타일 */
-.mantine-SegmentedControl-label:not([data-active='true']) {
-	color: #707070 !important;
-}

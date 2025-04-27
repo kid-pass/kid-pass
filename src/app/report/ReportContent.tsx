@@ -2,13 +2,21 @@
 
 import ProfileMetrics from '@/components/metrics/ProfileMetrics';
 import instance from '@/utils/axios';
-import { Box, Flex, LoadingOverlay, Stack, Text } from '@mantine/core';
-import { useRouter } from 'next/navigation';
+import {
+	Box,
+	Flex,
+	LoadingOverlay,
+	Stack,
+	Text,
+	useMantineTheme,
+} from '@mantine/core';
 import { useSearchParams } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
 import { Prescription } from '../hospital/type/hospital';
 import PrescritionItem from '../hospital/PrescriptionItem';
 import ActionTab from './ActionTab';
+import EmptyState from '@/components/EmptyState/EmptyState';
+import { common } from '@/utils/common';
 
 // 증상 타입 정의
 interface SymptomItem {
@@ -52,7 +60,6 @@ interface ChildProfile {
 	memo: string;
 	createdAt: string;
 	updatedAt: string;
-	// 추가 계산 필드
 	age?: number;
 	formattedBirthDate?: string;
 }
@@ -72,37 +79,7 @@ interface VaccinationRecord {
 	completedDoses: number;
 }
 
-// 만 나이 계산 함수
-const calculateAge = (birthDate: string): number => {
-	const birth = new Date(birthDate);
-	const today = new Date();
-
-	let age = today.getFullYear() - birth.getFullYear();
-	const monthDiff = today.getMonth() - birth.getMonth();
-
-	// 생일이 아직 지나지 않았으면 나이에서 1을 뺌
-	if (
-		monthDiff < 0 ||
-		(monthDiff === 0 && today.getDate() < birth.getDate())
-	) {
-		age--;
-	}
-
-	return age;
-};
-
-// 날짜 포맷 함수 (YYYY-MM-DD)
-const formatDate = (dateString: string): string => {
-	const date = new Date(dateString);
-	const year = date.getFullYear();
-	const month = String(date.getMonth() + 1).padStart(2, '0');
-	const day = String(date.getDate()).padStart(2, '0');
-
-	return `${year}-${month}-${day}`;
-};
-
 const ReportContent = () => {
-	const navigate = useRouter();
 	const searchParams = useSearchParams();
 	const [profile, setProfile] = useState<ChildProfile | null>(null);
 	const [categoryRecords, setCategoryRecords] = useState<CategoryItem[]>([]);
@@ -112,6 +89,9 @@ const ReportContent = () => {
 	const [error, setError] = useState<string | null>(null);
 	const [vaccineData, setVaccineData] = useState<VaccinationRecord[]>([]);
 	const captureRef = useRef<HTMLDivElement>(null);
+	const { getToday, getFormatDate, getAge } = common();
+	const today = getToday();
+	const theme = useMantineTheme();
 
 	const fetchProfileData = async () => {
 		try {
@@ -128,8 +108,8 @@ const ReportContent = () => {
 				// 데이터에 만 나이 추가
 				const profileData: ChildProfile = {
 					...childData,
-					age: calculateAge(childData.birthDate),
-					formattedBirthDate: formatDate(childData.birthDate),
+					age: getAge(childData.birthDate),
+					formattedBirthDate: getFormatDate(childData.birthDate),
 				};
 
 				setProfile(profileData);
@@ -146,14 +126,9 @@ const ReportContent = () => {
 	const fetchSymptomData = async () => {
 		try {
 			const childId = searchParams.get('chldrnNo');
-
-			// 오늘 날짜 구하기
-			const today = new Date();
-			const formattedToday = formatDate(today.toISOString());
-
 			// API 호출
 			const response = await instance.get(
-				`/record?childId=${childId}&type=SYMPTOM&startDate=${formattedToday}`
+				`/record?childId=${childId}&type=SYMPTOM&startDate=${today}`
 			);
 
 			const allRecords = response.data.data;
@@ -218,6 +193,7 @@ const ReportContent = () => {
 
 				const data = await response.json();
 
+				console.log(data);
 				// 받아온 데이터를 상태에 저장 (처방전 데이터 상태가 필요합니다)
 				setPrescriptions(data);
 			} else {
@@ -252,13 +228,9 @@ const ReportContent = () => {
 		try {
 			const childId = searchParams.get('chldrnNo');
 
-			// 오늘 날짜 구하기
-			const today = new Date();
-			const formattedToday = formatDate(today.toISOString());
-
 			// 첫 번째 API 호출 - 'ETC'라는 타입으로 요청
 			const response = await instance.get(
-				`/record?childId=${childId}&type=ETC&startDate=${formattedToday}`
+				`/record?childId=${childId}&type=ETC&startDate=${today}`
 			);
 
 			// 객체 배열을 저장하는 방식으로 변경
@@ -319,14 +291,7 @@ const ReportContent = () => {
 	}, [searchParams]);
 
 	// 발행이 성공적으로 완료된 후 호출될 함수
-	const handlePublishSuccess = (data: any) => {
-		// 필요한 추가 작업 (예: DB에 URL 저장, 다른 페이지로 이동 등)
-		console.log('발행 완료:', data);
-	};
-
-	useEffect(() => {
-		console.log(captureRef.current);
-	}, [captureRef.current]);
+	const handlePublishSuccess = (data: any) => {};
 
 	return (
 		<Box>
@@ -334,6 +299,14 @@ const ReportContent = () => {
 				<LoadingOverlay visible={loading} />
 			) : (
 				<Box px={16} ref={captureRef}>
+					<Text
+						fw={500}
+						fz={theme.fontSizes.sm}
+						c={theme.other.fontColors.empty}
+						mb={theme.spacing.s}
+					>
+						발행일 {today}
+					</Text>
 					{profile && (
 						<Box
 							style={{
@@ -380,9 +353,7 @@ const ReportContent = () => {
 							아기의 증상은요
 						</Text>
 						{symptoms.length === 0 ? (
-							<Text c="#FFB6D7" fw={500}>
-								증상이 없습니다
-							</Text>
+							<EmptyState />
 						) : (
 							<Box display="flex" my="12 40" style={{ gap: 4 }}>
 								{symptoms.map((item) => (
@@ -402,15 +373,11 @@ const ReportContent = () => {
 					</Box>
 					<Box mt="xl">
 						<Text fw={700} fz="lg" mb="xl">
-							최근 아기가 처방받은 기록이에요
+							최근 아기가 치료받은 기록이에요
 						</Text>
 						<Stack gap="md">
 							{prescriptions.length === 0 ? (
-								<>
-									<Text c="#FFB6D7" fw={500}>
-										처방 기록이 없습니다.
-									</Text>
-								</>
+								<EmptyState />
 							) : (
 								prescriptions.map((record) => (
 									<PrescritionItem
@@ -422,52 +389,58 @@ const ReportContent = () => {
 						</Stack>
 					</Box>
 					<Box mt="xl">
-						<Text fw={700} fz="lg" mb="xl">
+						<Text fw={600} fz="md" mb="xl">
 							아기의 예방접종 이력이에요
 						</Text>
-						<Box
-							style={{
-								display: 'flex',
-								flexDirection: 'column',
-								gap: '16px',
-							}}
-						>
-							{vaccineData && vaccineData.length === 0 ? (
-								<Text>백신 기록이 없습니다</Text>
-							) : (
-								vaccineData.map((vaccine) => (
+
+						{vaccineData && vaccineData.length === 0 ? (
+							<EmptyState />
+						) : (
+							<Box
+								p={theme.spacing.lg}
+								style={{
+									display: 'flex',
+									flexDirection: 'column',
+									gap: '16px',
+									boxShadow: `${theme.other.shadow.basic}`,
+									borderRadius: '10px',
+								}}
+							>
+								{vaccineData.map((vaccine) => (
 									<Box
 										display="flex"
 										style={{
-											justifyContent: 'space-between',
-											alignItems: 'center',
+											flexDirection: 'column',
+											gap: `${theme.spacing.sm}`,
+											borderBottom: '1px solid #F4F4F4',
 										}}
 										key={vaccine.id}
 									>
+										<Text
+											c={theme.other.fontColors.sub3}
+											fz="md"
+											fw={500}
+										>
+											{getFormatDate(
+												vaccine.vaccinationDate
+											)}
+										</Text>
 										<Box
 											display="flex"
 											style={{
-												flexDirection: 'column',
-												gap: '8px',
+												alignItems: 'center',
+												justifyContent: 'space-between',
 											}}
+											pb={theme.spacing.lg}
 										>
-											<Text c="#9E9E9E" fz="md" fw={500}>
-												{formatDate(
-													vaccine.vaccinationDate
-												)}
-											</Text>
 											<Text
 												c="#000000"
-												fz="md-lg"
+												fz={theme.fontSizes.mdLg}
 												fw={600}
 											>
 												{vaccine.vaccineName}
 											</Text>
-										</Box>
-										<Box
-											display="flex"
-											style={{ gap: '4px' }}
-										>
+
 											{Array.from({
 												length: vaccine.totalRequiredDoses,
 											}).map((_, index) => (
@@ -488,18 +461,16 @@ const ReportContent = () => {
 											))}
 										</Box>
 									</Box>
-								))
-							)}
-						</Box>
+								))}
+							</Box>
+						)}
 					</Box>
 					<Box mt="xl">
 						<Text fw={700} fz="lg" mb="xl">
 							특이사항
 						</Text>
 						{categoryRecords.length === 0 ? (
-							<Text c="#FFB6D7" fw={500}>
-								특이 사항이 없습니다.
-							</Text>
+							<EmptyState />
 						) : (
 							<Box display="flex" my="12 40" style={{ gap: 4 }}>
 								{categoryRecords
@@ -512,7 +483,7 @@ const ReportContent = () => {
 										<Box
 											key={item.id}
 											p="10 20"
-											bg="#FF7B7B"
+											bg={theme.colors.brand[13]}
 											style={{ borderRadius: '20px' }}
 										>
 											<Text c="#FFFFFF" fz="md" fw={600}>

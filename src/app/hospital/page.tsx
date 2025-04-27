@@ -3,29 +3,28 @@
 import { useRouter } from 'next/navigation';
 import { Prescription } from './type/hospital';
 import MobileLayout from '../../components/mantine/MobileLayout';
-import { Stack, ActionIcon, Box } from '@mantine/core';
+import { Stack, ActionIcon, Box, Text } from '@mantine/core';
 import { IconPlus } from '@tabler/icons-react';
 import { useEffect, useState } from 'react';
 import { useAuthStore } from '@/store/useAuthStore';
 import instance from '@/utils/axios';
 import PrescritionItem from './PrescriptionItem';
+import EmptyState from '@/components/EmptyState/EmptyState';
 
 const Hospital = () => {
 	const router = useRouter();
-	const { crtChldrnNo } = useAuthStore();
 	const [prescriptions, setPrescriptions] = useState<Prescription[]>([]);
 	const [loading, setLoading] = useState(true);
 	const [error, setError] = useState<string | null>(null);
+	const { crtChldrnNo } = useAuthStore();
 
 	const getChildPrescriptions = async (childId: string) => {
 		try {
-			console.log(crtChldrnNo);
-
 			const response = await instance.get(
 				`/child/${childId}/prescription`
 			);
 
-			console.log(response.data);
+			console.log(response.data)
 			return response.data;
 		} catch (error) {
 			console.error('처방전 조회 오류:', error);
@@ -67,15 +66,19 @@ const Hospital = () => {
 			currentRoute="/hospital"
 		>
 			<Stack p="md" gap="md">
-				{prescriptions.map((record) => (
-					<PrescritionItem
-						key={record.id}
-						{...record}
-						onClick={() => {
-							router.push(`/hospital/detail?id=${record.id}`);
-						}}
-					/>
-				))}
+				{prescriptions.length === 0 ? (
+					<EmptyState />
+				) : (
+					prescriptions.map((record) => (
+						<PrescritionItem
+							key={record.id}
+							{...record}
+							onClick={() => {
+								router.push(`/hospital/detail?id=${record.id}`);
+							}}
+						/>
+					))
+				)}
 			</Stack>
 
 			<Box pos="fixed" bottom={80} right={16} style={{ zIndex: 10 }}>

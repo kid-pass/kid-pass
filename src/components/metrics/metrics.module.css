@@ -1,8 +1,0 @@
-.toggleIcon {
-	cursor: pointer;
-}
-
-.closed {
-	max-height: 0; /* 접혀 있을 때의 높이 */
-	opacity: 0;
-}

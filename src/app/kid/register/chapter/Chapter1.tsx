@@ -66,7 +66,7 @@ const Chapter1: React.FC<ChapterProps> = ({ onNext }) => {
 
 			<Stack gap={8}>
 				<Text
-					fz="md-lg"
+					fz={theme.fontSizes.mdLg}
 					fw={700}
 					c={theme.colors[theme.primaryColor][6]}
 				>
@@ -87,7 +87,7 @@ const Chapter1: React.FC<ChapterProps> = ({ onNext }) => {
 			</Box>
 			<Stack gap={8}>
 				<Text
-					fz="md-lg"
+					fz={theme.fontSizes.mdLg}
 					fw={700}
 					c={theme.colors[theme.primaryColor][6]}
 				>
@@ -108,7 +108,7 @@ const Chapter1: React.FC<ChapterProps> = ({ onNext }) => {
 			</Box>
 			<Stack gap={8}>
 				<Text
-					fz="md-lg"
+					fz={theme.fontSizes.mdLg}
 					fw={700}
 					c={theme.colors[theme.primaryColor][6]}
 				>
@@ -129,7 +129,7 @@ const Chapter1: React.FC<ChapterProps> = ({ onNext }) => {
 			</Box>
 			<Stack gap={8}>
 				<Text
-					fz="md-lg"
+					fz={theme.fontSizes.mdLg}
 					fw={700}
 					c={theme.colors[theme.primaryColor][6]}
 				>

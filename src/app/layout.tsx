@@ -59,18 +59,24 @@ const theme = createTheme({
 		xs: '0.5rem', // 8px
 		sm: '0.75rem', // 12px
 		md: '1rem', // 16px
-		'md-lg': '1.125rem', //18px
+		mdLg: '1.125rem', //18px
 		lg: '1.25rem', // 20px
 		xl: '1.5rem', // 24px
 	},
 	spacing: {
 		xxs: '0.25rem', // 4px
 		xs: '0.5rem', // 8px
+		s: '0.625rem', //10px
 		sm: '0.75rem', // 12px
 		md: '1rem', // 16px
 		lg: '1.25rem', // 20px
 		xl: '1.5rem', // 24px
 	},
+	radius: {
+		s: '0.625rem',
+		md: '1.25rem',
+	},
+
 	components: {
 		Text: {
 			styles: {
@@ -132,6 +138,9 @@ const theme = createTheme({
 			'#5d7cbb',
 			'#485e8a',
 			'#334058', // 가장 어두운 색상
+			'#FFEDF5',
+			'#F9f9f9',
+			'#71E0E0',
 		],
 	},
 	primaryColor: 'brand',
@@ -143,10 +152,14 @@ const theme = createTheme({
 		// 커스텀 변수를 저장하는 공간
 		fontColors: {
 			primary: '#222222',
+			empty: '#BDBDBD',
 			sub1: '#646464',
 			sub2: '#707070',
 			sub3: '#9E9E9E',
 			sub4: '#d9d9d9',
+		},
+		shadow: {
+			basic: '0px 0px 10px 0px rgba(0, 0, 0, 0.15)',
 		},
 	},
 });
