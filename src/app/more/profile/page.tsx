@@ -11,6 +11,7 @@ import {
 	Text,
 	useMantineTheme,
 } from '@mantine/core';
+import useNavigation from '@/hook/useNavigation';
 
 // heic2any 라이브러리를 정적으로 가져오지 않음
 
@@ -29,6 +30,7 @@ const childrenOrder = [
 
 const App = () => {
 	const theme = useMantineTheme();
+	const { goBack } = useNavigation();
 	const { children, updateChild } = useChldrnListStore();
 	const inputFileRef = useRef<HTMLInputElement>(null);
 	const [selectedChildId, setSelectedChildId] = useState<string | null>(null);
@@ -101,6 +103,7 @@ const App = () => {
 			title="프로필 관리"
 			headerType="back"
 			currentRoute="/more/profile"
+			onBack={goBack}
 		>
 			<input
 				type="file"

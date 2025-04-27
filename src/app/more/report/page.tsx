@@ -1,6 +1,7 @@
 'use client';
 
 import MobileLayout from '@/components/mantine/MobileLayout';
+import useNavigation from '@/hook/useNavigation';
 import instance from '@/utils/axios';
 import { Box, Flex, LoadingOverlay, Paper, Stack, Text } from '@mantine/core';
 import { useRouter } from 'next/navigation';
@@ -30,10 +31,7 @@ const App = () => {
 	const [reportData, setReportData] = useState<ReportData[]>([]);
 	const [isLoading, setIsLoading] = useState(false);
 	const router = useRouter();
-
-	const onBack = () => {
-		router.back();
-	};
+	const { goBack } = useNavigation();
 
 	const fetchReportList = async () => {
 		const response = await instance.get('/report');
@@ -54,7 +52,7 @@ const App = () => {
 			showHeader={true}
 			headerType="profile"
 			title="리포트 리스트"
-			onBack={onBack}
+			onBack={goBack}
 			currentRoute="/more/report"
 		>
 			<Stack p="md" gap="md">
