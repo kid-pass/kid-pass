@@ -1,11 +1,12 @@
 'use client';
 
 import { Suspense, useEffect, useState } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useSearchParams } from 'next/navigation';
 import MobileLayout from '@/components/mantine/MobileLayout';
 import instance from '@/utils/axios';
 import { Paper, Text, Alert, Box } from '@mantine/core';
 import Metrics from './Metrics';
+import useNavigation from '@/hook/useNavigation';
 
 // 처방전 상세 정보 타입
 interface PrescriptionDetail {
@@ -26,7 +27,7 @@ interface PrescriptionDetail {
 const PrescriptionDetailContent = () => {
 	const searchParams = useSearchParams();
 	const prescriptionId = searchParams.get('id');
-	const router = useRouter();
+	const { goBack } = useNavigation();
 	const [prescription, setPrescription] = useState<PrescriptionDetail | null>(
 		null
 	);
@@ -78,11 +79,9 @@ const PrescriptionDetailContent = () => {
 		}
 	};
 
-	const handleBack = () => router.back();
-
 	return (
 		<MobileLayout
-			onBack={handleBack}
+			onBack={goBack}
 			showHeader={true}
 			headerType="back"
 			title="진료기록 상세"

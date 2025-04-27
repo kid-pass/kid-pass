@@ -1,6 +1,6 @@
 'use client';
 
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useSearchParams } from 'next/navigation';
 import {
 	TextInput,
 	Stack,
@@ -19,6 +19,7 @@ import { Suspense, useRef, useState } from 'react';
 import useAuth from '@/hook/useAuth';
 import { useAuthStore } from '@/store/useAuthStore';
 import instance from '@/utils/axios';
+import useNavigation from '@/hook/useNavigation';
 
 const diagnoses = ['감기', '코로나19', '장염', '인플루엔자', '기관지염'];
 
@@ -27,7 +28,7 @@ const medicines = ['타이레놀', '써스펜', '판콜에이', '베타딘', '�
 function HospitalFormContent() {
 	const { getToken } = useAuth();
 	const { crtChldrnNo } = useAuthStore();
-	const router = useRouter();
+	const { goBack } = useNavigation();
 	const searchParams = useSearchParams();
 	const id = searchParams.get('id');
 	const fileInputRef = useRef<HTMLInputElement>(null);
@@ -96,7 +97,7 @@ function HospitalFormContent() {
 			await instance.post('/prescription', prescriptionData);
 
 			// 성공 시 페이지 이동
-			router.back();
+			goBack();
 		} catch (error) {
 			console.error('진료 기록 저장 오류:', error);
 			// 에러 처리 로직
@@ -122,7 +123,7 @@ function HospitalFormContent() {
 			showHeader={true}
 			headerType="back"
 			title={`병원 진료 ${id ? '수정' : '등록'}`}
-			onBack={() => router.back()}
+			onBack={goBack}
 			showBottomNav={false}
 		>
 			<Box

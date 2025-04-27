@@ -15,8 +15,8 @@ import {
 	useMantineTheme,
 } from '@mantine/core';
 import MobileLayout from '@/components/mantine/MobileLayout';
-import { useRouter } from 'next/navigation';
 import { useAuthStore } from '@/store/useAuthStore';
+import useNavigation from '@/hook/useNavigation';
 
 export interface VacntnInfo {
 	id: string;
@@ -39,7 +39,7 @@ interface VaccinationData {
 }
 const App = () => {
 	const theme = useMantineTheme();
-	const router = useRouter();
+	const { goBack } = useNavigation();
 	const { getToken } = useAuth();
 	const [isLoading, setIsLoading] = useState(false);
 	const [vaccinationData, setVaccinationData] = useState<VaccinationData>({
@@ -52,8 +52,6 @@ const App = () => {
 
 	// Zustand store에서 crtChldrnNo 가져오기
 	const { crtChldrnNo } = useAuthStore();
-
-	const handleBack = () => router.push('/');
 
 	useEffect(() => {
 		const fetchData = async () => {
@@ -100,7 +98,7 @@ const App = () => {
 			headerType="profile"
 			title="아기수첩"
 			showBottomNav={true}
-			onBack={handleBack}
+			onBack={goBack}
 			calendar={true}
 		>
 			<Box p="0 20">

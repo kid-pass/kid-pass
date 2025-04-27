@@ -1,7 +1,7 @@
 'use client';
 
 import useAuth from '@/hook/useAuth';
-import { useParams, useRouter, useSearchParams } from 'next/navigation';
+import { useParams, useSearchParams } from 'next/navigation';
 import React, { useEffect, useState, useCallback } from 'react';
 import instance from '@/utils/axios';
 import Spacer from '@/elements/spacer/Spacer';
@@ -19,6 +19,7 @@ import {
 	useMantineTheme,
 } from '@mantine/core';
 import { modals } from '@mantine/modals';
+import useNavigation from '@/hook/useNavigation';
 
 // 백신 기록 데이터 타입
 interface VacntnInfo {
@@ -56,7 +57,7 @@ interface VaccineDetailResponse {
 
 export default function VaccineDetailPage() {
 	const theme = useMantineTheme();
-	const router = useRouter();
+	const { goBack } = useNavigation();
 	const { getToken } = useAuth();
 	const token = getToken();
 	const params = useParams();
@@ -65,7 +66,6 @@ export default function VaccineDetailPage() {
 	const [error, setError] = useState<string | null>(null);
 	const [vaccineDetail, setVaccineDetail] =
 		useState<VaccineDetailResponse | null>(null);
-	const handleBack = () => router.push('/');
 
 	// URL에서 vaccineId 추출
 	const vaccineId = params?.vacntnId as string;
@@ -216,7 +216,7 @@ export default function VaccineDetailPage() {
 					headerType="back"
 					title={vaccineDetail.vaccineName}
 					showBottomNav={true}
-					onBack={handleBack}
+					onBack={goBack}
 				>
 					<Box px={16}>
 						<Text fw={700} fz="xl">

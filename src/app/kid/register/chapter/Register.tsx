@@ -11,10 +11,10 @@ import useAuth from '@/hook/useAuth';
 import Chapter6 from './Chapter6';
 import { useChldrnInfoStore } from '@/store/useChldrnInfoStore';
 import MobileLayout from '@/components/mantine/MobileLayout';
-import { useRouter } from 'next/navigation';
+import useNavigation from '@/hook/useNavigation';
 
 const Register: React.FC = () => {
-	const router = useRouter();
+	const { goHome } = useNavigation();
 	const { getToken } = useAuth();
 	const [loading, setLoading] = useState(false);
 
@@ -94,7 +94,7 @@ const Register: React.FC = () => {
 					}
 
 					// 등록 완료 후 홈
-					router.push('/');
+					goHome();
 				} else {
 					throw new Error(data.message);
 				}
