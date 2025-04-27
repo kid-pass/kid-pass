@@ -7,11 +7,13 @@ import useAuth from '@/hook/useAuth';
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { notifications } from '@mantine/notifications';
+import useNavigation from '@/hook/useNavigation';
 
 const App = () => {
 	const { getUserInfo, getToken } = useAuth();
 	const [userInfo, setUserInfo] = useState<any>(null);
 	const router = useRouter();
+	const { goBack } = useNavigation();
 
 	const [showWithdrawModal, setShowWithdrawModal] = useState(false);
 
@@ -64,6 +66,7 @@ const App = () => {
 			headerType="back"
 			title="더보기"
 			currentRoute="/more"
+			onBack={goBack}
 		>
 			<Container
 				p={0}
@@ -139,9 +142,9 @@ const App = () => {
 								내 보관함
 							</Text>
 							<Box style={{ backgroundColor: 'white' }}>
-								<MenuItem label="찜한 병원/약국" hasArrow />
+								{/* <MenuItem label="찜한 병원/약국" hasArrow /> */}
 								<MenuItem
-									label="리포트 리스트"
+									label="아이 레포트"
 									hasArrow
 									onClick={() => {
 										router.push('/more/report');
@@ -166,7 +169,7 @@ const App = () => {
 								px={rem(16)}
 								py={rem(8)}
 							>
-								고객센터
+								고객센터 (추후 서비스 예정)
 							</Text>
 							<Box style={{ backgroundColor: 'white' }}>
 								<MenuItem label="공지사항" hasArrow />
