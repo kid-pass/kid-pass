@@ -8,7 +8,16 @@ import Spacer from '@/elements/spacer/Spacer';
 import ScrollPicker from '../../components/ScrollPicker';
 import { useDateStore } from '@/store/useDateStore';
 import MobileLayout from '@/components/mantine/MobileLayout';
-import { Box, Button, Divider, Flex, Group, Image, Text } from '@mantine/core';
+import {
+	Box,
+	Button,
+	Divider,
+	Flex,
+	Group,
+	Image,
+	Text,
+	useMantineTheme,
+} from '@mantine/core';
 import { modals } from '@mantine/modals';
 
 // 백신 기록 데이터 타입
@@ -46,6 +55,7 @@ interface VaccineDetailResponse {
 }
 
 export default function VaccineDetailPage() {
+	const theme = useMantineTheme();
 	const router = useRouter();
 	const { getToken } = useAuth();
 	const token = getToken();
@@ -221,7 +231,11 @@ export default function VaccineDetailPage() {
 							}}
 						>
 							<Flex>
-								<Text fw={600} fz="md-lg" c="#729BED">
+								<Text
+									fw={600}
+									fz={theme.fontSizes.mdLg}
+									c="#729BED"
+								>
 									완료 {vaccineDetail.completedDoses}
 								</Text>
 								<Divider
@@ -231,7 +245,11 @@ export default function VaccineDetailPage() {
 									h={16}
 									color="#D9D9D9"
 								/>
-								<Text fw={600} fz="md-lg" c="#BFBFBF">
+								<Text
+									fw={600}
+									fz={theme.fontSizes.mdLg}
+									c="#BFBFBF"
+								>
 									미접종
 									{vaccineDetail.totalDoses -
 										vaccineDetail.completedDoses}

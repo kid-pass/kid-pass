@@ -59,7 +59,7 @@ const theme = createTheme({
 		xs: '0.5rem', // 8px
 		sm: '0.75rem', // 12px
 		md: '1rem', // 16px
-		'md-lg': '1.125rem', //18px
+		mdLg: '1.125rem', //18px
 		lg: '1.25rem', // 20px
 		xl: '1.5rem', // 24px
 	},

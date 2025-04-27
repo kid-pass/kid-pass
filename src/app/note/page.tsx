@@ -6,7 +6,14 @@ import useAuth from '@/hook/useAuth';
 import { useEffect, useState } from 'react';
 import instance from '@/utils/axios';
 import Spacer from '@/elements/spacer/Spacer';
-import { Group, Box, Text, Flex, LoadingOverlay } from '@mantine/core';
+import {
+	Group,
+	Box,
+	Text,
+	Flex,
+	LoadingOverlay,
+	useMantineTheme,
+} from '@mantine/core';
 import MobileLayout from '@/components/mantine/MobileLayout';
 import { useRouter } from 'next/navigation';
 import { useAuthStore } from '@/store/useAuthStore';
@@ -31,6 +38,7 @@ interface VaccinationData {
 	vaccineStatusMap: Record<string, VaccineStatusInfo>;
 }
 const App = () => {
+	const theme = useMantineTheme();
 	const router = useRouter();
 	const { getToken } = useAuth();
 	const [isLoading, setIsLoading] = useState(false);
@@ -97,7 +105,7 @@ const App = () => {
 		>
 			<Box p="0 20">
 				<LoadingOverlay visible={isLoading} />
-				<Text fw={700} size="md-lg" c="#222222">
+				<Text fw={700} fz={theme.fontSizes.mdLg} c="#222222">
 					예방접종 진행률
 				</Text>
 
@@ -177,7 +185,7 @@ const App = () => {
       */}
 				</Box>
 
-				<Text fw={700} size="md-lg" c="#222222">
+				<Text fw={700} fz={theme.fontSizes.mdLg} c="#222222">
 					예방접종 자세히 보기
 				</Text>
 				<VaccineCount

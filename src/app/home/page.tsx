@@ -25,6 +25,8 @@ import { common } from '@/utils/common';
 import instance from '@/utils/axios';
 import { NewsItem } from '../more/news/page';
 import { useRouter } from 'next/navigation';
+import EmptyState from '@/components/EmptyState/EmptyState';
+import { NextVaccineInfo } from '../api/vaccine/next/route';
 
 interface PhysicalStats {
 	chldrnBdwgh: number;
@@ -152,11 +154,11 @@ const App: React.FC = () => {
 	const theme = useMantineTheme();
 	const [kidsData, setKidsData] = useState<KidRecord[]>([]);
 	const [newsData, setNewsData] = useState<NewsItem[]>([]);
-	const [vaccineData, setVaccineData] = useState<NewsItem[]>([]);
+	const [vaccineData, setVaccineData] = useState<NextVaccineInfo[]>([]);
 	const [crtChldrnNoKidIndex, setCrtChldrnNoKidIndex] = useState(0);
-	const { setChldrnList } = useChldrnListStore();
+	const { setChldrnList, children } = useChldrnListStore();
 	const { getToken } = useAuth();
-	const { setCrtChldrnNo, token } = useAuthStore();
+	const { setCrtChldrnNo, token, crtChldrnNo } = useAuthStore();
 	const router = useRouter();
 
 	useEffect(() => {
@@ -166,7 +168,6 @@ const App: React.FC = () => {
 		}
 
 		fetchNewsData();
-		fetchNextVaccinData();
 		// 토큰이 설정되면 데이터 가져오기
 		const handleTokenSet = (event: CustomEvent) => {
 			fetchChildrenData();
@@ -181,6 +182,8 @@ const App: React.FC = () => {
 			);
 		};
 	}, [token]);
+
+	useEffect(() => {}, []);
 
 	const fetchChildrenData = async () => {
 		const token = await getToken();
@@ -213,19 +216,50 @@ const App: React.FC = () => {
 		}
 	};
 
-	const fetchNextVaccinData = async ()=>{
+	const fetchNextVaccinData = async () => {
+		try {
+			// children 배열과 인덱스가 유효한지 먼저 확인
+			if (!children || children.length === 0) {
+				console.log('아직 children 데이터가 로드되지 않았습니다');
+				return;
+			}
 
-		try{
+			if (
+				crtChldrnNoKidIndex === undefined ||
+				crtChldrnNoKidIndex < 0 ||
+				crtChldrnNoKidIndex >= children.length
+			) {
+				console.log('유효하지 않은 인덱스:', crtChldrnNoKidIndex);
+				return;
+			}
 
-			console.log(kidsData)
-			// const response = await instance.get('vaccine/next');
+			const childData = children[crtChldrnNoKidIndex];
 
-			// setVaccineData(response.data.data)
+			if (!childData || !childData.birthDate) {
+				console.log('선택된 아이의 생일 정보가 없습니다:', childData);
+				return;
+			}
 
-		}catch(err){
-			console.error('다음 백신 이력 조회 오류',err)
+			const birthDate = childData.birthDate.substring(0, 10);
+
+			console.log('요청할 생일 정보:', birthDate);
+
+			const response = await instance.get('vaccine/next', {
+				params: {
+					birthDate: birthDate,
+				},
+			});
+
+			console.log(response.data.data);
+			setVaccineData(response.data.data);
+		} catch (err) {
+			console.error('다음 백신 이력 조회 오류', err);
 		}
-	}
+	};
+
+	useEffect(() => {
+		fetchNextVaccinData();
+	}, [crtChldrnNoKidIndex, crtChldrnNo]);
 
 	// 데이터 처리 함수를 분리
 	const handleChildrenData = (children: Child[]) => {
@@ -402,12 +436,63 @@ const App: React.FC = () => {
 							metricsData={currentSlide.metrics}
 						/>
 					)}
+					<Box mb="40">
+						<Text
+							mb="24"
+							c={theme.other.fontColors.primary}
+							fz={theme.fontSizes.lg}
+							fw={700}
+						>
+							다가오는 예방접종을 알려드려요
+						</Text>
+
+						{vaccineData.length === 0 ? (
+							<EmptyState />
+						) : (
+							<Box
+								style={{
+									boxShadow:
+										'0px 0px 10px 0px rgba(0, 0, 0, 0.15)',
+									borderRadius: '20px',
+									gap: '16px',
+									flexDirection: 'column',
+								}}
+								p="md"
+								display="flex"
+							>
+								{vaccineData.map((vaccine, index) => (
+									<Box key={index + 1}>
+										<Box
+											display="flex"
+											w="100%"
+											style={{
+												justifyContent: 'space-between',
+											}}
+										>
+											<Text
+												fz={theme.fontSizes.mdLg}
+												fw={600}
+											>
+												{vaccine.diseaseName}
+											</Text>
+											<Text
+												fz={theme.fontSizes.mdLg}
+												fw={600}
+											>
+												{vaccine.scheduledDate}
+											</Text>
+										</Box>
+									</Box>
+								))}
+							</Box>
+						)}
+					</Box>
+
 					<Box>
 						<Text
 							c={theme.other.fontColors.primary}
 							fz={theme.fontSizes.lg}
-							fw={600}
-
+							fw={700}
 						>
 							아이 건강 꿀팁
 						</Text>
@@ -436,11 +521,7 @@ const App: React.FC = () => {
 										}}
 										bg="#F8FFC9"
 									>
-										<Text
-											c="#000000"
-											fz="1.625rem"
-											fw={700}
-										>
+										<Text c="#000000" fz="1rem" fw={700}>
 											{news.title[0]}
 										</Text>
 									</Box>

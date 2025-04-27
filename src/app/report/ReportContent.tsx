@@ -435,7 +435,7 @@ const ReportContent = () => {
 										>
 											<Text
 												c="#000000"
-												fz="md-lg"
+												fz={theme.fontSizes.mdLg}
 												fw={600}
 											>
 												{vaccine.vaccineName}
