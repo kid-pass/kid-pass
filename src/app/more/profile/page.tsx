@@ -1,6 +1,6 @@
 'use client';
 
-import heic2any from 'heic2any';
+import { useRef, useState, useEffect } from 'react';
 import MobileLayout from '@/components/mantine/MobileLayout';
 import useChldrnListStore from '@/store/useChldrnListStore';
 import instance from '@/utils/axios';
@@ -11,7 +11,8 @@ import {
 	Text,
 	useMantineTheme,
 } from '@mantine/core';
-import { useRef, useState } from 'react';
+
+// heic2any 라이브러리를 정적으로 가져오지 않음
 
 const childrenOrder = [
 	'첫째',
@@ -45,20 +46,20 @@ const App = () => {
 
 		setIsUploading(true);
 
-		// Axios로 요청 보내기
 		try {
 			if (
 				file.type === 'image/heic' ||
 				file.name.toLowerCase().endsWith('.heic')
 			) {
 				console.log('HEIC 파일 변환 시작');
+				// 동적으로 heic2any 라이브러리 가져오기
+				const heic2any = (await import('heic2any')).default;
 				const convertedBlob = await heic2any({
 					blob: file,
 					toType: 'image/jpeg',
 					quality: 0.8,
 				});
 
-				// 변환된 Blob을 File 객체로 변환
 				file = new File(
 					[convertedBlob as Blob],
 					file.name.replace(/\.heic$/i, '.jpg'),
@@ -67,7 +68,6 @@ const App = () => {
 				console.log('HEIC 파일 변환 완료:', file.name);
 			}
 
-			// FormData 객체 생성
 			const formData = new FormData();
 			formData.append('file', file);
 			formData.append('childId', selectedChildId);
@@ -92,7 +92,7 @@ const App = () => {
 			console.error('이미지 업로드 오류:', error);
 		} finally {
 			setIsUploading(false);
-			setSelectedChildId(null); // 선택 상태 초기화
+			setSelectedChildId(null);
 		}
 	};
 
