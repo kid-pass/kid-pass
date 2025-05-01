@@ -48,7 +48,7 @@ const theme = createTheme({
 	fontFamily: 'Pretendard, sans-serif',
 	// 모바일 최적화 테마 설정
 	breakpoints: {
-		xss: '22rem',
+		xss: '22rem', // 350px
 		xs: '36em', // 576px
 		sm: '48em', // 768px
 		md: '62em', // 992px

@@ -359,6 +359,7 @@ const App: React.FC = () => {
 								alt=""
 								pos="absolute"
 								right={10}
+								bottom={-9}
 								w={80}
 								h={80}
 							/>
@@ -382,18 +383,20 @@ const App: React.FC = () => {
 								},
 							}}
 						>
-							<Stack justify="center" gap={0}>
-								<Text fw={700} fz="md" c="#222222">
-									지금 문 연
-								</Text>
-								<Text fw={700} fz="md" c="#222222">
-									병원/약국
-								</Text>
-							</Stack>
+							<Text
+								fw={700}
+								fz="md"
+								c="#222222"
+								style={{ lineHeight: '1.2' }}
+							>
+								약국재고
+								<br />
+								조회
+							</Text>
 							<Image
-								src="https://heidimoon.cafe24.com/renwal/test2/Group.png"
-								alt="병원/약국"
-								width={36}
+								src="/Pharmacy.png"
+								alt="약국 재고조회"
+								width={27}
 								height={36}
 							/>
 						</Flex>
@@ -414,20 +417,37 @@ const App: React.FC = () => {
 								},
 							}}
 						>
-							<Stack justify="center" gap={0}>
-								<Text fw={700} fz="md" c="#222222">
-									진료받은
-								</Text>
-								<Text fw={700} fz="md" c="#222222">
-									기록
-								</Text>
-							</Stack>
-							<Image
-								src="https://heidimoon.cafe24.com/renwal/test2/OBJECTS.png"
-								alt="기록"
-								width={36}
-								height={36}
-							/>
+							<Text
+								fw={700}
+								fz="md"
+								c="#222222"
+								style={{ lineHeight: '1.2' }}
+							>
+								진료받은
+								<br />
+								기록
+							</Text>
+							<Box
+								display="flex"
+								style={{
+									justifyContent: 'flex-end',
+									gap: '4px',
+								}}
+							>
+								<Image
+									src="/medicalRecord_left.png"
+									alt="진료 기록"
+									width={27}
+									height={36}
+									visibleFrom="xss"
+								/>
+								<Image
+									src="/medicalRecord_right.png"
+									alt="진료 기록"
+									width={27}
+									height={36}
+								/>
+							</Box>
 						</Flex>
 					</Group>
 					{currentSlide && (
