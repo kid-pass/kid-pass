@@ -15,9 +15,11 @@ import {
 } from "@mantine/core";
 import { IconEye, IconEyeOff } from "@tabler/icons-react";
 import MobileLayout from "@/components/mantine/MobileLayout";
+import { useAuthStore } from "@/store/useAuthStore";
 
 const LoginPage = () => {
   const router = useRouter();
+  const { setToken, setRefreshToken, setUserInfo } = useAuthStore();
 
   const [userId, setUserId] = useState("");
   const [password, setPassword] = useState("");
@@ -48,6 +50,8 @@ const LoginPage = () => {
               refreshToken: data.data.refreshToken,
             })
           );
+        } else {
+          setToken(data.data.accessToken);
         }
       } else {
         alert(data.message);
