@@ -358,6 +358,7 @@ const App: React.FC = () => {
 							src="/record.png"
 							alt=""
 							pos="absolute"
+							bottom={-8}
 							right={10}
 							w={80}
 							h={80}
@@ -365,54 +366,6 @@ const App: React.FC = () => {
 					</Group>
 					<Group gap="xs" align="center" mt="md">
 						<Flex
-							p="md"
-							bg="white"
-							justify="space-between"
-							align="center"
-							flex={1}
-							style={{
-								border: '1px solid #d5d5d5',
-								borderRadius: '8px',
-								flex: '1',
-								cursor: 'pointer',
-							}}
-							onClick={() => {
-								sendToRn({
-									type: 'NAV',
-									data: { route: '/hospital' },
-								});
-							}}
-						>
-							<Stack justify="center" gap={0}>
-								<Text fw={700} fz="md" c="#222222">
-									지금 문 연
-								</Text>
-								<Text fw={700} fz="md" c="#222222">
-									병원/약국
-								</Text>
-							</Stack>
-							<Image
-								src="https://heidimoon.cafe24.com/renwal/test2/Group.png"
-								alt="병원/약국"
-								width={36}
-								height={36}
-							/>
-						</Flex>
-
-						<Image
-							src="/record.png"
-							alt=""
-							pos="absolute"
-							right={10}
-							bottom={-9}
-							w={80}
-							h={80}
-						/>
-					</Group>
-					<Group gap="xs" align="center" mt="md">
-						<Flex
-							component={Link}
-							href="/map"
 							p="md"
 							bg="white"
 							justify="space-between"
@@ -425,6 +378,12 @@ const App: React.FC = () => {
 									flex: '1',
 									textDecoration: 'none',
 								},
+							}}
+							onClick={() => {
+								sendToRn({
+									type: 'NAV',
+									data: { route: '/map' },
+								});
 							}}
 						>
 							<Text
@@ -446,8 +405,6 @@ const App: React.FC = () => {
 						</Flex>
 
 						<Flex
-							component={Link}
-							href="/hospital"
 							p="md"
 							bg="white"
 							justify="space-between"
@@ -459,6 +416,12 @@ const App: React.FC = () => {
 									flex: '1',
 									textDecoration: 'none',
 								},
+							}}
+							onClick={() => {
+								sendToRn({
+									type: 'NAV',
+									data: { route: '/hospital' },
+								});
 							}}
 						>
 							<Text
@@ -497,55 +460,6 @@ const App: React.FC = () => {
 					{currentSlide && (
 						<MetricsSection
 							labelText={`오늘의 ${currentSlide.profile.chldrnNm} 성장기록이에요`}
-							metricsData={currentSlide.metrics}
-						/>
-					)}
-					<Box mb="40">
-						<Text
-							mb="24"
-							c={theme.other.fontColors.primary}
-							fz={theme.fontSizes.lg}
-							fw={700}
-						>
-							다가오는 예방접종을 알려드려요
-						</Text>
-						<Flex
-							p="md"
-							bg="white"
-							justify="space-between"
-							align="center"
-							style={{
-								border: '1px solid #d5d5d5',
-								borderRadius: '8px',
-								flex: '1',
-								cursor: 'pointer',
-							}}
-							onClick={() => {
-								sendToRn({
-									type: 'NAV',
-									data: { route: '/hospital' },
-								});
-							}}
-						>
-							<Stack justify="center" gap={0}>
-								<Text fw={700} fz="md" c="#222222">
-									진료받은
-								</Text>
-								<Text fw={700} fz="md" c="#222222">
-									기록
-								</Text>
-							</Stack>
-							<Image
-								src="https://heidimoon.cafe24.com/renwal/test2/OBJECTS.png"
-								alt="기록"
-								width={36}
-								height={36}
-							/>
-						</Flex>
-					</Box>
-					{currentSlide && (
-						<MetricsSection
-							labelText={`오늘의 ${currentSlide.profile.chldrnNm} 기록이에요`}
 							metricsData={currentSlide.metrics}
 						/>
 					)}
