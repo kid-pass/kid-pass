@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { AppShell, Box } from "@mantine/core";
 import BottomNavigation from "./BottomNavigation";
 import Header from "./Header";
@@ -26,8 +26,16 @@ const MobileLayout: React.FC<MobileLayoutProps> = ({
   useWeekCarousel = false,
   calendar = false,
 }) => {
-  //   const forceShowBottomNav = showBottomNav;
-  const forceShowBottomNav = false;
+  // React Native 웹뷰 환경인지 확인
+  const [isReactNativeWebView, setIsReactNativeWebView] = useState(true);
+
+  useEffect(() => {
+    // window.ReactNativeWebView가 존재하면 RN 웹뷰 환경으로 판단
+    setIsReactNativeWebView(!!window.ReactNativeWebView);
+  }, []);
+
+  // RN 웹뷰 환경이면 하단 네비게이션 숨김, 아니면 showBottomNav 값 사용
+  const forceShowBottomNav = isReactNativeWebView ? false : showBottomNav;
 
   return (
     <AppShell
