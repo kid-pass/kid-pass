@@ -17,6 +17,9 @@ import PrescritionItem from '../hospital/PrescriptionItem';
 import ActionTab from './ActionTab';
 import EmptyState from '@/components/EmptyState/EmptyState';
 import { common } from '@/utils/common';
+import { notifications } from '@mantine/notifications';
+import { useToast } from '@/hook/useToast';
+import useNavigation from '@/hook/useNavigation';
 
 // 증상 타입 정의
 interface SymptomItem {
@@ -92,6 +95,8 @@ const ReportContent = () => {
 	const { getToday, getFormatDate, getAge } = common();
 	const today = getToday();
 	const theme = useMantineTheme();
+	const { goPage } = useNavigation();
+	const { successToast } = useToast();
 
 	const fetchProfileData = async () => {
 		try {
@@ -291,10 +296,23 @@ const ReportContent = () => {
 	}, [searchParams]);
 
 	// 발행이 성공적으로 완료된 후 호출될 함수
-	const handlePublishSuccess = (data: any) => {};
+	const handlePublishSuccess = () => {
+		try {
+			successToast({
+				title: '레포트 발행',
+				message: '레포트가 발행되었습니다.',
+				position: 'top-center',
+				autoClose: 2000, // 5초 후 자동으로 닫힘
+			});
+
+			goPage('/more/report');
+		} catch (err) {
+			console.log(err);
+		}
+	};
 
 	return (
-		<Box>
+		<Box pb="xxxl">
 			{loading ? (
 				<LoadingOverlay visible={loading} />
 			) : (

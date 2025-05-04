@@ -407,7 +407,7 @@ const App: React.FC = () => {
 							p="md"
 							bg="white"
 							justify="space-between"
-							align="center"
+							align="start"
 							styles={{
 								root: {
 									border: '1px solid #d5d5d5',
@@ -438,21 +438,21 @@ const App: React.FC = () => {
 									src="/medicalRecord_left.png"
 									alt="진료 기록"
 									width={27}
-									height={36}
+									height={37}
 									visibleFrom="xss"
 								/>
 								<Image
 									src="/medicalRecord_right.png"
 									alt="진료 기록"
 									width={27}
-									height={36}
+									height={37}
 								/>
 							</Box>
 						</Flex>
 					</Group>
 					{currentSlide && (
 						<MetricsSection
-							labelText={`오늘의 ${currentSlide.profile.chldrnNm} 기록이에요`}
+							labelText={`오늘의 ${currentSlide.profile.chldrnNm} 성장기록이에요`}
 							metricsData={currentSlide.metrics}
 						/>
 					)}

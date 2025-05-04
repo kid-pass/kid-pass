@@ -71,6 +71,8 @@ const theme = createTheme({
 		md: '1rem', // 16px
 		lg: '1.25rem', // 20px
 		xl: '1.5rem', // 24px
+		xxl: '2rem', // 32px
+		xxxl: '3rem', // 48px
 	},
 	radius: {
 		s: '0.625rem',
@@ -90,6 +92,7 @@ const theme = createTheme({
 			defaultProps: {
 				size: 'md', // 모바일에서 더 큰 터치 영역
 			},
+
 			styles: {
 				root: {
 					borderRadius: '28px',
@@ -160,6 +163,11 @@ const theme = createTheme({
 		},
 		shadow: {
 			basic: '0px 0px 10px 0px rgba(0, 0, 0, 0.15)',
+		},
+		statusColors: {
+			success: '#729bed',
+			error: '#cc0000',
+			warning: '#ff9966',
 		},
 	},
 });
