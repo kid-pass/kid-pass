@@ -4,9 +4,17 @@ import { Suspense, useEffect, useState } from 'react';
 import { useSearchParams } from 'next/navigation';
 import MobileLayout from '@/components/mantine/MobileLayout';
 import instance from '@/utils/axios';
-import { Paper, Text, Alert, Box } from '@mantine/core';
+import {
+	Paper,
+	Text,
+	Alert,
+	Box,
+	Button,
+	useMantineTheme,
+} from '@mantine/core';
 import Metrics from './Metrics';
 import useNavigation from '@/hook/useNavigation';
+import { useToast } from '@/hook/useToast';
 
 // 처방전 상세 정보 타입
 interface PrescriptionDetail {
@@ -26,6 +34,7 @@ interface PrescriptionDetail {
 
 const PrescriptionDetailContent = () => {
 	const searchParams = useSearchParams();
+	const theme = useMantineTheme();
 	const prescriptionId = searchParams.get('id');
 	const { goBack } = useNavigation();
 	const [prescription, setPrescription] = useState<PrescriptionDetail | null>(
@@ -33,6 +42,7 @@ const PrescriptionDetailContent = () => {
 	);
 	const [loading, setLoading] = useState(true);
 	const [error, setError] = useState<string | null>(null);
+	const { errorToast } = useToast();
 
 	// 처방전 상세 정보 가져오기
 	useEffect(() => {
@@ -76,6 +86,28 @@ const PrescriptionDetailContent = () => {
 			return decodeURIComponent(fileName);
 		} catch (error) {
 			return '처방전 이미지';
+		}
+	};
+
+	const handleDelete = async () => {
+		if (!prescription || !prescriptionId) return;
+
+		try {
+			// 삭제 API 호출
+			await instance.delete(`/prescription/${prescriptionId}`);
+
+			errorToast({
+				title: '진료기록 삭제',
+				message: '진료기록이 삭제되었습니다.',
+				position: 'top-center',
+				autoClose: 2000, // 5초 후 자동으로 닫힘
+			});
+
+			// 삭제 후 이전 페이지로 이동
+			goBack();
+		} catch (err) {
+			console.error('처방전 삭제 오류:', err);
+			alert('삭제 중 오류가 발생했습니다.');
 		}
 	};
 
@@ -127,6 +159,15 @@ const PrescriptionDetailContent = () => {
 							</Box>
 						)}
 					</Paper>
+					<Button
+						fullWidth
+						bg={theme.other.statusColors.error}
+						c="#FFFFFF"
+						my="lg"
+						onClick={handleDelete}
+					>
+						삭제
+					</Button>
 				</Box>
 			) : (
 				<div className="p-4">

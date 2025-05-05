@@ -82,7 +82,7 @@ const App = () => {
 					<Image src={imageUrl} alt="리포트 이미지" w="100%" />
 					<Button
 						fullWidth
-						bg={theme.other.statusColors.warning}
+						bg={theme.other.statusColors.error}
 						c="#FFFFFF"
 						my="lg"
 						onClick={handleDelete}

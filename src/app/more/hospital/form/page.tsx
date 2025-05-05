@@ -20,6 +20,8 @@ import useAuth from '@/hook/useAuth';
 import { useAuthStore } from '@/store/useAuthStore';
 import instance from '@/utils/axios';
 import useNavigation from '@/hook/useNavigation';
+import { useToast } from '@/hook/useToast';
+import axios from 'axios';
 
 const diagnoses = ['감기', '코로나19', '장염', '인플루엔자', '기관지염'];
 
@@ -37,6 +39,7 @@ function HospitalFormContent() {
 	const [prescriptionImage, setPrescriptionImage] = useState<string | null>(
 		null
 	);
+	const { errorToast, successToast } = useToast();
 
 	const form = useForm({
 		initialValues: {
@@ -95,12 +98,47 @@ function HospitalFormContent() {
 
 			// axios로 진료 기록 등록
 			await instance.post('/prescription', prescriptionData);
-
+			successToast({
+				title: '진료기록 발행',
+				message: '진료기록이 발행되었습니다',
+				position: 'top-center',
+				autoClose: 2000,
+			});
 			// 성공 시 페이지 이동
 			goBack();
 		} catch (error) {
 			console.error('진료 기록 저장 오류:', error);
-			// 에러 처리 로직
+
+			// 에러 메시지 추출 로직
+			let errorMessage = '알 수 없는 오류가 발생했습니다';
+
+			if (axios.isAxiosError(error)) {
+				// Axios 에러인 경우
+				if (error.response) {
+					// 서버에서 응답이 왔지만 오류 상태 코드인 경우
+					errorMessage =
+						error.response.data.message ||
+						`오류 코드: ${error.response.status}`;
+				} else if (error.request) {
+					// 요청은 보냈지만 응답이 없는 경우
+					errorMessage = '서버에서 응답이 없습니다';
+				} else {
+					// 요청 설정 중 오류 발생
+					errorMessage = error.message;
+				}
+			} else {
+				// Axios 에러가 아닌 일반 에러
+				errorMessage =
+					error instanceof Error ? error.message : String(error);
+			}
+
+			// 토스트 표시
+			errorToast({
+				title: '진료기록 발행 실패',
+				message: errorMessage,
+				position: 'top-center',
+				autoClose: 2000,
+			});
 		} finally {
 			setSubmitting(false);
 		}
