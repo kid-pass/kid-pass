@@ -68,7 +68,7 @@ const Hospital = () => {
 			showHeader={true}
 			headerType="back"
 			title="병원 처방전"
-			showBottomNav={false}
+			showBottomNav={true}
 			onBack={() => router.back()}
 			currentRoute="/more/hospital"
 		>
@@ -92,7 +92,7 @@ const Hospital = () => {
 
 			<Box
 				pos="fixed"
-				bottom={isReactNative ? 10 : 40}
+				bottom={isReactNative ? 10 : 80}
 				right={16}
 				style={{ zIndex: 10 }}
 			>

@@ -392,9 +392,9 @@ const App: React.FC = () => {
 								c="#222222"
 								style={{ lineHeight: '1.2' }}
 							>
-								약국재고
+								지금 문 연
 								<br />
-								조회
+								병원/약국
 							</Text>
 							<Image
 								src="/Pharmacy.png"
