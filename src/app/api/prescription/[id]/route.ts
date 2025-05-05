@@ -73,12 +73,9 @@ export async function GET(request: NextRequest, { params }: Props) {
 		);
 	}
 }
-
-export async function DELETE(
-	request: Request,
-	{ params }: { params: { id: string } }
-) {
+export async function DELETE(request: NextRequest, { params }: Props) {
 	try {
+		const { id } = await params; // params.id로 변경
 		// JWT 토큰 검증
 		const authHeader = request.headers.get('authorization');
 		if (!authHeader?.startsWith('Bearer ')) {
@@ -93,7 +90,7 @@ export async function DELETE(
 			userId: string;
 		};
 
-		const prescriptionId = params.id;
+		const prescriptionId = id;
 
 		// 처방전 정보 조회
 		const prescription = await prisma.prescription.findUnique({

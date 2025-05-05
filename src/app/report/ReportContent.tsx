@@ -12,14 +12,14 @@ import {
 } from '@mantine/core';
 import { useSearchParams } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
-import { Prescription } from '../hospital/type/hospital';
-import PrescritionItem from '../hospital/PrescriptionItem';
 import ActionTab from './ActionTab';
 import EmptyState from '@/components/EmptyState/EmptyState';
 import { common } from '@/utils/common';
 import { notifications } from '@mantine/notifications';
 import { useToast } from '@/hook/useToast';
 import useNavigation from '@/hook/useNavigation';
+import { Prescription } from '../more/hospital/type/hospital';
+import PrescritionItem from '../more/hospital/PrescriptionItem';
 
 // 증상 타입 정의
 interface SymptomItem {

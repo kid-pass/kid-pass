@@ -2,8 +2,8 @@
 
 import MobileLayout from '@/components/mantine/MobileLayout';
 import { Suspense } from 'react';
-import ReportContent from './ReportContent';
 import useNavigation from '@/hook/useNavigation';
+import ReportContent from './ReportContent';
 
 const App = () => {
 	const { goBack } = useNavigation();

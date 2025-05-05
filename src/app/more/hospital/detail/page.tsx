@@ -11,6 +11,7 @@ import {
 	Box,
 	Button,
 	useMantineTheme,
+	LoadingOverlay,
 } from '@mantine/core';
 import Metrics from './Metrics';
 import useNavigation from '@/hook/useNavigation';
@@ -120,7 +121,7 @@ const PrescriptionDetailContent = () => {
 			currentRoute="/more"
 		>
 			{loading ? (
-				<div>로딩중입니다.</div>
+				<LoadingOverlay visible={loading} />
 			) : error ? (
 				<p>에러입니다</p>
 			) : prescription ? (
