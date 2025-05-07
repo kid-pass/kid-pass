@@ -12,6 +12,7 @@ import {
 	useMantineTheme,
 } from '@mantine/core';
 import useNavigation from '@/hook/useNavigation';
+import { useImageUpload } from '@/hook/useImageUpload';
 
 // heic2any 라이브러리를 정적으로 가져오지 않음
 
@@ -70,18 +71,12 @@ const App = () => {
 				console.log('HEIC 파일 변환 완료:', file.name);
 			}
 
-			const formData = new FormData();
-			formData.append('file', file);
-			formData.append('childId', selectedChildId);
-			formData.append('filePrefix', 'profileImage');
-
-			const response = await instance.post('/image/upload', formData, {
-				headers: {
-					'Content-Type': 'multipart/form-data',
-				},
+			// 이미지 서버에 업로드
+			const data = await useImageUpload(file, {
+				childId: selectedChildId,
+				filePrefix: 'profileImage',
+				endpoint: '/image/upload',
 			});
-
-			const data = response.data;
 
 			if (data.success && data.imageUrl) {
 				if (selectedChildId) {

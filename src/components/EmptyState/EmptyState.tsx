@@ -24,7 +24,7 @@ const EmptyState = () => {
 					fz="md"
 					style={{ whiteSpace: 'nowrap' }}
 				>
-					아직 기록이 없습니다
+					기록이 없습니다
 				</Text>
 			</Box>
 		</>

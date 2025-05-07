@@ -8,6 +8,7 @@ import '@mantine/notifications/styles.css';
 import '@mantine/dates/styles.css';
 import '@mantine/charts/styles.css';
 import RNTokenHandler from '@/components/RNTokenHandler';
+import { QueryProvider } from '@/providers/QueryProvider';
 
 const geistSans = localFont({
 	src: [
@@ -48,7 +49,7 @@ const theme = createTheme({
 	fontFamily: 'Pretendard, sans-serif',
 	// 모바일 최적화 테마 설정
 	breakpoints: {
-		xss: '22rem',
+		xss: '22rem', // 350px
 		xs: '36em', // 576px
 		sm: '48em', // 768px
 		md: '62em', // 992px
@@ -71,6 +72,8 @@ const theme = createTheme({
 		md: '1rem', // 16px
 		lg: '1.25rem', // 20px
 		xl: '1.5rem', // 24px
+		xxl: '2rem', // 32px
+		xxxl: '3rem', // 48px
 	},
 	radius: {
 		s: '0.625rem',
@@ -90,6 +93,7 @@ const theme = createTheme({
 			defaultProps: {
 				size: 'md', // 모바일에서 더 큰 터치 영역
 			},
+
 			styles: {
 				root: {
 					borderRadius: '28px',
@@ -161,6 +165,11 @@ const theme = createTheme({
 		shadow: {
 			basic: '0px 0px 10px 0px rgba(0, 0, 0, 0.15)',
 		},
+		statusColors: {
+			success: '#729bed',
+			error: '#cc0000',
+			warning: '#ff9966',
+		},
 	},
 });
 
@@ -177,13 +186,15 @@ export default function RootLayout({
 	return (
 		<html lang="en" className={`${geistSans.variable}`}>
 			<body>
-				<MantineProvider theme={theme}>
-					<ModalsProvider>
-						<Notifications />
-						<RNTokenHandler />
-						{children}
-					</ModalsProvider>
-				</MantineProvider>
+				<QueryProvider>
+					<MantineProvider theme={theme}>
+						<ModalsProvider>
+							<Notifications />
+							<RNTokenHandler />
+							{children}
+						</ModalsProvider>
+					</MantineProvider>
+				</QueryProvider>
 			</body>
 		</html>
 	);

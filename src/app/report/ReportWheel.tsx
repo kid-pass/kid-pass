@@ -2,15 +2,13 @@
 
 import { useState, useRef, useEffect } from 'react';
 import { Box, CSSProperties } from '@mantine/core';
-import { useDateStore } from '@/store/useDateStore';
 
-// Mantine 스타일 정의
+// 간소화된 스타일 정의
 const wheelContainerStyle: CSSProperties = {
 	position: 'relative',
 	overflow: 'hidden',
 	cursor: 'grab',
-	touchAction: 'none',
-	overscrollBehavior: 'none',
+	touchAction: 'pan-x', // 수직 터치 동작만 중단
 	userSelect: 'none',
 	WebkitUserSelect: 'none',
 	MsUserSelect: 'none',
@@ -25,8 +23,6 @@ const wheelTrackStyle: CSSProperties = {
 	width: '100%',
 	willChange: 'transform',
 	transition: 'transform 0.15s cubic-bezier(0.4, 0, 0.2, 1)',
-	transformStyle: 'preserve-3d',
-	perspective: '1000px',
 };
 
 const wheelItemStyle: CSSProperties = {
@@ -36,7 +32,6 @@ const wheelItemStyle: CSSProperties = {
 	justifyContent: 'center',
 	padding: '0 10px',
 	color: '#999',
-	transform: 'translateZ(0)',
 	transition: 'all 0.2s ease',
 	opacity: 0.4,
 };
@@ -46,7 +41,6 @@ const selectedItemStyle: CSSProperties = {
 	fontWeight: 'bold',
 	transform: 'scale(1.1)',
 	opacity: 1,
-	transition: 'all 0.2s ease',
 };
 
 const highlightStyle: CSSProperties = {
@@ -54,7 +48,7 @@ const highlightStyle: CSSProperties = {
 	left: 0,
 	right: 0,
 	top: '50%',
-	transform: 'translateY(-20px)',
+	transform: 'translateY(-50%)', // 여기를 -50%로 변경
 	height: '40px',
 	backgroundColor: 'rgba(0, 0, 0, 0.02)',
 	pointerEvents: 'none',
@@ -64,33 +58,27 @@ const highlightStyle: CSSProperties = {
 		'0 -15px 15px -15px rgba(0,0,0,0.1) inset, 0 15px 15px -15px rgba(0,0,0,0.1) inset',
 };
 
-interface WheelStyles {
+interface ReportWheelProps {
+	values: number[]; // 표시할 값들 (3, 7, 14)
+	initialValue: number; // 초기 선택 값
+	onChange: (value: number) => void; // 값 변경 시 호출될 함수
 	width?: number | string;
 	height?: number | string;
 	fontSize?: number | string;
 }
 
-interface WheelProps {
-	startNum: number;
-	endNum: number;
-	initialValue: number;
-	styles?: WheelStyles;
-	isRepeating?: boolean;
-	onChange?: (value: number) => void;
-	customValues?: number[];
-}
-
-const Wheel = ({
-	startNum,
-	endNum,
+const ReportWheel = ({
+	values,
 	initialValue,
-	styles,
-	isRepeating = false,
 	onChange,
-	customValues,
-}: WheelProps) => {
-	const { setYear, setMonth, setDay } = useDateStore();
-	const initialIndex = initialValue - startNum;
+	width = '100%',
+	height = '120px',
+	fontSize = '16px',
+}: ReportWheelProps) => {
+	// 초기 인덱스 찾기
+	const initialIndex =
+		values.indexOf(initialValue) !== -1 ? values.indexOf(initialValue) : 0;
+
 	const [currentIndex, setCurrentIndex] = useState(initialIndex);
 	const [isDragging, setIsDragging] = useState(false);
 	const [startY, setStartY] = useState(0);
@@ -101,34 +89,13 @@ const Wheel = ({
 	const wheelTimeout = useRef<NodeJS.Timeout>();
 
 	const ITEM_HEIGHT = 40;
-	const REPEAT_COUNT = 5; // 반복할 횟수
 
-	// 기본 숫자 배열 생성
-	const baseNumbers =
-		customValues ||
-		Array.from({ length: endNum - startNum + 1 }, (_, i) => startNum + i);
-
-	// 반복된 숫자 배열 생성
-	const numbers = isRepeating
-		? Array.from(
-				{ length: baseNumbers.length * REPEAT_COUNT },
-				(_, i) => baseNumbers[i % baseNumbers.length]
-		  )
-		: baseNumbers;
-
-	// 실제 값 계산 함수
-	const getRealValue = (index: number) => {
-		if (!isRepeating) return numbers[index];
-		return baseNumbers[index % baseNumbers.length];
-	};
-
+	// 휠 아이템 업데이트 함수
 	const updateSelectedItem = (newScrollTop: number) => {
 		if (!containerRef.current || !highlightRef.current) return;
 
 		const containerRect = containerRef.current.getBoundingClientRect();
 		const centerY = containerRect.top + containerRect.height / 2;
-
-		// S.wheelItem 대신 'wheel-item' 클래스명 사용
 		const items = containerRef.current.getElementsByClassName('wheel-item');
 		let selectedIndex = currentIndex;
 
@@ -143,9 +110,7 @@ const Wheel = ({
 
 		if (selectedIndex !== currentIndex) {
 			setCurrentIndex(selectedIndex);
-			const realValue = getRealValue(selectedIndex);
-			onChange?.(realValue);
-			handleChange(realValue);
+			onChange(values[selectedIndex]);
 		}
 
 		return selectedIndex;
@@ -156,13 +121,19 @@ const Wheel = ({
 		setScrollTop(index * ITEM_HEIGHT);
 	};
 
+	// 마우스/터치 이벤트 핸들러
 	const handleMouseDown = (e: React.MouseEvent) => {
+		// 컴포넌트 내부에서만 마우스 이벤트 처리
+		e.preventDefault();
 		setIsDragging(true);
 		setStartY(e.clientY);
 	};
 
 	const handleMouseMove = (e: React.MouseEvent) => {
 		if (!isDragging) return;
+
+		// 드래그 중일 때만 이벤트 처리
+		e.preventDefault();
 
 		const delta = e.clientY - startY;
 		const newScrollTop = scrollTop - delta;
@@ -172,105 +143,106 @@ const Wheel = ({
 		updateSelectedItem(newScrollTop);
 	};
 
-	const handleMouseUp = () => {
+	const handleMouseUp = (e: React.MouseEvent) => {
 		if (!isDragging) return;
 		setIsDragging(false);
 		snapToItem(currentIndex);
 	};
 
 	const handleTouchStart = (e: React.TouchEvent) => {
-		setIsDragging(true);
-		setStartY(e.touches[0].clientY);
+		// 컴포넌트에 터치가 시작될 때 이벤트 처리
+		if (
+			containerRef.current &&
+			containerRef.current.contains(e.target as Node)
+		) {
+			// 컴포넌트 내부의 터치만 처리
+			e.stopPropagation();
+			setIsDragging(true);
+			setStartY(e.touches[0].clientY);
+		}
 	};
 
 	const handleTouchMove = (e: React.TouchEvent) => {
 		if (!isDragging) return;
 
-		const delta = e.touches[0].clientY - startY;
-		const newScrollTop = scrollTop - delta;
-		setScrollTop(newScrollTop);
-		setStartY(e.touches[0].clientY);
+		// 드래그 중일 때만 이벤트 처리
+		if (
+			containerRef.current &&
+			containerRef.current.contains(e.target as Node)
+		) {
+			e.stopPropagation();
 
-		updateSelectedItem(newScrollTop);
+			const delta = e.touches[0].clientY - startY;
+			const newScrollTop = scrollTop - delta;
+			setScrollTop(newScrollTop);
+			setStartY(e.touches[0].clientY);
+
+			updateSelectedItem(newScrollTop);
+		}
 	};
 
-	const handleTouchEnd = () => {
+	const handleTouchEnd = (e: React.TouchEvent) => {
 		if (!isDragging) return;
 		setIsDragging(false);
 		snapToItem(currentIndex);
 	};
 
 	const handleWheel = (e: React.WheelEvent) => {
-		if (isWheeling.current) return;
-		isWheeling.current = true;
+		// 컴포넌트 내부의 휠 이벤트만 처리
+		if (
+			containerRef.current &&
+			containerRef.current.contains(e.target as Node)
+		) {
+			e.stopPropagation();
 
-		const direction = e.deltaY > 0 ? 1 : -1;
-		const newIndex = Math.min(
-			Math.max(currentIndex + direction, 0),
-			numbers.length - 1
-		);
+			if (isWheeling.current) return;
+			isWheeling.current = true;
 
-		setCurrentIndex(newIndex);
-		const newScrollTop = newIndex * ITEM_HEIGHT;
-		setScrollTop(newScrollTop);
+			const direction = e.deltaY > 0 ? 1 : -1;
+			const newIndex = Math.min(
+				Math.max(currentIndex + direction, 0),
+				values.length - 1
+			);
 
-		const realValue = getRealValue(newIndex);
-		onChange?.(realValue);
-		handleChange(realValue);
+			setCurrentIndex(newIndex);
+			const newScrollTop = newIndex * ITEM_HEIGHT;
+			setScrollTop(newScrollTop);
+			onChange(values[newIndex]);
 
-		if (wheelTimeout.current) {
-			clearTimeout(wheelTimeout.current);
+			if (wheelTimeout.current) {
+				clearTimeout(wheelTimeout.current);
+			}
+			wheelTimeout.current = setTimeout(() => {
+				isWheeling.current = false;
+			}, 20);
 		}
-		wheelTimeout.current = setTimeout(() => {
-			isWheeling.current = false;
-		}, 20);
 	};
 
-	const handleChange = (value: number) => {
-		onChange?.(value);
-		if (startNum === 2010) setYear(value);
-		else if (startNum === 1 && endNum === 12) setMonth(value);
-		else if (startNum === 1 && endNum === 31) setDay(value);
-	};
-
-	// Wheel 컴포넌트의 useEffect 수정
+	// 초기 위치 설정
 	useEffect(() => {
-		// 초기 위치를 중앙으로 설정
-		let middleIndex;
+		const index = values.indexOf(initialValue);
+		const validIndex = index !== -1 ? index : 0;
 
-		if (isRepeating) {
-			// 반복 모드에서는 반복 배열에서 올바른 위치를 찾아야 함
-			const baseLength = endNum - startNum + 1;
-			const repeatMiddle = Math.floor(REPEAT_COUNT / 2);
-			const valueIndex = initialValue - startNum;
-			middleIndex = repeatMiddle * baseLength + valueIndex;
-		} else {
-			// 비반복 모드에서는 단순히 인덱스 계산
-			middleIndex = initialValue - startNum;
-		}
+		setCurrentIndex(validIndex);
+		setScrollTop(validIndex * ITEM_HEIGHT);
 
-		// 범위 체크
-		middleIndex = Math.max(0, Math.min(middleIndex, numbers.length - 1));
+		// 초기 렌더링에는 onChange를 호출하지 않도록 수정
+		// 이전 값과 다를 때만 호출
+	}, [initialValue, values]);
 
-		const initialScrollTop = middleIndex * ITEM_HEIGHT;
-		setScrollTop(initialScrollTop);
-		setCurrentIndex(middleIndex);
-	}, [
-		initialValue,
-		startNum,
-		endNum,
-		isRepeating,
-		numbers.length,
-		ITEM_HEIGHT,
-	]);
+	// 패딩 계산 (중앙 정렬을 위한)
+	const paddingValue = `${Math.max(
+		parseInt(height as string) / 2 - ITEM_HEIGHT / 2,
+		0
+	)}px`;
 
 	return (
 		<Box
 			ref={containerRef}
 			style={{
 				...wheelContainerStyle,
-				width: styles?.width || '100px',
-				height: styles?.height || '200px',
+				width,
+				height,
 				...(isDragging ? { cursor: 'grabbing' } : {}),
 			}}
 			onMouseDown={handleMouseDown}
@@ -287,22 +259,23 @@ const Wheel = ({
 					...wheelTrackStyle,
 					transform: `translateY(${-scrollTop}px)`,
 					transition: isDragging ? 'none' : 'transform 0.2s',
-					padding: `${((styles?.height as number) || 200) / 2.5}px 0`,
+					paddingTop: paddingValue,
+					paddingBottom: paddingValue,
 				}}
 			>
-				{numbers.map((number, index) => (
+				{values.map((value, index) => (
 					<Box
-						key={`${number}-${index}`}
+						key={`value-${value}`}
 						className="wheel-item"
 						style={{
 							...wheelItemStyle,
 							...(index === currentIndex
 								? selectedItemStyle
 								: {}),
-							fontSize: styles?.fontSize || '16px',
+							fontSize,
 						}}
 					>
-						{number}
+						{value}
 					</Box>
 				))}
 			</Box>
@@ -311,4 +284,4 @@ const Wheel = ({
 	);
 };
 
-export default Wheel;
+export default ReportWheel;

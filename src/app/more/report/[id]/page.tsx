@@ -4,16 +4,26 @@ import { usePathname, useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import instance from '@/utils/axios';
 import MobileLayout from '@/components/mantine/MobileLayout';
-import { Image, LoadingOverlay } from '@mantine/core';
+import {
+	Box,
+	Button,
+	Image,
+	LoadingOverlay,
+	useMantineTheme,
+} from '@mantine/core';
 import useNavigation from '@/hook/useNavigation';
+import useAuth from '@/hook/useAuth';
+import { useToast } from '@/hook/useToast';
 
-const DetailPage = () => {
+const App = () => {
+	const theme = useMantineTheme();
 	const pathname = usePathname();
 	const id = pathname.split('/').pop();
 	const { goBack } = useNavigation();
 	const [isLoading, setIsLoading] = useState(false);
-
 	const [imageUrl, setImageUrl] = useState('');
+	const { getToken } = useAuth();
+	const { successToast, errorToast } = useToast();
 
 	const fetchReportDetail = async () => {
 		try {
@@ -25,6 +35,41 @@ const DetailPage = () => {
 		}
 	};
 
+	const handleDelete = async () => {
+		try {
+			const token = await getToken();
+			setIsLoading(true);
+
+			const response = await instance.delete(`/report?reportId=${id}`, {
+				headers: {
+					Authorization: `Bearer ${token}`,
+				},
+			});
+
+			if (response.data) {
+				// 성공 메시지 표시
+				successToast({
+					title: '삭제 완료',
+					message: '리포트가 성공적으로 삭제되었습니다.',
+					position: 'top-center',
+					autoClose: 2000,
+				});
+
+				setIsLoading(false);
+				goBack();
+			}
+		} catch (error) {
+			console.error('리포트 삭제 중 오류 발생:', error);
+			errorToast({
+				title: '삭제 실패',
+				message:
+					'리포트 삭제 중 문제가 발생했습니다. 다시 시도해주세요.',
+				position: 'top-center',
+				autoClose: 2000,
+			});
+		}
+	};
+
 	useEffect(() => {
 		setIsLoading(true);
 		fetchReportDetail();
@@ -33,7 +78,18 @@ const DetailPage = () => {
 	return (
 		<MobileLayout onBack={goBack} title="리포트 상세이미지">
 			{imageUrl ? (
-				<Image src={imageUrl} alt="리포트 이미지" w="100%" />
+				<Box pb="lg" px="md">
+					<Image src={imageUrl} alt="리포트 이미지" w="100%" />
+					<Button
+						fullWidth
+						bg={theme.other.statusColors.error}
+						c="#FFFFFF"
+						my="lg"
+						onClick={handleDelete}
+					>
+						삭제
+					</Button>
+				</Box>
 			) : (
 				<LoadingOverlay visible={isLoading}></LoadingOverlay>
 			)}
@@ -41,4 +97,4 @@ const DetailPage = () => {
 	);
 };
 
-export default DetailPage;
+export default App;

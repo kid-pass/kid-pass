@@ -18,7 +18,7 @@ export interface Prescription {
 	hospital: string;
 	doctor?: string;
 	diagnoses?: string;
-	medicines?:string;
+	medicines?: string;
 	prescriptionImageUrl?: string;
 	onClick: () => void;
 	// 기타 필요한 필드

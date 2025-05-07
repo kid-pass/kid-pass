@@ -1,9 +1,9 @@
 'use client';
 
 import ProfileMetrics from '@/components/metrics/ProfileMetrics';
-import instance from '@/utils/axios';
 import {
 	Box,
+	Button,
 	Flex,
 	LoadingOverlay,
 	Stack,
@@ -12,291 +12,178 @@ import {
 } from '@mantine/core';
 import { useSearchParams } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
-import { Prescription } from '../hospital/type/hospital';
-import PrescritionItem from '../hospital/PrescriptionItem';
 import ActionTab from './ActionTab';
 import EmptyState from '@/components/EmptyState/EmptyState';
 import { common } from '@/utils/common';
-
-// 증상 타입 정의
-interface SymptomItem {
-	id: string;
-	symptom: string;
-}
-
-// 기록 타입 정의
-interface SymptomRecord {
-	id: string;
-	type: string;
-	startTime: string;
-	endTime: string | null;
-	symptom: string;
-	severity: string;
-	memo: string | null;
-}
-
-interface CategoryItem {
-	id: string;
-	behavior: string;
-}
-
-// 날짜별 그룹화된 기록 인터페이스
-interface GroupedRecords {
-	[date: string]: SymptomRecord[];
-}
-
-// 아이 정보에 대한 인터페이스 정의
-interface ChildProfile {
-	id: string;
-	name: string;
-	birthDate: string;
-	gender: 'M' | 'F';
-	weight: number;
-	height: number;
-	headCircumference: number;
-	ageType: string;
-	allergies: string[];
-	symptoms: string[];
-	memo: string;
-	createdAt: string;
-	updatedAt: string;
-	age?: number;
-	formattedBirthDate?: string;
-}
-
-// API 응답 인터페이스
-interface GetChldrnInfo {
-	message: string;
-	data: ChildProfile;
-}
-
-// 백신 접종 타입 정의
-interface VaccinationRecord {
-	id: string;
-	vaccinationDate: string;
-	vaccineName: string;
-	totalRequiredDoses: number;
-	completedDoses: number;
-}
+import { useToast } from '@/hook/useToast';
+import useNavigation from '@/hook/useNavigation';
+import PrescritionItem from '../more/hospital/PrescriptionItem';
+import { useChildReportData } from '@/hook/useChildReportData';
+import {
+	SymptomItem,
+	Prescription,
+	VaccinationRecord,
+	CategoryItem,
+} from '@/types/childReportData';
+import { IconCalendarCode } from '@tabler/icons-react';
+import { modals } from '@mantine/modals';
+import { position } from 'html2canvas/dist/types/css/property-descriptors/position';
+import { useQueryClient } from '@tanstack/react-query';
+import ReportWheel from './ReportWheel';
 
 const ReportContent = () => {
 	const searchParams = useSearchParams();
-	const [profile, setProfile] = useState<ChildProfile | null>(null);
-	const [categoryRecords, setCategoryRecords] = useState<CategoryItem[]>([]);
-	const [symptoms, setSymptoms] = useState<SymptomItem[]>([]);
-	const [prescriptions, setPrescriptions] = useState<Prescription[]>([]);
-	const [loading, setLoading] = useState<boolean>(true);
-	const [error, setError] = useState<string | null>(null);
-	const [vaccineData, setVaccineData] = useState<VaccinationRecord[]>([]);
+	const childId = searchParams.get('chldrnNo');
+	const [days, setDays] = useState(3);
+	const [selectedDays, setSelectedDays] = useState(days);
 	const captureRef = useRef<HTMLDivElement>(null);
 	const { getToday, getFormatDate, getAge } = common();
 	const today = getToday();
 	const theme = useMantineTheme();
+	const { goPage } = useNavigation();
+	const { successToast } = useToast();
+	const [isReactNativeWebView, setIsReactNativeWebView] = useState(true);
+	const selectedDaysRef = useRef(days);
 
-	const fetchProfileData = async () => {
-		try {
-			// URL에서 chldrnNo 파라미터 가져오기
-			const chldrnNo = searchParams.get('chldrnNo');
-
-			if (chldrnNo) {
-				const response = await instance.get<GetChldrnInfo>(
-					`report/getChildInfo?childId=${chldrnNo}`
-				);
-
-				const childData = response.data.data;
-
-				// 데이터에 만 나이 추가
-				const profileData: ChildProfile = {
-					...childData,
-					age: getAge(childData.birthDate),
-					formattedBirthDate: getFormatDate(childData.birthDate),
-				};
-
-				setProfile(profileData);
-			} else {
-				setError('URL에 chldrnNo 파라미터가 없습니다.');
-				console.error('URL에 chldrnNo 파라미터가 없습니다.');
-			}
-		} catch (error) {
-			setError('데이터를 불러오는 중 오류가 발생했습니다.');
-			console.error('데이터 불러오기 실패:', error);
-		}
-	};
-
-	const fetchSymptomData = async () => {
-		try {
-			const childId = searchParams.get('chldrnNo');
-			// API 호출
-			const response = await instance.get(
-				`/record?childId=${childId}&type=SYMPTOM&startDate=${today}`
-			);
-
-			const allRecords = response.data.data;
-
-			// 3일치 데이터만 필터링
-			const last3Days: GroupedRecords = {};
-			const dates = Object.keys(allRecords).sort().reverse().slice(0, 3);
-
-			dates.forEach((date) => {
-				last3Days[date] = allRecords[date];
-			});
-
-			// 증상만 추출하는 함수
-			const extractSymptoms = () => {
-				const symptomsWithIds: { id: string; symptom: string }[] = [];
-
-				Object.keys(last3Days).forEach((date) => {
-					last3Days[date].forEach((record) => {
-						if (record.symptom && record.symptom !== null) {
-							symptomsWithIds.push({
-								id: record.id,
-								symptom: record.symptom,
-							});
-						}
-					});
-				});
-
-				// 증상 기준으로 중복 제거 (동일 증상이라도 id가 다르면 다른 항목으로 간주)
-				const uniqueSymptoms = Array.from(
-					new Map(
-						symptomsWithIds.map((item) => [item.symptom, item])
-					).values()
-				);
-
-				return uniqueSymptoms;
-			};
-
-			// 증상 배열 저장
-			const extractedSymptoms = extractSymptoms();
-			setSymptoms(extractedSymptoms);
-		} catch (error) {
-			console.error('증상 기록 조회 실패:', error);
-			setError('증상 기록을 불러오는 중 오류가 발생했습니다.');
-		}
-	};
-
-	const fetchPrescriptionData = async () => {
-		try {
-			const chldrnNo = searchParams.get('chldrnNo');
-
-			if (chldrnNo) {
-				// 최근 3일치 처방전 데이터 요청
-				const response = await fetch(
-					`/api/child/${chldrnNo}/prescription/recent`
-				);
-
-				if (!response.ok) {
-					throw new Error(
-						'처방전 데이터를 불러오는 데 실패했습니다.'
-					);
-				}
-
-				const data = await response.json();
-
-				console.log(data);
-				// 받아온 데이터를 상태에 저장 (처방전 데이터 상태가 필요합니다)
-				setPrescriptions(data);
-			} else {
-				setError('URL에 chldrnNo 파라미터가 없습니다.');
-			}
-		} catch (error) {
-			console.error('처방전 정보 불러오기 실패:', error);
-			setError('처방전 정보를 불러오는 데 실패했습니다.');
-		}
-	};
-
-	// 백신 접종 정보를 가져오는 API
-	const fetchVaccineData = async () => {
-		try {
-			const childId = searchParams.get('chldrnNo');
-
-			if (childId) {
-				const response = await instance.get(
-					`/report/recentVaccine/?chldrnNo=${childId}`
-				);
-
-				setVaccineData(response.data.data);
-			} else {
-				setError('URL에 chldrnNo 파라미터가 없습니다.');
-			}
-		} catch (error) {
-			console.error('백신 접종 정보 불러오기 실패:', error);
-		}
-	};
-
-	const fetchETCData = async () => {
-		try {
-			const childId = searchParams.get('chldrnNo');
-
-			// 첫 번째 API 호출 - 'ETC'라는 타입으로 요청
-			const response = await instance.get(
-				`/record?childId=${childId}&type=ETC&startDate=${today}`
-			);
-
-			// 객체 배열을 저장하는 방식으로 변경
-			const categorySet = new Set();
-			const categoryWithIds = [];
-
-			for (const dateKey in response.data.data) {
-				const records = response.data.data[dateKey];
-
-				for (const record of records) {
-					const recordId = record.id;
-
-					// 개별 기록 조회 API 호출
-					const detailResponse = await instance.get(
-						`/record/${recordId}?type=ETC`
-					);
-
-					const behavior = detailResponse.data.data.behavior;
-
-					// 중복 체크 (Set은 문자열만 체크)
-					if (!categorySet.has(behavior)) {
-						categorySet.add(behavior);
-
-						// id와 category를 함께 저장
-						categoryWithIds.push({
-							id: detailResponse.data.data.id, // 또는 recordId를 사용할 수도 있음
-							behavior: behavior,
-						});
-					}
-				}
-			}
-
-			setCategoryRecords(categoryWithIds);
-		} catch (error) {
-			console.error('카테고리 기록 조회 실패:', error);
-			setError('카테고리 기록을 불러오는 중 오류가 발생했습니다.');
-		}
-	};
+	// 통합 API 호출 훅 사용
+	const { data, isLoading, isError, error, refetch } = useChildReportData(
+		childId,
+		days
+	);
 
 	useEffect(() => {
-		const fetchAllData = async () => {
-			setLoading(true);
-			try {
-				// 모든 데이터 패칭을 여기서 수행
-				await fetchProfileData();
-				await fetchSymptomData();
-				await fetchPrescriptionData();
-				await fetchVaccineData();
-				await fetchETCData();
-			} catch (error) {
-				setError('데이터를 불러오는 중 오류가 발생했습니다.');
-			} finally {
-				setLoading(false); // 모든 데이터 패칭이 완료된 후에만 로딩 상태 해제
-			}
-		};
+		// window.ReactNativeWebView가 존재하면 RN 웹뷰 환경으로 판단
+		setIsReactNativeWebView(!!window.ReactNativeWebView);
+	}, []);
 
-		fetchAllData();
-	}, [searchParams]);
+	// Wheel에서 값이 변경될 때 호출될 함수
+	const handleDaysChange = (value: number) => {
+		console.log('wheel에서 선택된 값:', value);
+		selectedDaysRef.current = value; // ref 값 업데이트
+		setSelectedDays(value);
+	};
+
+	// 확인 버튼 클릭 시 ref 값 사용
+	const confirmDaysChange = () => {
+		const valueToApply = selectedDaysRef.current;
+		console.log('변경 적용:', valueToApply);
+		setDays(valueToApply);
+		modals.closeAll();
+	};
+	const openRecordModal = () => {
+		setSelectedDays(days);
+
+		const recordModal = modals.open({
+			centered: true,
+			withCloseButton: false,
+			radius: 'md',
+			padding: 0,
+			title: '레포트 날짜 조회',
+			styles: {
+				header: {
+					borderBottom: '1px solid #D9D9D9',
+					padding: 0,
+				},
+				title: {
+					width: '100%',
+					padding: '16px',
+					fontWeight: 700,
+					fontSize: '18px',
+					color: '#222',
+				},
+				content: {
+					padding: 0,
+				},
+			},
+			children: (
+				<Box>
+					<ReportWheel
+						values={[3, 7, 14]}
+						initialValue={days}
+						onChange={handleDaysChange}
+						width="100%"
+						height="120px"
+						fontSize="16px"
+					/>
+					<Box display="flex">
+						<Button
+							onClick={() => modals.close(recordModal)}
+							variant="default"
+							color="gray"
+							radius={0}
+							styles={{
+								root: {
+									flex: 1,
+									backgroundColor: '#F4F4F4',
+									border: 'none',
+									borderRadius: '0',
+								},
+							}}
+							my="lg"
+						>
+							취소
+						</Button>
+						<Button
+							bg={theme.other.statusColors.succeess}
+							c="#FFFFFF"
+							my="lg"
+							radius={0}
+							styles={{
+								root: {
+									flex: 1,
+									borderRadius: '0',
+								},
+							}}
+							onClick={confirmDaysChange}
+						>
+							변경
+						</Button>
+					</Box>
+				</Box>
+			),
+		});
+	};
 
 	// 발행이 성공적으로 완료된 후 호출될 함수
-	const handlePublishSuccess = (data: any) => {};
+	const handlePublishSuccess = () => {
+		try {
+			successToast({
+				title: '레포트 발행',
+				message: '레포트가 발행되었습니다.',
+				position: 'top-center',
+				autoClose: 2000,
+			});
+
+			goPage('/more/report');
+		} catch (err) {
+			console.log(err);
+		}
+	};
+
+	// 에러 처리
+	if (isError && error) {
+		return (
+			<Box p="md">
+				<Text c="red">
+					{error instanceof Error
+						? error.message
+						: '데이터를 불러오는 중 오류가 발생했습니다.'}
+				</Text>
+			</Box>
+		);
+	}
+
+	// 데이터 구조 분해
+	const profile = data?.profile;
+	const symptoms = data?.symptoms || [];
+	const prescriptions = data?.prescriptions || [];
+	const vaccineData = data?.vaccines || [];
+	const categoryRecords = data?.categories || [];
 
 	return (
 		<Box>
-			{loading ? (
-				<LoadingOverlay visible={loading} />
+			{isLoading ? (
+				<LoadingOverlay visible={isLoading} />
 			) : (
 				<Box px={16} ref={captureRef}>
 					<Text
@@ -319,15 +206,14 @@ const ReportContent = () => {
 							<Flex justify="space-between" mb="md">
 								<Stack gap="md">
 									<ProfileMetrics
-										label={`${profile.formattedBirthDate?.substring(
-											0,
-											10
-										)} 출생`}
+										label={`${getFormatDate(
+											profile.birthDate
+										)?.substring(0, 10)} 출생`}
 										value={profile.name}
 									/>
 									<ProfileMetrics
 										label="나이 (만)"
-										value={String(profile.age)}
+										value={getAge(profile.birthDate)}
 									/>
 								</Stack>
 							</Flex>
@@ -356,7 +242,7 @@ const ReportContent = () => {
 							<EmptyState />
 						) : (
 							<Box display="flex" my="12 40" style={{ gap: 4 }}>
-								{symptoms.map((item) => (
+								{symptoms.map((item: SymptomItem) => (
 									<Box
 										key={item.id}
 										p="10 20"
@@ -379,7 +265,7 @@ const ReportContent = () => {
 							{prescriptions.length === 0 ? (
 								<EmptyState />
 							) : (
-								prescriptions.map((record) => (
+								prescriptions.map((record: Prescription) => (
 									<PrescritionItem
 										key={record.id}
 										{...record}
@@ -389,8 +275,8 @@ const ReportContent = () => {
 						</Stack>
 					</Box>
 					<Box mt="xl">
-						<Text fw={600} fz="md" mb="xl">
-							아기의 예방접종 이력이에요
+						<Text fw={700} fz="lg" mb="xl">
+							최근 아기의 예방접종 기록이에요
 						</Text>
 
 						{vaccineData && vaccineData.length === 0 ? (
@@ -406,62 +292,71 @@ const ReportContent = () => {
 									borderRadius: '10px',
 								}}
 							>
-								{vaccineData.map((vaccine) => (
-									<Box
-										display="flex"
-										style={{
-											flexDirection: 'column',
-											gap: `${theme.spacing.sm}`,
-											borderBottom: '1px solid #F4F4F4',
-										}}
-										key={vaccine.id}
-									>
-										<Text
-											c={theme.other.fontColors.sub3}
-											fz="md"
-											fw={500}
-										>
-											{getFormatDate(
-												vaccine.vaccinationDate
-											)}
-										</Text>
+								{vaccineData.map(
+									(vaccine: VaccinationRecord) => (
 										<Box
 											display="flex"
 											style={{
-												alignItems: 'center',
-												justifyContent: 'space-between',
+												flexDirection: 'column',
+												gap: `${theme.spacing.sm}`,
+												borderBottom:
+													'1px solid #F4F4F4',
 											}}
-											pb={theme.spacing.lg}
+											key={vaccine.id}
 										>
 											<Text
-												c="#000000"
-												fz={theme.fontSizes.mdLg}
-												fw={600}
+												c={theme.other.fontColors.sub3}
+												fz="md"
+												fw={500}
 											>
-												{vaccine.vaccineName}
+												{getFormatDate(
+													vaccine.vaccinationDate
+												)}
 											</Text>
-
-											{Array.from({
-												length: vaccine.totalRequiredDoses,
-											}).map((_, index) => (
+											<Box
+												display="flex"
+												style={{
+													alignItems: 'center',
+													justifyContent:
+														'space-between',
+												}}
+												pb={theme.spacing.lg}
+											>
+												<Text
+													c="#000000"
+													fz={theme.fontSizes.mdLg}
+													fw={600}
+												>
+													{vaccine.vaccineName}
+												</Text>
 												<Box
-													key={`circle-${index}`}
-													w={12}
-													h={12}
-													bg={
-														index <
-														vaccine.completedDoses
-															? '#729BED'
-															: '#D9D9D9'
-													}
-													style={{
-														borderRadius: '50%',
-													}}
-												/>
-											))}
+													display="flex"
+													style={{ gap: '8px' }}
+												>
+													{Array.from({
+														length: vaccine.totalRequiredDoses,
+													}).map((_, index) => (
+														<Box
+															key={`circle-${index}`}
+															w={12}
+															h={12}
+															bg={
+																index <
+																vaccine.completedDoses
+																	? '#729BED'
+																	: '#D9D9D9'
+															}
+															style={{
+																borderRadius:
+																	'50%',
+															}}
+														/>
+													))}
+												</Box>
+											</Box>
 										</Box>
-									</Box>
-								))}
+									)
+								)}
 							</Box>
 						)}
 					</Box>
@@ -475,11 +370,11 @@ const ReportContent = () => {
 							<Box display="flex" my="12 40" style={{ gap: 4 }}>
 								{categoryRecords
 									.filter(
-										(item) =>
+										(item: CategoryItem) =>
 											Array.isArray(item.behavior) &&
 											item.behavior.length > 0
 									)
-									.map((item) => (
+									.map((item: CategoryItem) => (
 										<Box
 											key={item.id}
 											p="10 20"
@@ -501,6 +396,23 @@ const ReportContent = () => {
 				onPublishSuccess={handlePublishSuccess}
 				captureRef={captureRef}
 			/>
+			<Button
+				w={42}
+				h={42}
+				radius="xl"
+				bg="brand.7"
+				c="white"
+				style={{
+					position: 'fixed',
+					bottom: isReactNativeWebView ? 0 : 80,
+					right: 20,
+					padding: 0,
+					zIndex: 1000,
+				}}
+				onClick={openRecordModal}
+			>
+				<IconCalendarCode size={24} stroke={3} />
+			</Button>
 		</Box>
 	);
 };

@@ -1,11 +1,14 @@
 'use client';
 
-import { Box, Button } from '@mantine/core';
+import { Box, Button, useMantineTheme } from '@mantine/core';
 import { RefObject, useState } from 'react';
 import html2canvas from 'html2canvas';
 import useAuth from '@/hook/useAuth';
 import instance from '@/utils/axios';
 import { useAuthStore } from '@/store/useAuthStore';
+import { useImageUpload } from '@/hook/useImageUpload';
+import { notifications } from '@mantine/notifications';
+import { useToast } from '@/hook/useToast';
 
 interface ActionTabProps {
 	onPublishSuccess?: (data: any) => void;
@@ -19,8 +22,10 @@ const ActionTab = ({
 	captureRef,
 }: ActionTabProps) => {
 	const [isPublishing, setIsPublishing] = useState(false);
+	const theme = useMantineTheme();
 	const { getToken } = useAuth();
 	const { crtChldrnNo } = useAuthStore();
+	const { errorToast } = useToast();
 
 	const captureElement = async (): Promise<Blob | null> => {
 		if (!captureRef) return null;
@@ -102,53 +107,53 @@ const ActionTab = ({
 
 			if (!blob) {
 				setIsPublishing(false);
+
+				errorToast({
+					title: '이미지 발행 실패',
+					message:
+						'이미지 발행에 문제가 발생했습니다. 문의 부탁드리겠습니다.',
+					position: 'top-center',
+					autoClose: 2000, // 5초 후 자동으로 닫힘
+				});
 				onPublishError?.('이미지 생성 실패');
 				return;
 			}
 
-			const formData = new FormData();
-			formData.append('file', blob, 'medical_report.png');
-			formData.append('filePrefix', 'medical_record');
+			// 공통 함수 사용
+			const imageData = await useImageUpload(blob, {
+				filePrefix: 'medical_record',
+				token: token,
+			});
 
-			// 6. 서버로 전송
-			try {
-				// 인스턴스 생성 및 이미지 API 호출
-				const { data } = await instance.post('/image', formData, {
-					headers: {
-						'Content-Type': 'multipart/form-data',
-						Authorization: `Bearer ${token}`,
+			// 이미지 업로드 성공 후, 리포트 생성 API 호출
+			if (imageData && imageData.url) {
+				const reportResponse = await instance.post(
+					'/report',
+					{
+						imageUrl: imageData.url,
+						childId: crtChldrnNo,
 					},
-				});
-
-				// 이미지 업로드 성공 후, 리포트 생성 API 호출
-				if (data && data.url) {
-					// 리포트 생성 API 호출
-					const reportResponse = await instance.post(
-						'/report',
-						{
-							imageUrl: data.url,
-							childId: crtChldrnNo,
+					{
+						headers: {
+							'Content-Type': 'application/json',
+							Authorization: `Bearer ${token}`,
 						},
-						{
-							headers: {
-								'Content-Type': 'application/json',
-								Authorization: `Bearer ${token}`,
-							},
-						}
-					);
-
-					if (reportResponse.data) {
-						onPublishSuccess?.(reportResponse.data);
 					}
+				);
+
+				if (reportResponse.data) {
+					onPublishSuccess?.(reportResponse.data);
 				}
-			} catch (error) {
-				console.error('서버 요청 중 오류:', error);
-				onPublishError?.(error);
-			} finally {
-				setIsPublishing(false);
 			}
 		} catch (error) {
 			console.error('발행 중 오류:', error);
+			errorToast({
+				title: '레포트 발행 실패',
+				message:
+					'레포트 발행에 문제가 발생했습니다. 문의 부탁드리겠습니다.',
+				position: 'top-center',
+				autoClose: 2000, // 5초 후 자동으로 닫힘
+			});
 			onPublishError?.(error);
 		} finally {
 			setIsPublishing(false);
@@ -165,6 +170,7 @@ const ActionTab = ({
 					c="#FFFFFF"
 					style={{ cursor: 'pointer' }}
 					onClick={handlePublishClick}
+					loaderProps={{ color: '#FFFFFF' }}
 				>
 					발행하기
 				</Button>
