@@ -151,7 +151,11 @@ export async function PUT(request: NextRequest, { params }: Props) {
 				unit: body.unit,
 				memo: body.memo,
 				category: body.category,
-				behavior: body.behavior ? [body.behavior] : [],
+				behavior: Array.isArray(body.behavior)
+					? body.behavior
+					: body.behavior
+					? [body.behavior]
+					: [],
 			},
 		});
 

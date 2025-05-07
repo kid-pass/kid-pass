@@ -8,6 +8,7 @@ import '@mantine/notifications/styles.css';
 import '@mantine/dates/styles.css';
 import '@mantine/charts/styles.css';
 import RNTokenHandler from '@/components/RNTokenHandler';
+import { QueryProvider } from '@/providers/QueryProvider';
 
 const geistSans = localFont({
 	src: [
@@ -185,13 +186,15 @@ export default function RootLayout({
 	return (
 		<html lang="en" className={`${geistSans.variable}`}>
 			<body>
-				<MantineProvider theme={theme}>
-					<ModalsProvider>
-						<Notifications />
-						<RNTokenHandler />
-						{children}
-					</ModalsProvider>
-				</MantineProvider>
+				<QueryProvider>
+					<MantineProvider theme={theme}>
+						<ModalsProvider>
+							<Notifications />
+							<RNTokenHandler />
+							{children}
+						</ModalsProvider>
+					</MantineProvider>
+				</QueryProvider>
 			</body>
 		</html>
 	);

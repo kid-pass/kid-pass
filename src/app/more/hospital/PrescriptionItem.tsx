@@ -9,8 +9,6 @@ const PrescritionItem = (props: Prescription & { onClick?: () => void }) => {
 	const { getFormatDate } = common();
 	const theme = useMantineTheme();
 
-	console.log(item, 'record');
-
 	return (
 		<Paper
 			withBorder
