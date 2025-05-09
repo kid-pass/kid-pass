@@ -397,7 +397,7 @@ const App: React.FC = () => {
 								병원/약국
 							</Text>
 							<Image
-								src="/Pharmacy.png"
+								src="/pharmacy.png"
 								alt="약국 재고조회"
 								width={27}
 								height={36}
@@ -428,7 +428,7 @@ const App: React.FC = () => {
 								fw={700}
 								fz="md"
 								c="#222222"
-								style={{ lineHeight: '1.2' }}
+								style={{ lineHeight: '1.2', whiteSpace:'nowrap'}}
 							>
 								진료받은
 								<br />

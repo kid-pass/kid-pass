@@ -78,7 +78,7 @@ const ReportContent = () => {
 			withCloseButton: false,
 			radius: 'md',
 			padding: 0,
-			title: '레포트 날짜 조회',
+			title: '기간 변경',
 			styles: {
 				header: {
 					borderBottom: '1px solid #D9D9D9',
@@ -88,6 +88,7 @@ const ReportContent = () => {
 					width: '100%',
 					padding: '16px',
 					fontWeight: 700,
+					textAlign:'center',
 					fontSize: '18px',
 					color: '#222',
 				},
@@ -108,9 +109,9 @@ const ReportContent = () => {
 					<Box display="flex">
 						<Button
 							onClick={() => modals.close(recordModal)}
-							variant="default"
-							color="gray"
 							radius={0}
+							variant='transparent'
+							c="#222222"
 							styles={{
 								root: {
 									flex: 1,
@@ -119,14 +120,12 @@ const ReportContent = () => {
 									borderRadius: '0',
 								},
 							}}
-							my="lg"
 						>
 							취소
 						</Button>
 						<Button
 							bg={theme.other.statusColors.succeess}
 							c="#FFFFFF"
-							my="lg"
 							radius={0}
 							styles={{
 								root: {
