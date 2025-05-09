@@ -15,6 +15,7 @@ import {
 	Flex,
 	Group,
 	Image,
+	LoadingOverlay,
 	Text,
 	useMantineTheme,
 } from '@mantine/core';
@@ -62,7 +63,7 @@ export default function VaccineDetailPage() {
 	const token = getToken();
 	const params = useParams();
 	const searchParams = useSearchParams();
-	const [loading, setLoading] = useState(true);
+	const [isloading, setIsLoading] = useState(true);
 	const [error, setError] = useState<string | null>(null);
 	const [vaccineDetail, setVaccineDetail] =
 		useState<VaccineDetailResponse | null>(null);
@@ -76,7 +77,7 @@ export default function VaccineDetailPage() {
 		if (!vaccineId || !crtChldrnNo) return;
 
 		try {
-			setLoading(true);
+			setIsLoading(true);
 			const response = await instance.get(
 				`/vaccine/detail?chldrnNo=${crtChldrnNo}&vaccineId=${vaccineId}`,
 				{
@@ -95,7 +96,7 @@ export default function VaccineDetailPage() {
 			console.error('백신 상세 정보 가져오기 실패:', error);
 			setError('백신 정보를 불러오는데 실패했습니다.');
 		} finally {
-			setLoading(false);
+			setIsLoading(false);
 		}
 	}, [crtChldrnNo, vaccineId]);
 
@@ -171,8 +172,8 @@ export default function VaccineDetailPage() {
 					<Flex>
 						<Button
 							onClick={() => modals.close(modalId)}
-							variant="default"
-							color="gray"
+							c="#222222"
+							variant='transparent'
 							radius={0}
 							styles={{
 								root: {
@@ -347,7 +348,7 @@ export default function VaccineDetailPage() {
 											>
 												{`${dose.doseNumber}차 (${dose.vaccineCode})`}
 											</Button>
-											<Group gap={4} align="center">
+											<Box display="flex" style={{alignItems:"center", gap:"4px"}}>
 												<Image
 													src="/add_vaccine.svg"
 													width={18}
@@ -361,7 +362,7 @@ export default function VaccineDetailPage() {
 												>
 													등록하기
 												</Text>
-											</Group>
+											</Box>
 										</Box>
 									)}
 								</Box>
@@ -369,7 +370,7 @@ export default function VaccineDetailPage() {
 					</Box>
 				</MobileLayout>
 			) : (
-				<p>로딩중..</p>
+				<LoadingOverlay visible={isloading}/>
 			)}
 		</>
 	);
