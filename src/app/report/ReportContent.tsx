@@ -27,8 +27,6 @@ import {
 } from '@/types/childReportData';
 import { IconCalendarCode } from '@tabler/icons-react';
 import { modals } from '@mantine/modals';
-import { position } from 'html2canvas/dist/types/css/property-descriptors/position';
-import { useQueryClient } from '@tanstack/react-query';
 import ReportWheel from './ReportWheel';
 
 const ReportContent = () => {
@@ -46,9 +44,10 @@ const ReportContent = () => {
 	const selectedDaysRef = useRef(days);
 
 	// 통합 API 호출 훅 사용
-	const { data, isLoading, isError, error, refetch } = useChildReportData(
+	const { data, isLoading, isError, error } = useChildReportData(
 		childId,
-		days
+		days,
+		true
 	);
 
 	useEffect(() => {

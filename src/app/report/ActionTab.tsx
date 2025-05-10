@@ -7,7 +7,6 @@ import useAuth from '@/hook/useAuth';
 import instance from '@/utils/axios';
 import { useAuthStore } from '@/store/useAuthStore';
 import { useImageUpload } from '@/hook/useImageUpload';
-import { notifications } from '@mantine/notifications';
 import { useToast } from '@/hook/useToast';
 
 interface ActionTabProps {
