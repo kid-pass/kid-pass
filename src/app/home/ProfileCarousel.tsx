@@ -6,6 +6,7 @@ import ProfileMetrics from '@/components/metrics/ProfileMetrics';
 import { IconChevronRight } from '@tabler/icons-react';
 import { useRouter } from 'next/navigation';
 import { useAuthStore } from '@/store/useAuthStore';
+import QRGenerator from './QRGenerator';
 
 interface ProfileCarouselProps {
 	profiles: KidRecord[];
@@ -96,11 +97,11 @@ const ProfileCarousel: React.FC<ProfileCarouselProps> = ({
 							p="16 24"
 							mb="xl"
 						>
-							<Stack>
-								<Flex
-									gap={18}
-									justify="space-between"
-									align="start"
+							<Box display="flex" style={{flexDirection:"column", gap:"19px"}}>
+								<Box
+
+									display="flex"
+									style={{justifyContent:"space-between", alignItems:"start"}}
 								>
 									<ProfileMetrics
 										label={`${profile.chldrnBrthdy?.substring(
@@ -138,7 +139,7 @@ const ProfileCarousel: React.FC<ProfileCarouselProps> = ({
 											}}
 										/>
 									</Flex>
-								</Flex>
+								</Box>
 
 								<Stack gap={0}>
 									<ProfileMetrics
@@ -170,22 +171,17 @@ const ProfileCarousel: React.FC<ProfileCarouselProps> = ({
 										value={`${physicalStats.chldrnHead}cm`}
 									/>
 								</Flex>
-							</Stack>
+							</Box>
 							<Box
 								style={{
 									position: 'absolute',
-									top: '23%',
+									top: '18%',
 									right: '6%',
 									borderRadius: '8px',
 									background: '#FFFFFF',
 								}}
 							>
-								<Image
-									src="https://heidimoon.cafe24.com/renwal/test2/barcode.png"
-									width={64}
-									height={64}
-									alt="바코드"
-								/>
+								<QRGenerator chldrnNo={profile.chldrnNo}/>
 							</Box>
 						</Box>
 					</Carousel.Slide>

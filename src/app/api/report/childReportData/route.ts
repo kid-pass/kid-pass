@@ -1,4 +1,3 @@
-// /app/api/report/childReportData/route.ts
 import { PrismaClient } from '@prisma/client';
 import { NextResponse, NextRequest } from 'next/server';
 import jwt from 'jsonwebtoken';
@@ -12,6 +11,7 @@ export async function GET(request: NextRequest) {
 		const { searchParams } = new URL(request.url);
 		const childId = searchParams.get('childId');
 		const days = parseInt(searchParams.get('days') || '3'); // 기본 3일
+		const isPublic = searchParams.get('public') === 'true'; // 공개 접근 여부 확인
 
 		if (!childId) {
 			return NextResponse.json(
@@ -20,45 +20,64 @@ export async function GET(request: NextRequest) {
 			);
 		}
 
-		// JWT 토큰에서 사용자 정보 가져오기
-		const authHeader = request.headers.get('authorization');
-		if (!authHeader?.startsWith('Bearer ')) {
-			return NextResponse.json(
-				{ message: '인증이 필요합니다.' },
-				{ status: 401 }
-			);
+		let userId: string | null = null;
+
+		// 공개 접근이 아닌 경우에만 인증 확인
+		if (!isPublic) {
+			// JWT 토큰에서 사용자 정보 가져오기
+			const authHeader = request.headers.get('authorization');
+			if (!authHeader?.startsWith('Bearer ')) {
+				return NextResponse.json(
+					{ message: '인증이 필요합니다.' },
+					{ status: 401 }
+				);
+			}
+
+			const token = authHeader.split(' ')[1];
+			const decoded = jwt.verify(token, process.env.JWT_SECRET!) as {
+				userId: string;
+			};
+			userId = decoded.userId;
+
+			// 사용자와 자녀 관계 확인
+			const user = await prisma.user.findUnique({
+				where: { userId: decoded.userId },
+			});
+
+			if (!user) {
+				return NextResponse.json(
+					{ message: '사용자를 찾을 수 없습니다.' },
+					{ status: 404 }
+				);
+			}
+
+			// 아이 정보 확인
+			const child = await prisma.child.findFirst({
+				where: {
+					id: childId,
+					userId: user.id,
+				},
+			});
+
+			if (!child) {
+				return NextResponse.json(
+					{ message: '아이 정보를 찾을 수 없거나 접근 권한이 없습니다.' },
+					{ status: 404 }
+				);
+			}
 		}
+		// 공개 접근인 경우 아이 존재 여부만 확인
+		else {
+			const child = await prisma.child.findUnique({
+				where: { id: childId },
+			});
 
-		const token = authHeader.split(' ')[1];
-		const decoded = jwt.verify(token, process.env.JWT_SECRET!) as {
-			userId: string;
-		};
-
-		// 사용자와 자녀 관계 확인
-		const user = await prisma.user.findUnique({
-			where: { userId: decoded.userId },
-		});
-
-		if (!user) {
-			return NextResponse.json(
-				{ message: '사용자를 찾을 수 없습니다.' },
-				{ status: 404 }
-			);
-		}
-
-		// 아이 정보 확인
-		const child = await prisma.child.findFirst({
-			where: {
-				id: childId,
-				userId: user.id,
-			},
-		});
-
-		if (!child) {
-			return NextResponse.json(
-				{ message: '아이 정보를 찾을 수 없거나 접근 권한이 없습니다.' },
-				{ status: 404 }
-			);
+			if (!child) {
+				return NextResponse.json(
+					{ message: '아이 정보를 찾을 수 없습니다.' },
+					{ status: 404 }
+				);
+			}
 		}
 
 		// Promise.all을 사용하여 모든 데이터를 병렬로 가져오기

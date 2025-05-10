@@ -3,18 +3,25 @@
 // src/hooks/useChildReportData.ts
 import instance from '@/utils/axios';
 
-import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { useQuery } from '@tanstack/react-query';
 
-export function useChildReportData(childId: string | null, days: number = 3) {
+export function useChildReportData(childId: string | null, days: number = 3,isPublic: boolean = false ) {
 	// 쿼리 결과 반환
 	return useQuery({
-		queryKey: ['childReportData', childId, days],
+		queryKey: ['childReportData', childId, days , isPublic],
 		queryFn: async () => {
 			if (!childId) throw new Error('아이 ID가 필요합니다.');
 
 			const response = await instance.get(
-				`/report/childReportData?childId=${childId}&days=${days}`
-			);
+                `/report/childReportData`,
+                {
+                    params: {
+                        childId,
+                        days,
+                        public: isPublic ? 'true' : 'false' // 공개 접근 파라미터 추가
+                    }
+                }
+            );
 
 			return response.data.data;
 		},
