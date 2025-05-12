@@ -162,64 +162,66 @@ const App = () => {
             </Box>
 
             {/* Group 2 */}
-            {/* <Box mt={rem(16)}>
-							<Text
-								size={rem(12)}
-								fw={500}
-								c="dimmed"
-								px={rem(16)}
-								py={rem(8)}
-							>
-								고객센터 (추후 서비스 예정)
-							</Text>
-							<Box style={{ backgroundColor: 'white' }}>
-								<MenuItem label="공지사항" hasArrow />
-								<MenuItem label="자주 묻는 질문" hasArrow />
-								<MenuItem label="1:1 문의" hasArrow />
-								<MenuItem label="이용약관" hasArrow />
-							</Box>
-						</Box> */}
+            <Box mt={rem(16)}>
+              <Text size={rem(12)} fw={500} c="dimmed" px={rem(16)} py={rem(8)}>
+                고객센터
+              </Text>
+              <Box style={{ backgroundColor: "white" }}>
+                <MenuItem
+                  label="개인정보처리 방침"
+                  hasArrow
+                  onClick={() => {
+                    router.push("/more/privacy");
+                  }}
+                />
+              </Box>
+            </Box>
 
             {/* App Version */}
-            <Box mt={rem(16)} style={{ backgroundColor: "white" }}>
-              <MenuItem
-                label="앱 버전"
-                rightElement={
-                  <Text size={rem(14)} c="#6c757d">
-                    v 1.0.0
-                  </Text>
-                }
-                hasArrow={false}
-              />
-              <MenuItem
-                label="로그아웃"
-                rightElement={null}
-                hasArrow={false}
-                onClick={() => {
-                  localStorage.removeItem("auth-storage");
-                  if (window.ReactNativeWebView) {
-                    window.ReactNativeWebView.postMessage(
-                      JSON.stringify({
-                        type: "logout",
-                      })
-                    );
+            <Box mt={rem(16)}>
+              <Text size={rem(12)} fw={500} c="dimmed" px={rem(16)} py={rem(8)}>
+                앱 정보
+              </Text>
+              <Box style={{ backgroundColor: "white" }}>
+                <MenuItem
+                  label="앱 버전"
+                  rightElement={
+                    <Text size={rem(14)} c="#6c757d">
+                      v 1.0.0
+                    </Text>
                   }
-                }}
-              />
-              <MenuItem
-                label="비밀번호 변경"
-                rightElement={null}
-                hasArrow={false}
-                onClick={() => {
-                  router.push("/auth/resetPassword");
-                }}
-              />
-              <MenuItem
-                label="회원탈퇴"
-                rightElement={null}
-                hasArrow={false}
-                onClick={() => setShowWithdrawModal(true)}
-              />
+                  hasArrow={false}
+                />
+                <MenuItem
+                  label="로그아웃"
+                  rightElement={null}
+                  hasArrow={false}
+                  onClick={() => {
+                    localStorage.removeItem("auth-storage");
+                    if (window.ReactNativeWebView) {
+                      window.ReactNativeWebView.postMessage(
+                        JSON.stringify({
+                          type: "logout",
+                        })
+                      );
+                    }
+                  }}
+                />
+                <MenuItem
+                  label="비밀번호 변경"
+                  rightElement={null}
+                  hasArrow={false}
+                  onClick={() => {
+                    router.push("/auth/resetPassword");
+                  }}
+                />
+                <MenuItem
+                  label="회원탈퇴"
+                  rightElement={null}
+                  hasArrow={false}
+                  onClick={() => setShowWithdrawModal(true)}
+                />
+              </Box>
             </Box>
           </Box>
         </Box>
