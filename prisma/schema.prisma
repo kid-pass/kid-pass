@@ -190,3 +190,18 @@ model News {
 
   @@map("news")
 }
+
+model Inquiry {
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  userId      String   @db.ObjectId
+  name        String
+  email       String
+  subject     String
+  message     String
+  status      String   @default("pending") // pending, inProgress, resolved
+  inquiryId   String   @unique // INQ-timestamp 형식
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("inquiries")
+}

@@ -168,6 +168,13 @@ const App = () => {
               </Text>
               <Box style={{ backgroundColor: "white" }}>
                 <MenuItem
+                  label="고객 지원"
+                  hasArrow
+                  onClick={() => {
+                    router.push("/more/support");
+                  }}
+                />
+                <MenuItem
                   label="개인정보처리 방침"
                   hasArrow
                   onClick={() => {
