@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from 'react';
 import { MetricsSection } from '@/components/metrics/MetricsSection';
-import Link from 'next/link';
 import ProfileCarousel from './ProfileCarousel';
 import useAuth from '@/hook/useAuth';
 import useChldrnListStore from '@/store/useChldrnListStore';
@@ -16,18 +15,18 @@ import {
 	Container,
 	useMantineTheme,
 	Box,
-	Anchor,
 	Paper,
+	LoadingOverlay,
 } from '@mantine/core';
 import { IconPlus } from '@tabler/icons-react';
 import { useAuthStore } from '@/store/useAuthStore';
 import { common } from '@/utils/common';
 import instance from '@/utils/axios';
 import { NewsItem } from '../more/news/page';
-import { useRouter } from 'next/navigation';
 import EmptyState from '@/components/EmptyState/EmptyState';
 import { NextVaccineInfo } from '../api/vaccine/next/route';
 import sendToRn from '@/utils/sendToRn';
+import useNavigation from '@/hook/useNavigation';
 
 interface PhysicalStats {
 	chldrnBdwgh: number;
@@ -160,15 +159,23 @@ const App: React.FC = () => {
 	const { setChldrnList, children } = useChldrnListStore();
 	const { getToken } = useAuth();
 	const { setCrtChldrnNo, token, crtChldrnNo } = useAuthStore();
-	const router = useRouter();
+	const { goPage } = useNavigation();
+	const [isLoading, setIsLoading] = useState(true);
+
+	useEffect(() => {
+		if (!token) {
+			goPage('/auth/login');
+		} else {
+			setIsLoading(false);
+		}
+	}, []);
 
 	useEffect(() => {
 		// 토큰이 이미 있으면 바로 데이터 가져오기
-		if (token) {
-			fetchChildrenData();
-		}
 
+		fetchChildrenData();
 		fetchNewsData();
+
 		// 토큰이 설정되면 데이터 가져오기
 		const handleTokenSet = (event: CustomEvent) => {
 			fetchChildrenData();
@@ -183,8 +190,6 @@ const App: React.FC = () => {
 			);
 		};
 	}, [token]);
-
-	useEffect(() => {}, []);
 
 	const fetchChildrenData = async () => {
 		const token = await getToken();
@@ -313,7 +318,11 @@ const App: React.FC = () => {
 
 	const currentSlide = kidsData[crtChldrnNoKidIndex];
 
-	return (
+	return isLoading ? (
+		<>
+			<LoadingOverlay visible={isLoading} />
+		</>
+	) : (
 		<MobileLayout
 			showHeader={false}
 			headerType="profile"
@@ -322,7 +331,7 @@ const App: React.FC = () => {
 			currentRoute="/"
 		>
 			<Container p="0">
-				<Group justify="space-between" align="center" w="100%" p="20">
+				<Group justify="space-between" align="center" w="100%" p="20px">
 					<Text size="xl" ff="HakgyoansimWoojuR" c="#222222">
 						오늘의아이
 					</Text>
@@ -335,13 +344,18 @@ const App: React.FC = () => {
 					profiles={kidsData}
 					onSlideChange={setCrtChldrnNoKidIndex}
 				/>
-				<Box px="1rem" mb="8rem">
-					<Group
+				<Box px="20" mb="8rem">
+					<Box
+						display="flex"
 						bg={theme.colors.brand[7]}
-						p="lg"
-						align="center"
+						p="25px 16px"
 						pos="relative"
-						style={{ borderRadius: '8px', cursor: 'pointer' }}
+						style={{
+							borderRadius: '8px',
+							cursor: 'pointer',
+							alignItems: 'center',
+							gap: '4px',
+						}}
 						onClick={() => {
 							sendToRn({
 								type: 'NAV',
@@ -363,7 +377,7 @@ const App: React.FC = () => {
 							w={80}
 							h={80}
 						/>
-					</Group>
+					</Box>
 					<Group gap="xs" align="center" mt="md">
 						<Flex
 							p="md"
@@ -428,7 +442,10 @@ const App: React.FC = () => {
 								fw={700}
 								fz="md"
 								c="#222222"
-								style={{ lineHeight: '1.2', whiteSpace:'nowrap'}}
+								style={{
+									lineHeight: '1.2',
+									whiteSpace: 'nowrap',
+								}}
 							>
 								진료받은
 								<br />
@@ -528,7 +545,7 @@ const App: React.FC = () => {
 								<Paper
 									key={news.id}
 									onClick={() => {
-										router.push(`/more/news/${news.id}`);
+										goPage(`/more/news/${news.id}`);
 									}}
 								>
 									<Image

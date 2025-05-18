@@ -41,7 +41,7 @@ const ProfileCarousel: React.FC<ProfileCarouselProps> = ({
 
 	return (
 		<Carousel
-			slideSize="70%" // 각 슬라이드가 뷰포트의 90%를 차지
+			slideSize="92%" // 각 슬라이드가 뷰포트의 90%를 차지
 			slidesToScroll={1}
 			dragFree={false}
 			containScroll="keepSnaps"
@@ -65,7 +65,7 @@ const ProfileCarousel: React.FC<ProfileCarouselProps> = ({
 					// container에는 패딩 없음
 				},
 				slide: {
-					flex: '0 0 92%',
+					flex: '0 0 94%',
 					// 개별 슬라이드 스타일은 아래 map에서 처리
 				},
 			}}
@@ -79,11 +79,11 @@ const ProfileCarousel: React.FC<ProfileCarouselProps> = ({
 
 				// 슬라이드별 패딩 설정
 				const slidePadding = isOnlySlide
-					? { padding: '0 16px' } // 슬라이드가 1개면 양쪽 패딩
+					? { padding: '0 20px' } // 슬라이드가 1개면 양쪽 패딩
 					: isLastSlide
-					? { padding: '0 16px 0 8px' } // 마지막 슬라이드
+					? { padding: '0 20px 0 0px' } // 마지막 슬라이드
 					: isFirstSlide
-					? { padding: '0 8px 0 16px' }
+					? { padding: '0px 0px 0px 20px' }
 					: { padding: '0 8px' }; // 그외 슬라이드
 
 				return (

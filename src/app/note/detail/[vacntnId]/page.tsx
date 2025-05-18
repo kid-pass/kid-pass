@@ -359,6 +359,7 @@ export default function VaccineDetailPage() {
 													fz="xl"
 													fw={700}
 													c="#729BED"
+													style={{whiteSpace:"nowrap"}}
 												>
 													등록하기
 												</Text>
