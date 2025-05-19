@@ -149,7 +149,6 @@ const processChildData = (
 		};
 	});
 };
-
 const App: React.FC = () => {
 	const theme = useMantineTheme();
 	const [kidsData, setKidsData] = useState<KidRecord[]>([]);
@@ -158,97 +157,113 @@ const App: React.FC = () => {
 	const [crtChldrnNoKidIndex, setCrtChldrnNoKidIndex] = useState(0);
 	const { setChldrnList, children } = useChldrnListStore();
 	const { getToken } = useAuth();
-	const { setCrtChldrnNo, token, crtChldrnNo } = useAuthStore();
+	const { setCrtChldrnNo, crtChldrnNo } = useAuthStore();
 	const { goPage } = useNavigation();
-	const [isLoading, setIsLoading] = useState(true);
+	const [isInitializing, setIsInitializing] = useState(true);
 
+	// 초기화 함수 - 컴포넌트 마운트 시 한 번만 실행
 	useEffect(() => {
-		if (!token) {
-			goPage('/auth/login');
-		} else {
-			setIsLoading(false);
+		async function initialize() {
+			// 1. 토큰 확인
+			const currentToken = await getToken();
+			if (!currentToken) {
+				goPage('/auth/login');
+				return;
+			}
+
+			// 2. 데이터 로드
+			try {
+				await Promise.all([fetchChildrenData(), fetchNewsData()]);
+			} catch (error) {
+				console.error('초기화 중 오류:', error);
+			} finally {
+				setIsInitializing(false);
+			}
 		}
-	}, []);
 
-	useEffect(() => {
-		// 토큰이 이미 있으면 바로 데이터 가져오기
+		initialize();
 
-		fetchChildrenData();
-		fetchNewsData();
-
-		// 토큰이 설정되면 데이터 가져오기
+		// 토큰 설정 이벤트 리스너
 		const handleTokenSet = (event: CustomEvent) => {
-			fetchChildrenData();
+			Promise.all([fetchChildrenData(), fetchNewsData()]).catch(
+				console.error
+			);
 		};
 
 		window.addEventListener('tokenSet', handleTokenSet as EventListener);
-
 		return () => {
 			window.removeEventListener(
 				'tokenSet',
 				handleTokenSet as EventListener
 			);
 		};
-	}, [token]);
+	}, []);
 
+	// 아이 데이터 가져오기
 	const fetchChildrenData = async () => {
-		const token = await getToken();
-
 		try {
+			const currentToken = await getToken();
+			if (!currentToken) {
+				console.error('토큰이 없습니다');
+				return;
+			}
+
 			const response = await fetch('/api/child/getChildrenInfo', {
 				headers: {
-					Authorization: `Bearer ${token}`,
+					Authorization: `Bearer ${currentToken}`,
 				},
 			});
 
 			const data = await response.json();
-			console.log('data', data);
+
 			if (response.ok && data.data) {
 				handleChildrenData(data.data);
+			} else {
+				console.error('유효하지 않은 응답:', data);
 			}
 		} catch (error) {
-			console.error('Error fetching data:', error);
+			console.error('아이 데이터 가져오기 실패:', error);
+			throw error; // 상위에서 처리할 수 있도록 오류 전파
 		}
 	};
 
+	// 뉴스 데이터 가져오기
 	const fetchNewsData = async () => {
 		try {
-			// 처방전 상세 정보를 가져오는 API 호출
 			const response = await instance.get('/news?limit=3');
-
 			setNewsData(response.data.data);
-		} catch (err) {
-			console.error('뉴스 정보 조회 오류:', err);
+		} catch (error) {
+			console.error('뉴스 정보 조회 오류:', error);
+			throw error; // 상위에서 처리할 수 있도록 오류 전파
 		}
 	};
 
+	// 백신 데이터 가져오기
 	const fetchNextVaccinData = async () => {
+		// children이 없거나 인덱스가 유효하지 않은 경우 일찍 반환
+		if (!children || children.length === 0) {
+			console.log('아직 children 데이터가 로드되지 않았습니다');
+			return;
+		}
+
+		if (
+			crtChldrnNoKidIndex === undefined ||
+			crtChldrnNoKidIndex < 0 ||
+			crtChldrnNoKidIndex >= children.length
+		) {
+			console.log('유효하지 않은 인덱스:', crtChldrnNoKidIndex);
+			return;
+		}
+
+		const childData = children[crtChldrnNoKidIndex];
+
+		if (!childData || !childData.birthDate) {
+			console.log('선택된 아이의 생일 정보가 없습니다:', childData);
+			return;
+		}
+
 		try {
-			// children 배열과 인덱스가 유효한지 먼저 확인
-			if (!children || children.length === 0) {
-				console.log('아직 children 데이터가 로드되지 않았습니다');
-				return;
-			}
-
-			if (
-				crtChldrnNoKidIndex === undefined ||
-				crtChldrnNoKidIndex < 0 ||
-				crtChldrnNoKidIndex >= children.length
-			) {
-				console.log('유효하지 않은 인덱스:', crtChldrnNoKidIndex);
-				return;
-			}
-
-			const childData = children[crtChldrnNoKidIndex];
-
-			if (!childData || !childData.birthDate) {
-				console.log('선택된 아이의 생일 정보가 없습니다:', childData);
-				return;
-			}
-
 			const birthDate = childData.birthDate.substring(0, 10);
-
-			console.log('요청할 생일 정보:', birthDate);
 
 			const response = await instance.get('vaccine/next', {
 				params: {
@@ -256,21 +271,23 @@ const App: React.FC = () => {
 				},
 			});
 
-			console.log(response.data.data);
 			setVaccineData(response.data.data);
-		} catch (err) {
-			console.error('다음 백신 이력 조회 오류', err);
+		} catch (error) {
+			console.error('다음 백신 이력 조회 오류', error);
 		}
 	};
 
+	// 인덱스가 변경될 때 백신 데이터 가져오기
 	useEffect(() => {
-		fetchNextVaccinData();
-	}, [crtChldrnNoKidIndex, crtChldrnNo]);
+		if (children && children.length > 0) {
+			fetchNextVaccinData();
+		}
+	}, [crtChldrnNoKidIndex, crtChldrnNo, children]);
 
-	// 데이터 처리 함수를 분리
+	// 아이 데이터 처리
 	const handleChildrenData = (children: Child[]) => {
 		if (children.length > 0) {
-			// 로그인과 동시에 아이번호  zustand 에 저장
+			// 로그인과 동시에 아이번호 zustand에 저장
 			setCrtChldrnNo(children[0].id);
 		} else {
 			sendToRn({ type: 'NAV', data: { route: '/addchild' } });
@@ -288,7 +305,8 @@ const App: React.FC = () => {
 		const processedData = processChildData(children, toggleMetric);
 		setKidsData(processedData);
 	};
-	// 특정 메트릭 업데이트 함수 분리
+
+	// 메트릭 상태 업데이트
 	const updateMetricState = (metrics: any[], metricIndex: number) => {
 		return metrics.map((metric, mIdx) => {
 			if (mIdx === metricIndex) {
@@ -301,7 +319,7 @@ const App: React.FC = () => {
 		});
 	};
 
-	// 메인 토글 함수
+	// 메트릭 토글
 	const toggleMetric = (kidIndex: number, metricIndex: number) => {
 		setKidsData((prevData) => {
 			return prevData.map((kid, idx) => {
@@ -318,11 +336,11 @@ const App: React.FC = () => {
 
 	const currentSlide = kidsData[crtChldrnNoKidIndex];
 
-	return isLoading ? (
-		<>
-			<LoadingOverlay visible={isLoading} />
-		</>
-	) : (
+	if (isInitializing) {
+		return <LoadingOverlay visible={true} />;
+	}
+
+	return (
 		<MobileLayout
 			showHeader={false}
 			headerType="profile"
