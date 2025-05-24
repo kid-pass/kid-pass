@@ -1,11 +1,11 @@
 'use client';
 
-import { useRef, useState, useEffect } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import MobileLayout from '@/components/mantine/MobileLayout';
 import useChldrnListStore from '@/store/useChldrnListStore';
-import instance from '@/utils/axios';
 import {
 	Box,
+	Button,
 	Image,
 	LoadingOverlay,
 	Text,
@@ -13,8 +13,7 @@ import {
 } from '@mantine/core';
 import useNavigation from '@/hook/useNavigation';
 import { useImageUpload } from '@/hook/useImageUpload';
-
-// heic2any 라이브러리를 정적으로 가져오지 않음
+import { IconPlus } from '@tabler/icons-react';
 
 const childrenOrder = [
 	'첫째',
@@ -31,11 +30,21 @@ const childrenOrder = [
 
 const App = () => {
 	const theme = useMantineTheme();
-	const { goBack } = useNavigation();
+	const { goBack, goPage } = useNavigation();
 	const { children, updateChild } = useChldrnListStore();
 	const inputFileRef = useRef<HTMLInputElement>(null);
 	const [selectedChildId, setSelectedChildId] = useState<string | null>(null);
 	const [isUploading, setIsUploading] = useState<boolean>(false);
+	const [isReactNativeWebView, setIsReactNativeWebView] = useState(true);
+
+	useEffect(() => {
+		// window.ReactNativeWebView가 존재하면 RN 웹뷰 환경으로 판단
+		setIsReactNativeWebView(!!window.ReactNativeWebView);
+	}, []);
+
+	const handleGoToMain = () => {
+		goPage('/kid/register');
+	};
 
 	// 이미지 클릭 시 해당 아이의 ID를 저장하고 파일 선택 창 열기
 	const handleImageClick = (childId: string) => {
@@ -238,6 +247,23 @@ const App = () => {
 					</Box>
 				))}
 			</Box>
+			<Button
+				w={42}
+				h={42}
+				radius="xl"
+				bg="brand.7"
+				c="white"
+				style={{
+					position: 'fixed',
+					bottom: isReactNativeWebView ? 0 : 80,
+					right: 20,
+					padding: 0,
+					zIndex: 1000,
+				}}
+				onClick={handleGoToMain}
+			>
+				<IconPlus size={24} stroke={3} />
+			</Button>
 		</MobileLayout>
 	);
 };
