@@ -16,17 +16,17 @@ import {
 	useMantineTheme,
 	Box,
 	Paper,
-	LoadingOverlay,
 } from '@mantine/core';
 import { IconPlus } from '@tabler/icons-react';
 import { useAuthStore } from '@/store/useAuthStore';
 import { common } from '@/utils/common';
 import instance from '@/utils/axios';
 import { NewsItem } from '../more/news/page';
+import { useRouter } from 'next/navigation';
 import EmptyState from '@/components/EmptyState/EmptyState';
 import { NextVaccineInfo } from '../api/vaccine/next/route';
 import sendToRn from '@/utils/sendToRn';
-import useNavigation from '@/hook/useNavigation';
+import { useMediaQuery } from '@mantine/hooks';
 
 interface PhysicalStats {
 	chldrnBdwgh: number;
@@ -149,6 +149,7 @@ const processChildData = (
 		};
 	});
 };
+
 const App: React.FC = () => {
 	const theme = useMantineTheme();
 	const [kidsData, setKidsData] = useState<KidRecord[]>([]);
@@ -157,113 +158,92 @@ const App: React.FC = () => {
 	const [crtChldrnNoKidIndex, setCrtChldrnNoKidIndex] = useState(0);
 	const { setChldrnList, children } = useChldrnListStore();
 	const { getToken } = useAuth();
-	const { setCrtChldrnNo, crtChldrnNo } = useAuthStore();
-	const { goPage } = useNavigation();
-	const [isInitializing, setIsInitializing] = useState(true);
+	const { setCrtChldrnNo, token, crtChldrnNo } = useAuthStore();
+	const router = useRouter();
+	const isSmallScreen = useMediaQuery('(max-width: 350px)');
 
-	// 초기화 함수 - 컴포넌트 마운트 시 한 번만 실행
 	useEffect(() => {
-		async function initialize() {
-			// 1. 토큰 확인
-			const currentToken = await getToken();
-			if (!currentToken) {
-				goPage('/auth/login');
-				return;
-			}
-
-			// 2. 데이터 로드
-			try {
-				await Promise.all([fetchChildrenData(), fetchNewsData()]);
-			} catch (error) {
-				console.error('초기화 중 오류:', error);
-			} finally {
-				setIsInitializing(false);
-			}
+		// 토큰이 이미 있으면 바로 데이터 가져오기
+		if (token) {
+			fetchChildrenData();
 		}
 
-		initialize();
-
-		// 토큰 설정 이벤트 리스너
+		fetchNewsData();
+		// 토큰이 설정되면 데이터 가져오기
 		const handleTokenSet = (event: CustomEvent) => {
-			Promise.all([fetchChildrenData(), fetchNewsData()]).catch(
-				console.error
-			);
+			fetchChildrenData();
 		};
 
 		window.addEventListener('tokenSet', handleTokenSet as EventListener);
+
 		return () => {
 			window.removeEventListener(
 				'tokenSet',
 				handleTokenSet as EventListener
 			);
 		};
-	}, []);
+	}, [token]);
 
-	// 아이 데이터 가져오기
+	useEffect(() => {}, []);
+
 	const fetchChildrenData = async () => {
-		try {
-			const currentToken = await getToken();
-			if (!currentToken) {
-				console.error('토큰이 없습니다');
-				return;
-			}
+		const token = await getToken();
 
+		try {
 			const response = await fetch('/api/child/getChildrenInfo', {
 				headers: {
-					Authorization: `Bearer ${currentToken}`,
+					Authorization: `Bearer ${token}`,
 				},
 			});
 
 			const data = await response.json();
-
+			console.log('data', data);
 			if (response.ok && data.data) {
 				handleChildrenData(data.data);
-			} else {
-				console.error('유효하지 않은 응답:', data);
 			}
 		} catch (error) {
-			console.error('아이 데이터 가져오기 실패:', error);
-			throw error; // 상위에서 처리할 수 있도록 오류 전파
+			console.error('Error fetching data:', error);
 		}
 	};
 
-	// 뉴스 데이터 가져오기
 	const fetchNewsData = async () => {
 		try {
+			// 처방전 상세 정보를 가져오는 API 호출
 			const response = await instance.get('/news?limit=3');
+
 			setNewsData(response.data.data);
-		} catch (error) {
-			console.error('뉴스 정보 조회 오류:', error);
-			throw error; // 상위에서 처리할 수 있도록 오류 전파
+		} catch (err) {
+			console.error('뉴스 정보 조회 오류:', err);
 		}
 	};
 
-	// 백신 데이터 가져오기
 	const fetchNextVaccinData = async () => {
-		// children이 없거나 인덱스가 유효하지 않은 경우 일찍 반환
-		if (!children || children.length === 0) {
-			console.log('아직 children 데이터가 로드되지 않았습니다');
-			return;
-		}
-
-		if (
-			crtChldrnNoKidIndex === undefined ||
-			crtChldrnNoKidIndex < 0 ||
-			crtChldrnNoKidIndex >= children.length
-		) {
-			console.log('유효하지 않은 인덱스:', crtChldrnNoKidIndex);
-			return;
-		}
-
-		const childData = children[crtChldrnNoKidIndex];
-
-		if (!childData || !childData.birthDate) {
-			console.log('선택된 아이의 생일 정보가 없습니다:', childData);
-			return;
-		}
-
 		try {
+			// children 배열과 인덱스가 유효한지 먼저 확인
+			if (!children || children.length === 0) {
+				console.log('아직 children 데이터가 로드되지 않았습니다');
+				return;
+			}
+
+			if (
+				crtChldrnNoKidIndex === undefined ||
+				crtChldrnNoKidIndex < 0 ||
+				crtChldrnNoKidIndex >= children.length
+			) {
+				console.log('유효하지 않은 인덱스:', crtChldrnNoKidIndex);
+				return;
+			}
+
+			const childData = children[crtChldrnNoKidIndex];
+
+			if (!childData || !childData.birthDate) {
+				console.log('선택된 아이의 생일 정보가 없습니다:', childData);
+				return;
+			}
+
 			const birthDate = childData.birthDate.substring(0, 10);
+
+			console.log('요청할 생일 정보:', birthDate);
 
 			const response = await instance.get('vaccine/next', {
 				params: {
@@ -271,23 +251,21 @@ const App: React.FC = () => {
 				},
 			});
 
+			console.log(response.data.data);
 			setVaccineData(response.data.data);
-		} catch (error) {
-			console.error('다음 백신 이력 조회 오류', error);
+		} catch (err) {
+			console.error('다음 백신 이력 조회 오류', err);
 		}
 	};
 
-	// 인덱스가 변경될 때 백신 데이터 가져오기
 	useEffect(() => {
-		if (children && children.length > 0) {
-			fetchNextVaccinData();
-		}
-	}, [crtChldrnNoKidIndex, crtChldrnNo, children]);
+		fetchNextVaccinData();
+	}, [crtChldrnNoKidIndex, crtChldrnNo]);
 
-	// 아이 데이터 처리
+	// 데이터 처리 함수를 분리
 	const handleChildrenData = (children: Child[]) => {
 		if (children.length > 0) {
-			// 로그인과 동시에 아이번호 zustand에 저장
+			// 로그인과 동시에 아이번호  zustand 에 저장
 			setCrtChldrnNo(children[0].id);
 		} else {
 			sendToRn({ type: 'NAV', data: { route: '/addchild' } });
@@ -305,8 +283,7 @@ const App: React.FC = () => {
 		const processedData = processChildData(children, toggleMetric);
 		setKidsData(processedData);
 	};
-
-	// 메트릭 상태 업데이트
+	// 특정 메트릭 업데이트 함수 분리
 	const updateMetricState = (metrics: any[], metricIndex: number) => {
 		return metrics.map((metric, mIdx) => {
 			if (mIdx === metricIndex) {
@@ -319,7 +296,7 @@ const App: React.FC = () => {
 		});
 	};
 
-	// 메트릭 토글
+	// 메인 토글 함수
 	const toggleMetric = (kidIndex: number, metricIndex: number) => {
 		setKidsData((prevData) => {
 			return prevData.map((kid, idx) => {
@@ -336,10 +313,6 @@ const App: React.FC = () => {
 
 	const currentSlide = kidsData[crtChldrnNoKidIndex];
 
-	if (isInitializing) {
-		return <LoadingOverlay visible={true} />;
-	}
-
 	return (
 		<MobileLayout
 			showHeader={false}
@@ -349,7 +322,7 @@ const App: React.FC = () => {
 			currentRoute="/"
 		>
 			<Container p="0">
-				<Group justify="space-between" align="center" w="100%" p="20px">
+				<Group justify="space-between" align="center" w="100%" p="20">
 					<Text size="xl" ff="HakgyoansimWoojuR" c="#222222">
 						오늘의아이
 					</Text>
@@ -362,16 +335,17 @@ const App: React.FC = () => {
 					profiles={kidsData}
 					onSlideChange={setCrtChldrnNoKidIndex}
 				/>
-				<Box px="20" mb="8rem">
+				<Box px="1rem" mb="8rem">
 					<Box
-						display="flex"
 						bg={theme.colors.brand[7]}
-						p="25px 16px"
+						p="lg"
+						display="flex"
 						pos="relative"
 						style={{
 							borderRadius: '8px',
-							cursor: 'pointer',
 							alignItems: 'center',
+							cursor: 'pointer',
+							height: '70px',
 							gap: '4px',
 						}}
 						onClick={() => {
@@ -382,7 +356,11 @@ const App: React.FC = () => {
 						}}
 					>
 						<IconPlus color="#FFFFFF" size={12} strokeWidth={4} />
-						<Text c="white" fw={700} fz="md">
+						<Text
+							c="white"
+							fw={700}
+							fz={isSmallScreen ? '0.875rem' : 'md'}
+						>
 							오늘의 아이 증상 기록하기
 						</Text>
 
@@ -392,8 +370,11 @@ const App: React.FC = () => {
 							pos="absolute"
 							bottom={0}
 							right={10}
-							w={100}
-							h={80}
+							w="auto"
+							h="auto"
+							style={{
+								objectFit: 'contain', // 비율 유지하면서 컨테이너 안에 맞춤
+							}}
 						/>
 					</Box>
 					<Group gap="xs" align="center" mt="md">
@@ -563,7 +544,7 @@ const App: React.FC = () => {
 								<Paper
 									key={news.id}
 									onClick={() => {
-										goPage(`/more/news/${news.id}`);
+										router.push(`/more/news/${news.id}`);
 									}}
 								>
 									<Image
