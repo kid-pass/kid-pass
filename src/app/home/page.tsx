@@ -44,6 +44,7 @@ export interface KidProfile {
 	chldrnNo: string;
 	days: number;
 	weeks: number;
+	gender: string;
 }
 
 interface RecordMetricsDetail {
@@ -132,6 +133,7 @@ const processChildData = (
 				chldrnBrthdy: child.birthDate,
 				ageType: child.ageType ?? '',
 				age: age,
+				gender: child.gender,
 				chldrnNo: child.id,
 				atchCode: '',
 				days,
@@ -335,7 +337,7 @@ const App: React.FC = () => {
 					profiles={kidsData}
 					onSlideChange={setCrtChldrnNoKidIndex}
 				/>
-				<Box px="1rem" mb="8rem">
+				<Box px="1.25rem" mb="8rem">
 					<Box
 						bg={theme.colors.brand[7]}
 						p="lg"

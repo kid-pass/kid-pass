@@ -71,6 +71,8 @@ const ProfileCarousel: React.FC<ProfileCarouselProps> = ({
 		>
 			{profiles.map((kidRecord, index) => {
 				const { profile } = kidRecord;
+				console.log(profile);
+
 				const [physicalStats] = profile.chldrnInfoList;
 				const isLastSlide = index === profiles.length - 1;
 				const isFirstSlide = index === 0;
@@ -92,7 +94,7 @@ const ProfileCarousel: React.FC<ProfileCarouselProps> = ({
 								borderRadius: '8px',
 								position: 'relative',
 							}}
-							bg="brand.0"
+							bg={profile.gender === 'M' ? 'brand.0' : '#FFEBEB'}
 							p="16 24"
 							mb="xl"
 						>
