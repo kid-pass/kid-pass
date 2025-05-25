@@ -392,7 +392,7 @@ const App: React.FC = () => {
 							pos="absolute"
 							bottom={0}
 							right={10}
-							w={92}
+							w={100}
 							h={80}
 						/>
 					</Box>
@@ -429,7 +429,7 @@ const App: React.FC = () => {
 								병원/약국
 							</Text>
 							<Image
-								src="/pharmacy.png"
+								src="/pharmacy.svg"
 								alt="약국 재고조회"
 								width={27}
 								height={36}
@@ -477,14 +477,14 @@ const App: React.FC = () => {
 								}}
 							>
 								<Image
-									src="/medicalRecord_left.png"
+									src="/ebene_1.svg"
 									alt="진료 기록"
 									width={27}
 									height={37}
 									visibleFrom="xss"
 								/>
 								<Image
-									src="/medicalRecord_right.png"
+									src="/ebene_2.svg"
 									alt="진료 기록"
 									width={27}
 									height={37}
