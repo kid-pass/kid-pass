@@ -387,12 +387,12 @@ const App: React.FC = () => {
 						</Text>
 
 						<Image
-							src="/record.png"
+							src="/logo_sub.svg"
 							alt=""
 							pos="absolute"
-							bottom={-8}
+							bottom={0}
 							right={10}
-							w={80}
+							w={92}
 							h={80}
 						/>
 					</Box>
