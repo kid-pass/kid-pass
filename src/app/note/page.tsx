@@ -120,10 +120,8 @@ const App = () => {
 					<Group mb="sm" gap={0} justify="space-between" w="100%">
 						<Group gap={8}>
 							<Flex
-								pb="4"
-								pt="4"
-								pl="8"
-								pr="8"
+								py="4"
+								px="8"
 								gap="4"
 								display="flex"
 								align="center"
@@ -131,6 +129,7 @@ const App = () => {
 									backgroundColor: '#729BED',
 									borderRadius: '12px',
 									textAlign: 'center',
+									height: '24px',
 								}}
 							>
 								<Text fw={700} c="white" fz="sm">
@@ -142,10 +141,8 @@ const App = () => {
 							</Flex>
 
 							<Flex
-								pb="4"
-								pt="4"
-								pl="8"
-								pr="8"
+								py="4"
+								px="8"
 								gap="4"
 								display="flex"
 								align="center"
@@ -153,6 +150,7 @@ const App = () => {
 									backgroundColor: '#BFBFBF',
 									borderRadius: '12px',
 									textAlign: 'center',
+									height: '24px',
 								}}
 							>
 								<Text fw={700} c="white" fz="sm">
