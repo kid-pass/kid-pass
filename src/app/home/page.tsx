@@ -44,6 +44,7 @@ export interface KidProfile {
 	chldrnNo: string;
 	days: number;
 	weeks: number;
+	gender: string;
 }
 
 interface RecordMetricsDetail {
@@ -132,6 +133,7 @@ const processChildData = (
 				chldrnBrthdy: child.birthDate,
 				ageType: child.ageType ?? '',
 				age: age,
+				gender: child.gender,
 				chldrnNo: child.id,
 				atchCode: '',
 				days,
@@ -197,7 +199,6 @@ const App: React.FC = () => {
 			});
 
 			const data = await response.json();
-			console.log('data', data);
 			if (response.ok && data.data) {
 				handleChildrenData(data.data);
 			}
@@ -221,7 +222,6 @@ const App: React.FC = () => {
 		try {
 			// children 배열과 인덱스가 유효한지 먼저 확인
 			if (!children || children.length === 0) {
-				console.log('아직 children 데이터가 로드되지 않았습니다');
 				return;
 			}
 
@@ -230,20 +230,16 @@ const App: React.FC = () => {
 				crtChldrnNoKidIndex < 0 ||
 				crtChldrnNoKidIndex >= children.length
 			) {
-				console.log('유효하지 않은 인덱스:', crtChldrnNoKidIndex);
 				return;
 			}
 
 			const childData = children[crtChldrnNoKidIndex];
 
 			if (!childData || !childData.birthDate) {
-				console.log('선택된 아이의 생일 정보가 없습니다:', childData);
 				return;
 			}
 
 			const birthDate = childData.birthDate.substring(0, 10);
-
-			console.log('요청할 생일 정보:', birthDate);
 
 			const response = await instance.get('vaccine/next', {
 				params: {
@@ -251,7 +247,6 @@ const App: React.FC = () => {
 				},
 			});
 
-			console.log(response.data.data);
 			setVaccineData(response.data.data);
 		} catch (err) {
 			console.error('다음 백신 이력 조회 오류', err);
@@ -335,7 +330,7 @@ const App: React.FC = () => {
 					profiles={kidsData}
 					onSlideChange={setCrtChldrnNoKidIndex}
 				/>
-				<Box px="1rem" mb="8rem">
+				<Box px="1.25rem" mb="8rem">
 					<Box
 						bg={theme.colors.brand[7]}
 						p="lg"

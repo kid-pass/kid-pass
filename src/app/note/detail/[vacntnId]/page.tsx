@@ -173,7 +173,7 @@ export default function VaccineDetailPage() {
 						<Button
 							onClick={() => modals.close(modalId)}
 							c="#222222"
-							variant='transparent'
+							variant="transparent"
 							radius={0}
 							styles={{
 								root: {
@@ -297,11 +297,15 @@ export default function VaccineDetailPage() {
 												style={{
 													backgroundColor: '#BFBfBF',
 													border: '1px solid white',
-													color: 'white',
-													padding: '4px 12px',
+													maxHeight: '24px',
+													padding: '2px 12px',
 												}}
 											>
-												{`${dose.doseNumber}차 (${dose.vaccineCode})`}
+												<Text
+													c="white"
+													fz="md"
+													fw="600"
+												>{`${dose.doseNumber}차`}</Text>
 											</Button>
 											<Group gap={20} align="center">
 												<Text
@@ -342,13 +346,24 @@ export default function VaccineDetailPage() {
 												style={{
 													backgroundColor:
 														'rgba(114, 155, 237, 0.1)',
-													color: '#729BED',
 													fontWeight: '700',
+													maxHeight: '24px',
+													padding: '2px 12px',
 												}}
 											>
-												{`${dose.doseNumber}차 (${dose.vaccineCode})`}
+												<Text
+													c="#729BED"
+													fz="md"
+													fw="600"
+												>{`${dose.doseNumber}차`}</Text>
 											</Button>
-											<Box display="flex" style={{alignItems:"center", gap:"4px"}}>
+											<Box
+												display="flex"
+												style={{
+													alignItems: 'center',
+													gap: '4px',
+												}}
+											>
 												<Image
 													src="/add_vaccine.svg"
 													width={18}
@@ -359,7 +374,9 @@ export default function VaccineDetailPage() {
 													fz="xl"
 													fw={700}
 													c="#729BED"
-													style={{whiteSpace:"nowrap"}}
+													style={{
+														whiteSpace: 'nowrap',
+													}}
 												>
 													등록하기
 												</Text>
@@ -371,7 +388,7 @@ export default function VaccineDetailPage() {
 					</Box>
 				</MobileLayout>
 			) : (
-				<LoadingOverlay visible={isloading}/>
+				<LoadingOverlay visible={isloading} />
 			)}
 		</>
 	);

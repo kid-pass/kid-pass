@@ -108,12 +108,14 @@ const ProfileCarousel: React.FC<ProfileCarouselProps> = ({
 									}}
 								>
 									<ProfileMetrics
+										gender={profile.gender}
 										label={`${profile.chldrnBrthdy?.substring(
 											0,
 											10
 										)} 출생`}
 										value={profile.chldrnNm}
 									/>
+
 									<Flex
 										align="flex-start"
 										justify="flex-end"
