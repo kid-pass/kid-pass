@@ -41,7 +41,6 @@ const ProfileCarousel: React.FC<ProfileCarouselProps> = ({
 
 	return (
 		<Carousel
-			slideSize="70%" // 각 슬라이드가 뷰포트의 90%를 차지
 			slidesToScroll={1}
 			dragFree={false}
 			containScroll="keepSnaps"
@@ -60,13 +59,13 @@ const ProfileCarousel: React.FC<ProfileCarouselProps> = ({
 				},
 				container: {
 					display: 'flex',
-
+					boxSizing: 'border-box',
 					width: '100%',
 					// container에는 패딩 없음
 				},
 				slide: {
-					flex: '0 0 92%',
-					// 개별 슬라이드 스타일은 아래 map에서 처리
+					flex: '0 0 calc(100% - 40px)', // 슬라이드 간격까지 고려
+					boxSizing: 'border-box',
 				},
 			}}
 		>
@@ -78,16 +77,16 @@ const ProfileCarousel: React.FC<ProfileCarouselProps> = ({
 				const isOnlySlide = profiles.length === 1;
 
 				// 슬라이드별 패딩 설정
-				const slidePadding = isOnlySlide
-					? { padding: '0 16px' } // 슬라이드가 1개면 양쪽 패딩
-					: isLastSlide
-					? { padding: '0 16px 0 8px' } // 마지막 슬라이드
+				const slideStyle = isOnlySlide
+					? { marginLeft: '20px', marginRight: '20px' }
 					: isFirstSlide
-					? { padding: '0 8px 0 16px' }
-					: { padding: '0 8px' }; // 그외 슬라이드
+					? { marginLeft: '20px', marginRight: '10px' }
+					: isLastSlide
+					? { marginRight: '20px' }
+					: { marginRight: '10px' };
 
 				return (
-					<Carousel.Slide key={profile.chldrnNo} style={slidePadding}>
+					<Carousel.Slide key={profile.chldrnNo} style={slideStyle}>
 						<Box
 							style={{
 								borderRadius: '8px',
@@ -97,11 +96,16 @@ const ProfileCarousel: React.FC<ProfileCarouselProps> = ({
 							p="16 24"
 							mb="xl"
 						>
-							<Box display="flex" style={{flexDirection:"column", gap:"19px"}}>
+							<Box
+								display="flex"
+								style={{ flexDirection: 'column', gap: '19px' }}
+							>
 								<Box
-
 									display="flex"
-									style={{justifyContent:"space-between", alignItems:"start"}}
+									style={{
+										justifyContent: 'space-between',
+										alignItems: 'start',
+									}}
 								>
 									<ProfileMetrics
 										label={`${profile.chldrnBrthdy?.substring(
@@ -181,7 +185,7 @@ const ProfileCarousel: React.FC<ProfileCarouselProps> = ({
 									background: '#FFFFFF',
 								}}
 							>
-								<QRGenerator chldrnNo={profile.chldrnNo}/>
+								<QRGenerator chldrnNo={profile.chldrnNo} />
 							</Box>
 						</Box>
 					</Carousel.Slide>

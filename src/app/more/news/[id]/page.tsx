@@ -1,6 +1,7 @@
 'use client';
 
 import MobileLayout from '@/components/mantine/MobileLayout';
+import useNavigation from '@/hook/useNavigation';
 import instance from '@/utils/axios';
 import { Box, Image, Text, Stack } from '@mantine/core';
 import { usePathname } from 'next/navigation';
@@ -10,6 +11,7 @@ const App = () => {
 	const pathname = usePathname();
 	const id = pathname.split('/').pop();
 	const [newsDetail, setNewsDetail] = useState<any>(null);
+	const { goBack } = useNavigation();
 
 	const fetchReportDetail = async () => {
 		try {
@@ -92,7 +94,7 @@ const App = () => {
 	};
 
 	return (
-		<MobileLayout headerType="back" title="건강뉴스 상세">
+		<MobileLayout headerType="back" onBack={goBack} title="건강뉴스 상세">
 			<Box>
 				<Stack gap={0}>{renderNewsContent()}</Stack>
 			</Box>

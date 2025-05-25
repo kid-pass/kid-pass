@@ -111,7 +111,6 @@ export async function DELETE(request: NextRequest, { params }: Props) {
 		);
 	}
 }
-
 export async function PUT(request: NextRequest, { params }: Props) {
 	try {
 		const { id } = await params;
@@ -132,8 +131,8 @@ export async function PUT(request: NextRequest, { params }: Props) {
 		const body = await request.json();
 		console.log(body);
 
-		// 기록 수정
-		const record = await prisma.record.update({
+		// 먼저 기록을 찾아서 childId 확인
+		const existingRecord = await prisma.record.findUnique({
 			where: {
 				id,
 				child: {
@@ -142,26 +141,91 @@ export async function PUT(request: NextRequest, { params }: Props) {
 					},
 				},
 			},
-			data: {
-				startTime: new Date(body.startTime),
-				endTime: body.endTime ? new Date(body.endTime) : null,
-				type: body.type,
-				mealType: body.mealType,
-				amount: body.amount,
-				unit: body.unit,
-				memo: body.memo,
-				category: body.category,
-				behavior: Array.isArray(body.behavior)
-					? body.behavior
-					: body.behavior
-					? [body.behavior]
-					: [],
+			select: {
+				childId: true,
 			},
+		});
+
+		if (!existingRecord) {
+			return NextResponse.json(
+				{ message: '해당 기록을 찾을 수 없습니다.' },
+				{ status: 404 }
+			);
+		}
+
+		// 트랜잭션을 사용하여 원자적 작업 보장
+		const result = await prisma.$transaction(async (tx) => {
+			// 1. 기록 업데이트
+			const record = await tx.record.update({
+				where: {
+					id,
+				},
+				data: {
+					startTime: new Date(body.startTime),
+					endTime: body.endTime ? new Date(body.endTime) : null,
+					type: body.type,
+					mealType: body.mealType,
+					amount: body.amount ? parseFloat(body.amount) : null,
+					unit: body.unit,
+					memo: body.memo,
+					// 성장 관련 필드 추가
+					weight: body.weight ? parseFloat(body.weight) : null,
+					height: body.height ? parseFloat(body.height) : null,
+					headSize: body.headSize ? parseFloat(body.headSize) : null,
+					// 기타 필드들
+					category: body.category,
+					behavior: Array.isArray(body.behavior)
+						? body.behavior
+						: body.behavior
+						? [body.behavior]
+						: [],
+					// 필요한 다른 필드들도 여기에 추가
+				},
+			});
+
+			// 2. 성장 관련 데이터가 있으면 Child 모델도 업데이트
+			if (
+				body.weight !== undefined ||
+				body.height !== undefined ||
+				body.headSize !== undefined
+			) {
+				// 업데이트할 데이터 객체 생성
+				const childUpdateData: any = {};
+
+				if (body.weight !== undefined) {
+					childUpdateData.weight = body.weight
+						? parseFloat(body.weight)
+						: null;
+				}
+
+				if (body.height !== undefined) {
+					childUpdateData.height = body.height
+						? parseFloat(body.height)
+						: null;
+				}
+
+				if (body.headSize !== undefined) {
+					// Child 모델에서는 headCircumference 필드명 사용
+					childUpdateData.headCircumference = body.headSize
+						? parseFloat(body.headSize)
+						: null;
+				}
+
+				// Child 모델 업데이트
+				if (Object.keys(childUpdateData).length > 0) {
+					await tx.child.update({
+						where: { id: existingRecord.childId },
+						data: childUpdateData,
+					});
+				}
+			}
+
+			return record;
 		});
 
 		return NextResponse.json({
 			message: '기록이 수정되었습니다.',
-			data: record,
+			data: result,
 		});
 	} catch (error) {
 		console.error('기록 수정 에러:', error);

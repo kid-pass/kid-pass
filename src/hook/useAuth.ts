@@ -1,123 +1,142 @@
-import { useAuthStore } from "@/store/useAuthStore";
-import { parseDate } from "react-datepicker/dist/date_utils";
+import { useAuthStore } from '@/store/useAuthStore';
+import { parseDate } from 'react-datepicker/dist/date_utils';
 
 const useAuth = () => {
-  const {
-    token,
-    refreshToken,
-    setToken,
-    setRefreshToken,
-    clearAll,
-    crtChldrnNo,
-    setCrtChldrnNo,
-  } = useAuthStore();
+	const {
+		token,
+		refreshToken,
+		setToken,
+		setRefreshToken,
+		clearAll,
+		crtChldrnNo,
+		setCrtChldrnNo,
+	} = useAuthStore();
 
-  const refreshAccessToken = async () => {
-    if (!refreshToken) {
-      clearAll();
-      return null;
-    }
+	const refreshAccessToken = async () => {
+		if (!refreshToken) {
+			clearAll();
+			return null;
+		}
 
-    try {
-      console.log("토큰 갱신 시도:", {
-        refreshToken: refreshToken.substring(0, 10) + "...",
-      });
+		try {
+			console.log('토큰 갱신 시도:', {
+				refreshToken: refreshToken.substring(0, 10) + '...',
+			});
 
-      const response = await fetch("/api/auth/refresh", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ refreshToken }),
-      });
+			const response = await fetch('/api/auth/refresh', {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json',
+				},
+				body: JSON.stringify({ refreshToken }),
+			});
 
-      if (!response.ok) {
-        console.error("토큰 갱신 응답 오류:", response.status);
-        clearAll();
-        return null;
-      }
+			if (!response.ok) {
+				console.error('토큰 갱신 응답 오류:', response.status);
+				clearAll();
+				return null;
+			}
 
-      const data = await response.json();
-      console.log("토큰 갱신 성공");
+			const data = await response.json();
+			console.log('토큰 갱신 성공');
 
-      if (data.accessToken) {
-        setToken(data.accessToken);
+			if (data.accessToken) {
+				setToken(data.accessToken);
 
-        // 새로운 리프레시 토큰이 있으면 업데이트
-        if (data.refreshToken) {
-          setRefreshToken(data.refreshToken);
-        }
+				// 새로운 리프레시 토큰이 있으면 업데이트
+				if (data.refreshToken) {
+					setRefreshToken(data.refreshToken);
+				}
 
-        // 토큰 설정 이벤트 발생
-        const event = new CustomEvent("tokenSet");
-        window.dispatchEvent(event);
+				// 토큰 설정 이벤트 발생
+				const event = new CustomEvent('tokenSet');
+				window.dispatchEvent(event);
 
-        return data.accessToken;
-      }
+				return data.accessToken;
+			}
 
-      return null;
-    } catch (error) {
-      console.error("토큰 갱신 오류:", error);
-      clearAll();
-      return null;
-    }
-  };
+			return null;
+		} catch (error) {
+			console.error('토큰 갱신 오류:', error);
+			clearAll();
+			return null;
+		}
+	};
 
-  const getToken = async () => {
-    // 토큰이 없으면 로컬스토리지에서 토큰 가져오기
-    if (!token) {
-      const stored = localStorage.getItem("auth-storage");
-      if (stored) {
-        const parsedData = JSON.parse(stored);
-        setToken(parsedData.state.token);
-        return parsedData.state.token;
-      }
-    }
+	const getToken = async () => {
+		// 토큰이 없으면 로컬스토리지에서 토큰 가져오기
+		if (!token) {
+			const stored = localStorage.getItem('auth-storage');
+			if (stored) {
+				const parsedData = JSON.parse(stored);
+				setToken(parsedData.state.token);
 
-    return token;
-  };
+				// 토큰 유효성 확인
+				try {
+					const payload = JSON.parse(
+						atob(parsedData.state.token.split('.')[1])
+					);
+					if (Date.now() >= payload.exp * 1000) {
+						console.log('토큰이 만료되었습니다.');
+						// 만료된 토큰이면 리프레시 토큰으로 갱신 시도
+						return await refreshAccessToken();
+					}
+				} catch (error) {
+					console.error('토큰 파싱 오류:', error);
+					return null;
+				}
 
-  // 현재 접속중인 아이번호 가져오기
-  const getCrtChldNo = () => {
-    if (crtChldrnNo) {
-      return crtChldrnNo;
-    }
+				return parsedData.state.token;
+			}
+		}
 
-    const stored = localStorage.getItem("auth-storage");
-    if (stored) {
-      const parsedData = JSON.parse(stored);
-      // 수정: state 객체에서 crtChldrnNo 값만 추출
-      const storedCurrentChldrnNo = parsedData.state.crtChldrnNo;
-      if (storedCurrentChldrnNo && typeof storedCurrentChldrnNo === "string") {
-        setCrtChldrnNo(storedCurrentChldrnNo);
-        return storedCurrentChldrnNo;
-      }
-    }
+		return token;
+	};
 
-    return null;
-  };
+	// 현재 접속중인 아이번호 가져오기
+	const getCrtChldNo = () => {
+		if (crtChldrnNo) {
+			return crtChldrnNo;
+		}
 
-  const getUserInfo = async () => {
-    const currentToken = await getToken();
+		const stored = localStorage.getItem('auth-storage');
+		if (stored) {
+			const parsedData = JSON.parse(stored);
+			// 수정: state 객체에서 crtChldrnNo 값만 추출
+			const storedCurrentChldrnNo = parsedData.state.crtChldrnNo;
+			if (
+				storedCurrentChldrnNo &&
+				typeof storedCurrentChldrnNo === 'string'
+			) {
+				setCrtChldrnNo(storedCurrentChldrnNo);
+				return storedCurrentChldrnNo;
+			}
+		}
 
-    if (!currentToken) {
-      return null;
-    }
+		return null;
+	};
 
-    const response = await fetch("/api/auth/user", {
-      headers: {
-        Authorization: `Bearer ${currentToken}`,
-      },
-    });
+	const getUserInfo = async () => {
+		const currentToken = await getToken();
 
-    if (response.ok) {
-      const { user } = await response.json();
-      return user;
-    }
+		if (!currentToken) {
+			return null;
+		}
 
-    return null;
-  };
-  return { getToken, getCrtChldNo, getUserInfo, refreshAccessToken };
+		const response = await fetch('/api/auth/user', {
+			headers: {
+				Authorization: `Bearer ${currentToken}`,
+			},
+		});
+
+		if (response.ok) {
+			const { user } = await response.json();
+			return user;
+		}
+
+		return null;
+	};
+	return { getToken, getCrtChldNo, getUserInfo, refreshAccessToken };
 };
 
 export default useAuth;
