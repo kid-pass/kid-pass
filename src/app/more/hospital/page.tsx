@@ -3,7 +3,7 @@
 import { useRouter } from 'next/navigation';
 import { Prescription } from './type/hospital';
 import MobileLayout from '../../../components/mantine/MobileLayout';
-import { Stack, ActionIcon, Box, Text } from '@mantine/core';
+import { Stack, ActionIcon, Box, LoadingOverlay } from '@mantine/core';
 import { IconPlus } from '@tabler/icons-react';
 import { useEffect, useState } from 'react';
 import { useAuthStore } from '@/store/useAuthStore';
@@ -14,8 +14,7 @@ import EmptyState from '@/components/EmptyState/EmptyState';
 const Hospital = () => {
 	const router = useRouter();
 	const [prescriptions, setPrescriptions] = useState<Prescription[]>([]);
-	const [loading, setLoading] = useState(true);
-	const [error, setError] = useState<string | null>(null);
+	const [isloading, setIsLoading] = useState(true);
 	const { crtChldrnNo } = useAuthStore();
 	const [isReactNative, setIsReactNative] = useState(false);
 
@@ -40,23 +39,20 @@ const Hospital = () => {
 
 	useEffect(() => {
 		const fetchPrescriptions = async () => {
-			// crtChldrnNo가 undefined인 경우 API 요청을 하지 않음
+			setIsLoading(true);
+
 			if (!crtChldrnNo) {
-				setLoading(false);
-				setError('아이 정보를 찾을 수 없습니다.');
+				setIsLoading(false);
 				return;
 			}
 
 			try {
-				setLoading(true);
 				const data = await getChildPrescriptions(crtChldrnNo);
 				setPrescriptions(data);
-				setError(null);
 			} catch (err) {
-				setError('처방전을 불러오는데 실패했습니다.');
 				console.error(err);
 			} finally {
-				setLoading(false);
+				setIsLoading(false);
 			}
 		};
 
@@ -64,48 +60,54 @@ const Hospital = () => {
 	}, [crtChldrnNo]);
 
 	return (
-		<MobileLayout
-			showHeader={true}
-			headerType="back"
-			title="병원 처방전"
-			showBottomNav={true}
-			onBack={() => router.back()}
-			currentRoute="/more/hospital"
-		>
-			<Stack p="md" gap="md">
-				{prescriptions.length === 0 ? (
-					<EmptyState />
-				) : (
-					prescriptions.map((record) => (
-						<PrescritionItem
-							key={record.id}
-							{...record}
-							onClick={() => {
-								router.push(
-									`./hospital/detail?id=${record.id}`
-								);
-							}}
-						/>
-					))
-				)}
-			</Stack>
-
-			<Box
-				pos="fixed"
-				bottom={isReactNative ? 10 : 80}
-				right={16}
-				style={{ zIndex: 10 }}
-			>
-				<ActionIcon
-					size="xl"
-					radius="xl"
-					color="blue"
-					onClick={() => router.push('./hospital/form')}
+		<>
+			{isloading ? (
+				<LoadingOverlay visible={isloading} />
+			) : (
+				<MobileLayout
+					showHeader={true}
+					headerType="back"
+					title="병원 처방전"
+					showBottomNav={true}
+					onBack={() => router.back()}
+					currentRoute="/more/hospital"
 				>
-					<IconPlus size={24} />
-				</ActionIcon>
-			</Box>
-		</MobileLayout>
+					<Stack p="md" gap="md">
+						{prescriptions.length === 0 ? (
+							<EmptyState />
+						) : (
+							prescriptions.map((record) => (
+								<PrescritionItem
+									key={record.id}
+									{...record}
+									onClick={() => {
+										router.push(
+											`./hospital/detail?id=${record.id}`
+										);
+									}}
+								/>
+							))
+						)}
+					</Stack>
+
+					<Box
+						pos="fixed"
+						bottom={isReactNative ? 10 : 80}
+						right={16}
+						style={{ zIndex: 10 }}
+					>
+						<ActionIcon
+							size="xl"
+							radius="xl"
+							color="blue"
+							onClick={() => router.push('./hospital/form')}
+						>
+							<IconPlus size={24} />
+						</ActionIcon>
+					</Box>
+				</MobileLayout>
+			)}
+		</>
 	);
 };
 
