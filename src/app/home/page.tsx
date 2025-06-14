@@ -349,7 +349,7 @@ const App: React.FC = () => {
           >
             <IconPlus color="#FFFFFF" size={12} strokeWidth={4} />
             <Text c="white" fw={700} fz={isSmallScreen ? "0.875rem" : "md"}>
-              오늘의 아이 증상 기록하기
+              오늘의 아이 기록하기
             </Text>
 
             <Image
