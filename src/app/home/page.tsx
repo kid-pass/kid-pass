@@ -10,19 +10,16 @@ import {
   Group,
   Text,
   Image,
-  Stack,
   Flex,
   Container,
   useMantineTheme,
   Box,
-  Paper,
 } from "@mantine/core";
 import { IconPlus } from "@tabler/icons-react";
 import { useAuthStore } from "@/store/useAuthStore";
 import { common } from "@/utils/common";
 import instance from "@/utils/axios";
 import { NewsItem } from "../more/news/page";
-import { useRouter } from "next/navigation";
 import EmptyState from "@/components/EmptyState/EmptyState";
 import { NextVaccineInfo } from "../api/vaccine/next/route";
 import sendToRn from "@/utils/sendToRn";
@@ -161,7 +158,6 @@ const App: React.FC = () => {
   const { setChldrnList, children } = useChldrnListStore();
   const { getToken } = useAuth();
   const { setCrtChldrnNo, token, crtChldrnNo } = useAuthStore();
-  const router = useRouter();
   const isSmallScreen = useMediaQuery("(max-width: 350px)");
 
   useEffect(() => {
@@ -241,16 +237,20 @@ const App: React.FC = () => {
       const response = await instance.get("vaccine/next", {
         params: {
           birthDate: birthDate,
+          childId: crtChldrnNo,
+
         },
       });
 
       setVaccineData(response.data.data);
+      console.log(response.data.data)
     } catch (err) {
       console.error("다음 백신 이력 조회 오류", err);
     }
   };
 
   useEffect(() => {
+
     fetchNextVaccinData();
   }, [crtChldrnNoKidIndex, crtChldrnNo]);
 
@@ -433,27 +433,12 @@ const App: React.FC = () => {
                 <br />
                 기록
               </Text>
-              <Box
-                display="flex"
-                style={{
-                  justifyContent: "flex-end",
-                  gap: "4px",
-                }}
-              >
                 <Image
                   src="/ebene_1.svg"
                   alt="진료 기록"
                   width={27}
-                  height={37}
-                  visibleFrom="xss"
+                  height={36}
                 />
-                <Image
-                  src="/ebene_2.svg"
-                  alt="진료 기록"
-                  width={27}
-                  height={37}
-                />
-              </Box>
             </Flex>
           </Group>
           {currentSlide && (
