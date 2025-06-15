@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { MetricsSection } from "@/components/metrics/MetricsSection";
 import ProfileCarousel from "./ProfileCarousel";
 import useAuth from "@/hook/useAuth";
@@ -10,23 +10,24 @@ import {
   Group,
   Text,
   Image,
-  Stack,
   Flex,
   Container,
   useMantineTheme,
   Box,
-  Paper,
+  Divider,
+  rem,
+  Accordion,
 } from "@mantine/core";
-import { IconPlus } from "@tabler/icons-react";
+import { IconChevronDown, IconChevronRight, IconPlus } from "@tabler/icons-react";
 import { useAuthStore } from "@/store/useAuthStore";
 import { common } from "@/utils/common";
 import instance from "@/utils/axios";
 import { NewsItem } from "../more/news/page";
-import { useRouter } from "next/navigation";
 import EmptyState from "@/components/EmptyState/EmptyState";
 import { NextVaccineInfo } from "../api/vaccine/next/route";
 import sendToRn from "@/utils/sendToRn";
 import { useMediaQuery } from "@mantine/hooks";
+import { useRouter } from "next/navigation";
 
 interface PhysicalStats {
   chldrnBdwgh: number;
@@ -161,8 +162,24 @@ const App: React.FC = () => {
   const { setChldrnList, children } = useChldrnListStore();
   const { getToken } = useAuth();
   const { setCrtChldrnNo, token, crtChldrnNo } = useAuthStore();
-  const router = useRouter();
   const isSmallScreen = useMediaQuery("(max-width: 350px)");
+  const router = useRouter()
+  const contentRef = useRef<HTMLDivElement>(null);
+  const [isExpanded, setIsExpanded] = useState(false);
+const [firstItemHeight, setFirstItemHeight] = useState(0);
+const [totalHeight, setTotalHeight] = useState(0);
+
+useEffect(() => {
+  const content = contentRef.current;
+  if (!content || vaccineData.length === 0) return;
+
+  const firstItem = content.querySelector('[data-first-item]') as HTMLElement;
+
+  if (firstItem) {
+    setFirstItemHeight(firstItem.offsetHeight + 16);
+  }
+  setTotalHeight(content.scrollHeight);
+}, [vaccineData]);
 
   useEffect(() => {
     // 토큰이 이미 있으면 바로 데이터 가져오기
@@ -241,17 +258,24 @@ const App: React.FC = () => {
       const response = await instance.get("vaccine/next", {
         params: {
           birthDate: birthDate,
+          childId: crtChldrnNo,
+
         },
       });
 
       setVaccineData(response.data.data);
+      console.log(response.data.data)
     } catch (err) {
       console.error("다음 백신 이력 조회 오류", err);
     }
   };
 
   useEffect(() => {
+
     fetchNextVaccinData();
+
+
+
   }, [crtChldrnNoKidIndex, crtChldrnNo]);
 
   // 데이터 처리 함수를 분리
@@ -304,6 +328,11 @@ const App: React.FC = () => {
   };
 
   const currentSlide = kidsData[crtChldrnNoKidIndex];
+
+  const handleVaccineClick = (vaccineId: number) => {
+		router.push(`/note/detail/${vaccineId}?crtChldrnNo=${crtChldrnNo}`);
+	};
+
 
   return (
     <MobileLayout
@@ -433,27 +462,12 @@ const App: React.FC = () => {
                 <br />
                 기록
               </Text>
-              <Box
-                display="flex"
-                style={{
-                  justifyContent: "flex-end",
-                  gap: "4px",
-                }}
-              >
                 <Image
                   src="/ebene_1.svg"
                   alt="진료 기록"
                   width={27}
-                  height={37}
-                  visibleFrom="xss"
+                  height={36}
                 />
-                <Image
-                  src="/ebene_2.svg"
-                  alt="진료 기록"
-                  width={27}
-                  height={37}
-                />
-              </Box>
             </Flex>
           </Group>
           {currentSlide && (
@@ -462,50 +476,7 @@ const App: React.FC = () => {
               metricsData={currentSlide.metrics}
             />
           )}
-          <Box mb="40">
-            <Text
-              mb="24"
-              c={theme.other.fontColors.primary}
-              fz={theme.fontSizes.lg}
-              fw={700}
-            >
-              다가오는 예방접종을 알려드려요
-            </Text>
 
-            {vaccineData.length === 0 ? (
-              <EmptyState />
-            ) : (
-              <Box
-                style={{
-                  boxShadow: "0px 0px 10px 0px rgba(0, 0, 0, 0.15)",
-                  borderRadius: "20px",
-                  gap: "16px",
-                  flexDirection: "column",
-                }}
-                p="md"
-                display="flex"
-              >
-                {vaccineData.map((vaccine, index) => (
-                  <Box key={index + 1}>
-                    <Box
-                      display="flex"
-                      w="100%"
-                      style={{
-                        justifyContent: "space-between",
-                      }}
-                    >
-                      <Text fz={theme.fontSizes.mdLg} fw={600}>
-                        {vaccine.diseaseName}
-                      </Text>
-                      <Text fz={theme.fontSizes.mdLg} fw={600}>
-                        {vaccine.scheduledDate}
-                      </Text>
-                    </Box>
-                  </Box>
-                ))}
-              </Box>
-            )}
-          </Box>
 
           {/* <Box>
 						<Text
@@ -549,6 +520,138 @@ const App: React.FC = () => {
 						</Stack>
 					</Box> */}
         </Box>
+        <Box mb="40">
+  <Text
+    mb="24"
+    px="20"
+    c={theme.other.fontColors.primary}
+    fz={theme.fontSizes.lg}
+    fw={700}
+  >
+    다가오는 예방접종을 알려드려요
+  </Text>
+
+  <Box
+    ref={contentRef}
+    style={{
+      maxHeight: vaccineData.length <= 1
+        ? 'none'
+        : isExpanded
+          ? `${totalHeight}px`
+          : `${firstItemHeight}px`,
+      overflow: 'hidden',
+      transition: 'max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
+      padding: '10px 20px 20px 20px'// 그림자 공간 확보
+    }}
+  >
+    {vaccineData.length === 0 ? (
+      <EmptyState />
+    ) : (
+      <Box display="flex" style={{flexDirection:"column", gap:"16px"}}>
+        {vaccineData.map((vaccine, index) => (
+          <Box
+            key={index+1}
+            data-first-item={index === 0 ? 'true' : undefined}
+            style={{
+              boxShadow: "0px 0px 10px 0px rgba(0, 0, 0, 0.15)",
+              borderRadius: "20px",
+              gap: "16px",
+              flexDirection: "column",
+            }}
+            p="md"
+            display="flex"
+          >
+            <Box onClick={()=>handleVaccineClick(vaccine.vaccineId)}>
+              <Box
+                display="flex"
+                w="100%"
+                style={{
+                  justifyContent: "space-between",
+                }}
+              >
+                <Text fz={theme.fontSizes.lg} fw={600}>
+                  {vaccine.diseaseName}
+                </Text>
+                <IconChevronRight size={24} stroke={3} />
+              </Box>
+              <Divider size="xs" my="xs"/>
+              <Box display="flex" style={{justifyContent:"space-between"}}>
+                <Box display="flex" style={{gap: "14px",alignItems:"center"}}>
+                  <Text fz={theme.fontSizes.lg} fw={600} c="#FF6969">
+                    D-{vaccine.daysRemaining}
+                  </Text>
+                  <Text fz={theme.fontSizes.sm} fw={400} c={theme.other.fontColors.sub3}>
+                    {vaccine.scheduledDate}
+                  </Text>
+                </Box>
+                <Group style={{ flex: 4, justifyContent:"flex-end" }} gap="xs">
+                  {Array.from(
+                    { length: vaccine.totalDoses },
+                    (_, i) => (
+                      <Box
+                        key={`${vaccine.vaccineId}-${i}`}
+                        w={rem(12)}
+                        h={rem(12)}
+                        bg={i < vaccine.completedDoses ? '#729bed' : '#d9d9d9'}
+                        style={{ borderRadius: '50%' }}
+                      />
+                    )
+                  )}
+                </Group>
+              </Box>
+            </Box>
+          </Box>
+        ))}
+      </Box>
+    )}
+  </Box>
+
+  {/* 더보기/접기 버튼 */}
+  {vaccineData.length > 1 ? (
+    <Box
+      display="flex"
+      style={{
+        justifyContent: 'center',
+        alignItems: 'center',
+        gap: '8px',
+        cursor: 'pointer',
+        padding: '12px',
+        marginTop: '8px'
+      }}
+      onClick={() => setIsExpanded(!isExpanded)}
+    >
+
+      <IconChevronDown
+        size={24}
+        stroke={3}
+        color={theme.other.fontColors.sub}
+        style={{
+          transform: isExpanded ? 'rotate(180deg)' : 'rotate(0deg)',
+          transition: 'transform 0.3s ease'
+        }}
+      />
+    </Box>
+  ) : vaccineData.length === 1 ? (
+    <Box
+      display="flex"
+      style={{
+        justifyContent: 'center',
+        alignItems: 'center',
+        gap: '8px',
+        padding: '12px',
+        marginTop: '8px'
+      }}
+    >
+      <Text fz="sm" c={theme.colors.gray[5]}>
+        더보기
+      </Text>
+      <IconChevronDown
+        size={16}
+        color={theme.colors.gray[5]}
+      />
+    </Box>
+  ) : null}
+</Box>
       </Container>
     </MobileLayout>
   );

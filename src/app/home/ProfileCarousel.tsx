@@ -92,7 +92,9 @@ const ProfileCarousel: React.FC<ProfileCarouselProps> = ({
 								borderRadius: '8px',
 								position: 'relative',
 							}}
-							bg="brand.0"
+							bg={
+								profile.gender === 'M' ? 'brand.0' : 'brand.11'
+							}
 							p="16 24"
 							mb="xl"
 						>
