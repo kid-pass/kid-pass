@@ -356,7 +356,7 @@ useEffect(() => {
           profiles={kidsData}
           onSlideChange={setCrtChldrnNoKidIndex}
         />
-        <Box px="1.25rem" mb="8rem">
+        <Box px="1.25rem">
           <Box
             bg={theme.colors.brand[7]}
             p="lg"
