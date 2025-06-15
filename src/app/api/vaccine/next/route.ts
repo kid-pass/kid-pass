@@ -16,6 +16,7 @@ export interface NextVaccineInfo {
 	completedDoses: number;       // 현재까지 완료된 접종 횟수
 	totalDoses: number;          // 해당 백신의 총 접종 횟수
 	nextDoseNumber: number;      // 다음에 맞을 차수 (순서상)
+	daysRemaining: number;       // D-day (며칠 남았는지)
 }
 
 export async function GET(request: Request) {
@@ -126,6 +127,9 @@ export async function GET(request: Request) {
 							.toISOString()
 							.split('T')[0];
 
+						// D-day 계산 (며칠 남았는지)
+						const daysRemaining = dose.dayOffset - daysSinceBirth;
+
 						nextVaccines.push({
 							diseaseName: diseaseGroup.name,
 							vaccineName: vaccine.name,
@@ -137,6 +141,7 @@ export async function GET(request: Request) {
 							completedDoses: completedDoses,
 							totalDoses: totalDoses,
 							nextDoseNumber: globalDoseIndex,
+							daysRemaining: daysRemaining,
 						});
 					}
 				}
