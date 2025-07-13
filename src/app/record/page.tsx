@@ -145,6 +145,7 @@ const RecordPage = () => {
       showBottomNav={true}
       currentRoute="/record"
       useWeekCarousel={true}
+      useDatePicker={true}
     >
       <Box style={{ overflow: "hidden" }}>
         <Carousel

@@ -8,6 +8,8 @@ import {
   UnstyledButton,
   Popover,
   Button,
+  Card,
+  Modal,
 } from "@mantine/core";
 import { IconChevronLeft, IconCalendar } from "@tabler/icons-react";
 import WeeklyDatePicker from "@/components/datePicker/WeekCarousel";
@@ -15,6 +17,7 @@ import useCurrentDateStore from "@/store/useCurrentDateStore";
 import dayjs from "dayjs";
 import KidsList from "./KidsList";
 import { useRouter } from "next/navigation";
+import { DatePicker } from "@mantine/dates";
 
 interface HeaderProps {
   type: "back" | "profile";
@@ -22,6 +25,7 @@ interface HeaderProps {
   onBack?: () => void;
   useWeekCarousel?: boolean;
   calendar?: boolean;
+  useDatePicker?: boolean;
 }
 
 const Header: React.FC<HeaderProps> = ({
@@ -30,9 +34,12 @@ const Header: React.FC<HeaderProps> = ({
   onBack,
   useWeekCarousel,
   calendar,
+  useDatePicker,
 }) => {
   const { currentDate, setCurrentDate } = useCurrentDateStore();
   const router = useRouter();
+
+  const [showDatePicker, setShowDatePicker] = useState(false);
 
   if (type === "back") {
     return (
@@ -70,9 +77,9 @@ const Header: React.FC<HeaderProps> = ({
           <Flex align="flex-end">
             <Title order={3}>{currentDate.format("M월 D일")}</Title>
 
-            <UnstyledButton onClick={() => setCurrentDate(dayjs())}>
+            {currentDate.format("M월 D일") === dayjs().format("M월 D일") && (
               <Title order={3}>, 오늘</Title>
-            </UnstyledButton>
+            )}
           </Flex>
           <Flex align="center" gap={4}>
             {calendar && (
@@ -91,6 +98,47 @@ const Header: React.FC<HeaderProps> = ({
               >
                 <IconCalendar color="#729BED" size={20} />
               </Button>
+            )}
+            {useDatePicker && (
+              <>
+                <Button
+                  size="md"
+                  styles={{
+                    root: {
+                      backgroundColor: "white",
+                      padding: "0",
+                      border: "none",
+
+                      borderRadius: "0",
+                    },
+                  }}
+                  onClick={() => setShowDatePicker((prev) => !prev)}
+                >
+                  <IconCalendar color="#729BED" size={20} />
+                </Button>
+                {showDatePicker && (
+                  <Modal
+                    opened={showDatePicker}
+                    onClose={() => setShowDatePicker(false)}
+                    size="sm"
+                    centered
+                    styles={{
+                      header: {
+                        display: "none",
+                      },
+                      body: {
+                        justifyContent: "center",
+                        display: "flex",
+                      },
+                    }}
+                  >
+                    <DatePicker
+                      value={currentDate.toDate()}
+                      onChange={(date) => setCurrentDate(dayjs(date))}
+                    />
+                  </Modal>
+                )}
+              </>
             )}
             <Popover>
               <Popover.Target>

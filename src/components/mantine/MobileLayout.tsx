@@ -13,6 +13,7 @@ interface MobileLayoutProps {
   onBack?: () => void;
   useWeekCarousel?: boolean;
   calendar?: boolean;
+  useDatePicker?: boolean;
 }
 
 const MobileLayout: React.FC<MobileLayoutProps> = ({
@@ -25,6 +26,7 @@ const MobileLayout: React.FC<MobileLayoutProps> = ({
   onBack,
   useWeekCarousel = false,
   calendar = false,
+  useDatePicker = false,
 }) => {
   // React Native 웹뷰 환경인지 확인
   const [isReactNativeWebView, setIsReactNativeWebView] = useState(true);
@@ -51,6 +53,7 @@ const MobileLayout: React.FC<MobileLayoutProps> = ({
             onBack={onBack}
             useWeekCarousel={useWeekCarousel}
             calendar={calendar}
+            useDatePicker={useDatePicker}
           />
         </AppShell.Header>
       )}
