@@ -7,6 +7,7 @@ import '@mantine/core/styles.css';
 import '@mantine/notifications/styles.css';
 import '@mantine/dates/styles.css';
 import '@mantine/charts/styles.css';
+import '../styles/global.css';
 import RNTokenHandler from '@/components/RNTokenHandler';
 import { QueryProvider } from '@/providers/QueryProvider';
 
