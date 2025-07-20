@@ -3,15 +3,13 @@ import {
   Flex,
   Title,
   ActionIcon,
-  Avatar,
+  
   Box,
-  UnstyledButton,
   Popover,
   Button,
-  Card,
   Modal,
 } from "@mantine/core";
-import { IconChevronLeft, IconCalendar } from "@tabler/icons-react";
+import { IconChevronLeft, IconCalendar ,IconUserCircle} from "@tabler/icons-react";
 import WeeklyDatePicker from "@/components/datePicker/WeekCarousel";
 import useCurrentDateStore from "@/store/useCurrentDateStore";
 import dayjs from "dayjs";
@@ -142,7 +140,7 @@ const Header: React.FC<HeaderProps> = ({
             )}
             <Popover>
               <Popover.Target>
-                <Avatar color="brand" radius="xl" size="md" />
+                <IconUserCircle size={20} color="#729BED" />
               </Popover.Target>
               <Popover.Dropdown>
                 <KidsList />
