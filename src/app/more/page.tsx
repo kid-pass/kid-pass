@@ -78,37 +78,20 @@ const App = () => {
         }}
       >
         <Box style={{ flex: 1 }}>
-          {/* Profile Section */}
-          <Box
-            p={rem(16)}
-            pt={0}
-            style={{
-              display: "flex",
-              justifyContent: "space-between",
-              alignItems: "center",
-              backgroundColor: "white",
-            }}
-            onClick={() => {
-              router.push("/more/profile");
-            }}
-          >
-            <Box
-              style={{
-                display: "flex",
-                alignItems: "center",
-                gap: rem(12),
-              }}
-            >
-              <Stack gap={rem(2)}>
-                <Text fw={500} size={rem(14)}>
-                  아이 프로필 관리
-                </Text>
-                <Text size={rem(12)} c="#6c757d">
-                  {userInfo?.email}
-                </Text>
-              </Stack>
+          <Box>
+            <Box style={{ backgroundColor: "white" }}>
+              <Box p={rem(16)} style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
+                <Text size={rem(14)} fw={500}>{userInfo?.name}</Text>
+                <Text size={rem(12)} c="dimmed">{userInfo?.email}</Text>
+              </Box>
+              <MenuItem
+                label="아이프로필 관리"
+                hasArrow
+                onClick={() => {
+                  router.push("/more/profile");
+                }}
+              />
             </Box>
-            <IconChevronRight size={16} color="#9e9e9e" />
           </Box>
 
           {/* Menu Section */}
