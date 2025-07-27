@@ -10,6 +10,7 @@ interface Kid {
 	id: number;
 	name: string;
 	avatarColor: string;
+	profileImageUrl?: string;
 	isActive?: boolean;
 }
 
@@ -26,7 +27,6 @@ const KidsList: React.FC<KidsListProps> = ({ onSelectKid }) => {
 	const { setCrtChldrnNo } = useAuthStore();
 
 	const handleSelectKid = (kid: Kid) => {
-		// Update active status
 		const updatedKids = kids?.map((k) => ({
 			...k,
 			isActive: k.id === kid.id,
@@ -52,8 +52,8 @@ const KidsList: React.FC<KidsListProps> = ({ onSelectKid }) => {
 				});
 				const result = await response.json();
 
+				console.log(result.data);
 				if (response.ok) {
-					// 응답 구조에 맞게 data 속성 접근
 					setKids(result.data);
 				} else {
 					console.error('에러 메시지:', result.message);
@@ -78,7 +78,15 @@ const KidsList: React.FC<KidsListProps> = ({ onSelectKid }) => {
 					}}
 				>
 					<Group>
-						<Avatar color={kid.avatarColor} radius="xl">
+						<Avatar
+							src={
+								kid.profileImageUrl
+									? kid.profileImageUrl
+									: undefined
+							}
+							color={kid.avatarColor}
+							radius="xl"
+						>
 							{kid.name.charAt(0)}
 						</Avatar>
 						<Text size="sm" fw={500}>
