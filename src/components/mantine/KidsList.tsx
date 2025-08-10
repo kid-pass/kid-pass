@@ -6,7 +6,7 @@ import useAuth from '@/hook/useAuth';
 import { useAuthStore } from '@/store/useAuthStore';
 
 // Kid 타입 정의
-interface Kid {
+export interface KidData {
 	id: number;
 	name: string;
 	avatarColor: string;
@@ -16,17 +16,17 @@ interface Kid {
 
 // Props 타입 정의
 interface KidsListProps {
-	onSelectKid?: (kid: Kid) => void;
+	onSelectKid?: (kid: KidData) => void;
 }
 
 // Sample data for kids - replace with your actual data source
 
 const KidsList: React.FC<KidsListProps> = ({ onSelectKid }) => {
-	const [kids, setKids] = useState<Kid[]>();
+	const [kids, setKids] = useState<KidData[]>();
 	const { getToken } = useAuth();
 	const { setCrtChldrnNo } = useAuthStore();
 
-	const handleSelectKid = (kid: Kid) => {
+	const handleSelectKid = (kid: KidData) => {
 		const updatedKids = kids?.map((k) => ({
 			...k,
 			isActive: k.id === kid.id,
@@ -78,15 +78,7 @@ const KidsList: React.FC<KidsListProps> = ({ onSelectKid }) => {
 					}}
 				>
 					<Group>
-						<Avatar
-							src={
-								kid.profileImageUrl
-									? kid.profileImageUrl
-									: undefined
-							}
-							color={kid.avatarColor}
-							radius="xl"
-						>
+						<Avatar color={kid.avatarColor} radius="xl">
 							{kid.name.charAt(0)}
 						</Avatar>
 						<Text size="sm" fw={500}>
