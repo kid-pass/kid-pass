@@ -50,8 +50,8 @@ const App = () => {
 	return (
 		<MobileLayout
 			showHeader={true}
-			headerType="profile"
-			title="리포트 리스트"
+			headerType="back"
+			title="아이 레포트"
 			onBack={goBack}
 			currentRoute="/more/report"
 		>
