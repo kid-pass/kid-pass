@@ -6,27 +6,27 @@ import useAuth from '@/hook/useAuth';
 import { useAuthStore } from '@/store/useAuthStore';
 
 // Kid 타입 정의
-interface Kid {
+export interface KidData {
 	id: number;
 	name: string;
 	avatarColor: string;
+	profileImageUrl?: string;
 	isActive?: boolean;
 }
 
 // Props 타입 정의
 interface KidsListProps {
-	onSelectKid?: (kid: Kid) => void;
+	onSelectKid?: (kid: KidData) => void;
 }
 
 // Sample data for kids - replace with your actual data source
 
 const KidsList: React.FC<KidsListProps> = ({ onSelectKid }) => {
-	const [kids, setKids] = useState<Kid[]>();
+	const [kids, setKids] = useState<KidData[]>();
 	const { getToken } = useAuth();
 	const { setCrtChldrnNo } = useAuthStore();
 
-	const handleSelectKid = (kid: Kid) => {
-		// Update active status
+	const handleSelectKid = (kid: KidData) => {
 		const updatedKids = kids?.map((k) => ({
 			...k,
 			isActive: k.id === kid.id,
@@ -52,8 +52,8 @@ const KidsList: React.FC<KidsListProps> = ({ onSelectKid }) => {
 				});
 				const result = await response.json();
 
+				console.log(result.data);
 				if (response.ok) {
-					// 응답 구조에 맞게 data 속성 접근
 					setKids(result.data);
 				} else {
 					console.error('에러 메시지:', result.message);
