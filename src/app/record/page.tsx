@@ -98,14 +98,14 @@ const RecordPage = () => {
       ...bottomModalTheme,
       title: "오늘의 아이 기록하기",
       children: (
-        <Box p="sm">
+        <Box p="sm" style={{ zIndex: 3 }}>
           <Grid>
             {RECORDS.map((record) => (
               <Grid.Col span={4} key={record.path}>
                 <Card
-                  radius="md"
                   mah={"88"}
                   bg="brand.0"
+                  style={{ borderRadius: "17px" }}
                   onClick={() => {
                     modals.closeAll();
                     router.push(record.path);
@@ -115,10 +115,10 @@ const RecordPage = () => {
                     src={record.src}
                     alt={record.title}
                     width={24}
-                    style={{ objectFit: "contain" }}
                     height={24}
+                    fit="contain"
                   />
-                  <Space h={4} />
+                  <Space h={8} />
                   <Text size="md" ta="center" fw={600}>
                     {record.title}
                   </Text>
@@ -206,7 +206,7 @@ const RecordPage = () => {
           bottom: isReactNativeWebView ? 0 : 80,
           right: 20,
           padding: 0,
-          zIndex: 1000,
+          zIndex: 2,
         }}
         onClick={openRecordModal}
       >

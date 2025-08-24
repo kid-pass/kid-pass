@@ -42,7 +42,7 @@ const MobileLayout: React.FC<MobileLayoutProps> = ({
   return (
     <AppShell
       padding={0}
-      header={showHeader ? { height: useWeekCarousel ? 140 : 60 } : undefined}
+      header={showHeader ? { height: useWeekCarousel ? 156 : 60 } : undefined}
       footer={forceShowBottomNav ? { height: 60 } : undefined}
     >
       {showHeader && (
