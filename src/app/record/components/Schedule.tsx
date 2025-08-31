@@ -86,7 +86,11 @@ const Schedule: React.FC<ScheduleProps> = ({ schedules }) => {
                 <UnstyledButton
                   key={itemIndex}
                   onClick={() => handleItemClick(item)}
-                  style={{ WebkitTapHighlightColor: "transparent" }}
+                  style={{
+                    WebkitTapHighlightColor: "transparent",
+                    borderTop: "1px solid #d9d9d9",
+                    paddingTop: 12,
+                  }}
                 >
                   <Flex gap="md" py="xs" align="flex-start">
                     <Flex gap="xs" style={{ flex: 1 }}>
