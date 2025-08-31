@@ -92,10 +92,8 @@ const ProfileCarousel: React.FC<ProfileCarouselProps> = ({
 								borderRadius: '8px',
 								position: 'relative',
 							}}
-							bg={
-								profile.gender === 'M' ? 'brand.0' : 'brand.11'
-							}
-							p="16 24"
+							bg={profile.gender === 'M' ? 'brand.0' : 'brand.11'}
+							p="16"
 							mb="xl"
 						>
 							<Box
@@ -111,10 +109,9 @@ const ProfileCarousel: React.FC<ProfileCarouselProps> = ({
 								>
 									<ProfileMetrics
 										gender={profile.gender}
-										label={`${profile.chldrnBrthdy?.substring(
-											0,
-											10
-										)} 출생`}
+										label={`${profile.chldrnBrthdy
+											?.substring(0, 10)
+											.replace(/-/g, '.')} 출생`}
 										value={profile.chldrnNm}
 									/>
 
@@ -159,6 +156,7 @@ const ProfileCarousel: React.FC<ProfileCarouselProps> = ({
 									<ProfileMetrics
 										label="몸무게"
 										value={`${physicalStats.chldrnBdwgh}kg`}
+										alignItems="center"
 									/>
 									<Divider
 										size="xs"
@@ -168,6 +166,7 @@ const ProfileCarousel: React.FC<ProfileCarouselProps> = ({
 									<ProfileMetrics
 										label="키"
 										value={`${physicalStats.chldrnHeight}cm`}
+										alignItems="center"
 									/>
 									<Divider
 										size="xs"
@@ -177,6 +176,7 @@ const ProfileCarousel: React.FC<ProfileCarouselProps> = ({
 									<ProfileMetrics
 										label="머리 둘레"
 										value={`${physicalStats.chldrnHead}cm`}
+										alignItems="center"
 									/>
 								</Flex>
 							</Box>

@@ -54,15 +54,7 @@ const Header: React.FC<HeaderProps> = ({
 
 	if (type === 'back') {
 		return (
-			<Flex
-				h={60}
-				px="md"
-				align="center"
-				justify="space-between"
-				style={{
-					borderBottom: '1px solid var(--mantine-color-gray-2)',
-				}}
-			>
+			<Flex h={60} px="md" align="center" justify="space-between">
 				<ActionIcon onClick={onBack} size="lg" bg="transparent">
 					<IconChevronLeft stroke={2} />
 				</ActionIcon>
@@ -128,7 +120,7 @@ const Header: React.FC<HeaderProps> = ({
 										setShowDatePicker((prev) => !prev)
 									}
 								>
-									<IconCalendar color="#729BED" size={20} />
+									<IconCalendar color="#729BED" size={24} />
 								</Button>
 								{showDatePicker && (
 									<Modal
@@ -162,7 +154,7 @@ const Header: React.FC<HeaderProps> = ({
 									<Avatar
 										src={currentChildProfileImage}
 										alt="프로필 이미지"
-										size={20}
+										size={24}
 										radius="xl"
 									/>
 								) : (
