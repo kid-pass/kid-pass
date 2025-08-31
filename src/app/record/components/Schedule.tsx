@@ -88,7 +88,7 @@ const Schedule: React.FC<ScheduleProps> = ({ schedules }) => {
                   onClick={() => handleItemClick(item)}
                   style={{
                     WebkitTapHighlightColor: "transparent",
-                    borderTop: "1px solid #d9d9d9",
+                    borderTop: "1px solid #f4f4f4",
                     paddingTop: 12,
                   }}
                 >
@@ -105,7 +105,7 @@ const Schedule: React.FC<ScheduleProps> = ({ schedules }) => {
                     <Flex gap="xs" style={{ flex: 3 }}>
                       <Text
                         fz={15}
-                        fw={700}
+                        fw={800}
                         style={{ color: CategoryMapColor[item.content] }}
                       >
                         {item.content}
