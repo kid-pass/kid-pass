@@ -534,6 +534,7 @@ const App: React.FC = () => {
 				<Box mb="40">
 					<Text
 						px="20"
+						mb="24"
 						c={theme.other.fontColors.primary}
 						fz={theme.fontSizes.lg}
 						fw={700}
@@ -541,21 +542,7 @@ const App: React.FC = () => {
 						다가오는 예방접종을 알려드려요
 					</Text>
 
-					<Box
-						ref={contentRef}
-						style={{
-							maxHeight:
-								vaccineData.length <= 1
-									? 'none'
-									: isExpanded
-									? `${totalHeight}px`
-									: `${firstItemHeight}px`,
-							overflow: 'hidden',
-							transition:
-								'max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
-							padding: '16px 20px', // 그림자 공간 확보
-						}}
-					>
+					<Box px="20" pb="20">
 						{vaccineData.length === 0 ? (
 							<EmptyState />
 						) : (
@@ -566,13 +553,10 @@ const App: React.FC = () => {
 								{vaccineData.map((vaccine, index) => (
 									<Box
 										key={index + 1}
-										data-first-item={
-											index === 0 ? 'true' : undefined
-										}
 										style={{
 											boxShadow:
 												'0px 0px 15px 0px #00000026',
-											borderRadius: '20px',
+											borderRadius: '8px',
 											gap: '16px',
 											flexDirection: 'column',
 										}}
@@ -678,53 +662,6 @@ const App: React.FC = () => {
 							</Box>
 						)}
 					</Box>
-
-					{/* 더보기/접기 버튼 */}
-					{vaccineData.length > 1 ? (
-						<Box
-							display="flex"
-							style={{
-								justifyContent: 'center',
-								alignItems: 'center',
-								gap: '8px',
-								cursor: 'pointer',
-								padding: '12px',
-								marginTop: '8px',
-							}}
-							onClick={() => setIsExpanded(!isExpanded)}
-						>
-							<IconChevronDown
-								size={24}
-								stroke={3}
-								color={theme.other.fontColors.sub}
-								style={{
-									transform: isExpanded
-										? 'rotate(180deg)'
-										: 'rotate(0deg)',
-									transition: 'transform 0.3s ease',
-								}}
-							/>
-						</Box>
-					) : vaccineData.length > 1 ? (
-						<Box
-							display="flex"
-							style={{
-								justifyContent: 'center',
-								alignItems: 'center',
-								gap: '8px',
-								padding: '12px',
-								marginTop: '8px',
-							}}
-						>
-							<Text fz="sm" c={theme.colors.gray[5]}>
-								더보기
-							</Text>
-							<IconChevronDown
-								size={16}
-								color={theme.colors.gray[5]}
-							/>
-						</Box>
-					) : null}
 				</Box>
 			</Container>
 		</MobileLayout>
