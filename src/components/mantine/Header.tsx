@@ -128,7 +128,7 @@ const Header: React.FC<HeaderProps> = ({
 										setShowDatePicker((prev) => !prev)
 									}
 								>
-									<IconCalendar color="#729BED" size={20} />
+									<IconCalendar color="#729BED" size={24} />
 								</Button>
 								{showDatePicker && (
 									<Modal
@@ -162,7 +162,7 @@ const Header: React.FC<HeaderProps> = ({
 									<Avatar
 										src={currentChildProfileImage}
 										alt="프로필 이미지"
-										size={20}
+										size={24}
 										radius="xl"
 									/>
 								) : (
