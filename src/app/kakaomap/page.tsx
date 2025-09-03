@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { Map, MapMarker } from "react-kakao-maps-sdk";
 import useKakaoLoader from "@/components/use-kakao-loader";
+import { IconMapPin } from "@tabler/icons-react";
 
 interface Place {
   latitude: number;
@@ -272,7 +273,7 @@ export default function HospitalScreen() {
               }}
             />
           ) : (
-            <span style={{ fontSize: "20px" }}>📍</span>
+            <IconMapPin size={20} />
           )}
         </button>
       </div>
