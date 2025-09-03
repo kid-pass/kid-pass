@@ -267,15 +267,10 @@ function LoginContent() {
         }}
       >
         <Box>
-          <Text fz={24} fw={600} ta="center">
+          <Text fz={26} ta="center" ff="HakgyoansimWoojuR" fw={700}>
             아이가 아픈 이유가 뭘까요?
           </Text>
-          <Text
-            c="dimmed"
-            ta="center"
-            mt="sm"
-            style={{ whiteSpace: "pre-line" }}
-          >
+          <Text ta="center" mt="sm" style={{ whiteSpace: "pre-line" }} fz={18}>
             날씨처럼 하루하루가 다른{"\n"}
             아이의 정확한 증상을 알고싶은{"\n"}
             엄마들에게 도움이 되고싶어요.
