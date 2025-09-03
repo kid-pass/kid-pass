@@ -12,7 +12,7 @@ const App = () => {
     <MobileLayout
       showHeader={true}
       headerType="back"
-      title="리포트 상세보기1"
+      title="리포트 상세보기"
       onBack={goBack}
       showBottomNav={true}
     >
