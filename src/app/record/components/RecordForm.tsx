@@ -247,6 +247,7 @@ const RecordForm = ({ type }: RecordFormProps) => {
                       form.setFieldValue("endDate", date || undefined)
                     }
                     clearable
+                    firstDayOfWeek={0}
                     valueFormat="YYYY-MM-DD HH:mm"
                     rightSection={<IconClock size={16} />}
                     size="md"
