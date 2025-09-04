@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { Box, Stack, Title, Paper, Flex } from "@mantine/core";
+import { Box, Stack, Title, Paper, Flex, Text } from "@mantine/core";
 import { BarChart, LineChart } from "@mantine/charts";
 import useAuth from "@/hook/useAuth";
 import dayjs from "dayjs";
@@ -14,13 +14,22 @@ const PERIOD_OPTIONS = [
   { value: "year", label: "1년" },
 ];
 
-const RecordGraph = ({ initPeriod = "quarter" }: { initPeriod?: string }) => {
+const RecordGraph = ({
+  initPeriod = "quarter",
+  useSymptom = false,
+  useReport = false,
+}: {
+  initPeriod?: string;
+  useSymptom?: boolean;
+  useReport?: boolean;
+}) => {
   const [period, setPeriod] = useState<string>(initPeriod);
   const [graphData, setGraphData] = useState<any>({
     FEEDING: {},
     SLEEP: {},
     TEMPERATURE: {},
     DIAPER: {},
+    SYMPTOM: {},
   });
   const { getToken } = useAuth();
   const { crtChldrnNo } = useAuthStore();
@@ -81,6 +90,7 @@ const RecordGraph = ({ initPeriod = "quarter" }: { initPeriod?: string }) => {
       }));
     }
   };
+  console.log(graphData);
 
   // 데이터 변경 시 다시 fetching
   useEffect(() => {
@@ -88,7 +98,40 @@ const RecordGraph = ({ initPeriod = "quarter" }: { initPeriod?: string }) => {
     fetchGraphData("SLEEP");
     fetchGraphData("TEMPERATURE");
     fetchGraphData("DIAPER");
+    fetchGraphData("SYMPTOM");
   }, [period]);
+
+  // 특이증상 랜더링
+  const renderSymptomGraphs = () => {
+    if (graphData.SYMPTOM.records?.length === 0) return;
+    return (
+      <>
+        <Text fw={700} fz="lg" mb="sm">
+          아기의 증상은요
+        </Text>
+
+        <Box mb="xl" display="flex">
+          {graphData.SYMPTOM.records?.map((record: any) => (
+            <Box
+              w={100}
+              bg={"#FF7B7B"}
+              fw={600}
+              p="md"
+              py={10}
+              ml={6}
+              c={"white"}
+              style={{
+                borderRadius: "20px",
+                textAlign: "center",
+              }}
+            >
+              {record.symptom}
+            </Box>
+          ))}
+        </Box>
+      </>
+    );
+  };
 
   // 수유 그래프 렌더링
   const renderFeedingGraphs = () => {
@@ -96,7 +139,7 @@ const RecordGraph = ({ initPeriod = "quarter" }: { initPeriod?: string }) => {
     if (graphData.FEEDING.isEmpty || graphData.FEEDING.error) {
       return (
         <Stack gap="md">
-          <Paper withBorder p="md" radius="md" h={300}>
+          <Paper withBorder p="md" radius="8" h={300}>
             <Flex direction="column" align="center" justify="center" h="100%">
               <Title order={5} c="dimmed">
                 {graphData.FEEDING.error
@@ -112,7 +155,7 @@ const RecordGraph = ({ initPeriod = "quarter" }: { initPeriod?: string }) => {
     return (
       <Stack gap="md">
         {/* 수유 유형별 그래프 (스택형) */}
-        <Paper withBorder p="md" radius="md">
+        <Paper withBorder p="md" radius="8">
           <Title order={5} mb="md">
             식사 패턴
           </Title>
@@ -123,22 +166,22 @@ const RecordGraph = ({ initPeriod = "quarter" }: { initPeriod?: string }) => {
             series={[
               {
                 name: "milk",
-                color: "blue.6",
+                color: "#729BED",
                 label: "모유",
               },
               {
                 name: "formula",
-                color: "green.6",
+                color: "#729BED",
                 label: "분유",
               },
               {
                 name: "babyfd",
-                color: "yellow.6",
+                color: "#729BED",
                 label: "이유식",
               },
               {
                 name: "mixed",
-                color: "orange.6",
+                color: "#729BED",
                 label: "혼합",
               },
             ]}
@@ -159,7 +202,7 @@ const RecordGraph = ({ initPeriod = "quarter" }: { initPeriod?: string }) => {
     if (graphData.SLEEP.isEmpty || graphData.SLEEP.error) {
       return (
         <Stack gap="md">
-          <Paper withBorder p="md" radius="md" h={300}>
+          <Paper withBorder p="md" radius="8" h={300}>
             <Flex direction="column" align="center" justify="center" h="100%">
               <Title order={5} c="dimmed">
                 {graphData.SLEEP.error
@@ -175,7 +218,7 @@ const RecordGraph = ({ initPeriod = "quarter" }: { initPeriod?: string }) => {
     return (
       <Stack gap="md">
         {/* 총 수면 시간 그래프 - 라인 차트로 변경 */}
-        <Paper withBorder p="md" radius="md">
+        <Paper withBorder p="md" radius="8">
           <Title order={5} mb="md">
             수면 패턴
           </Title>
@@ -186,7 +229,7 @@ const RecordGraph = ({ initPeriod = "quarter" }: { initPeriod?: string }) => {
             series={[
               {
                 name: "sleepTime",
-                color: "blue.6",
+                color: "#71E0E0",
                 label: "총 수면 시간 (분)",
               },
             ]}
@@ -206,7 +249,7 @@ const RecordGraph = ({ initPeriod = "quarter" }: { initPeriod?: string }) => {
     if (graphData.TEMPERATURE.isEmpty || graphData.TEMPERATURE.error) {
       return (
         <Stack gap="md">
-          <Paper withBorder p="md" radius="md" h={300}>
+          <Paper withBorder p="md" radius="8" h={300}>
             <Flex direction="column" align="center" justify="center" h="100%">
               <Title order={5} c="dimmed">
                 {graphData.TEMPERATURE.error
@@ -222,7 +265,7 @@ const RecordGraph = ({ initPeriod = "quarter" }: { initPeriod?: string }) => {
     return (
       <Stack gap="md">
         {/* 체온 변화 그래프 */}
-        <Paper withBorder p="md" radius="md">
+        <Paper withBorder p="md" radius="8">
           <Title order={5} mb="md">
             체온 기록
           </Title>
@@ -233,7 +276,7 @@ const RecordGraph = ({ initPeriod = "quarter" }: { initPeriod?: string }) => {
             series={[
               {
                 name: "temperature",
-                color: "red.6",
+                color: "#FFB6D7",
                 label: "평균 체온 (°C)",
               },
             ]}
@@ -245,7 +288,7 @@ const RecordGraph = ({ initPeriod = "quarter" }: { initPeriod?: string }) => {
         </Paper>
 
         {/* 최고/최저 체온 그래프 */}
-        <Paper withBorder p="md" radius="md">
+        {/* <Paper withBorder p="md" radius="md">
           <Title order={5} mb="md">
             최고/최저 체온
           </Title>
@@ -256,7 +299,7 @@ const RecordGraph = ({ initPeriod = "quarter" }: { initPeriod?: string }) => {
             series={[
               {
                 name: "temperature",
-                color: "red.6",
+                color: "#FFB6D7",
                 label: "최고 체온 (°C)",
               },
             ]}
@@ -272,7 +315,7 @@ const RecordGraph = ({ initPeriod = "quarter" }: { initPeriod?: string }) => {
             series={[
               {
                 name: "temperature",
-                color: "blue.6",
+                color: "#FFB6D7",
                 label: "최저 체온 (°C)",
               },
             ]}
@@ -281,7 +324,7 @@ const RecordGraph = ({ initPeriod = "quarter" }: { initPeriod?: string }) => {
             valueFormatter={(value) => `${value}°C`}
             withYAxis={false}
           />
-        </Paper>
+        </Paper> */}
       </Stack>
     );
   };
@@ -292,7 +335,7 @@ const RecordGraph = ({ initPeriod = "quarter" }: { initPeriod?: string }) => {
     if (graphData.DIAPER.isEmpty || graphData.DIAPER.error) {
       return (
         <Stack gap="md">
-          <Paper withBorder p="md" radius="md" h={300}>
+          <Paper withBorder p="md" radius="8" h={300}>
             <Flex direction="column" align="center" justify="center" h="100%">
               <Title order={5} c="dimmed">
                 {graphData.DIAPER.error
@@ -308,7 +351,7 @@ const RecordGraph = ({ initPeriod = "quarter" }: { initPeriod?: string }) => {
     return (
       <Stack gap="md">
         {/* 배변 유형별 그래프 (스택형) */}
-        <Paper withBorder p="md" radius="md">
+        <Paper withBorder p="md" radius="8">
           <Title order={5} mb="md">
             배변 패턴
           </Title>
@@ -319,17 +362,17 @@ const RecordGraph = ({ initPeriod = "quarter" }: { initPeriod?: string }) => {
             series={[
               {
                 name: "pee",
-                color: "blue.6",
+                color: "#A0DBF9",
                 label: "소변",
               },
               {
                 name: "poo",
-                color: "yellow.6",
+                color: "#A0DBF9",
                 label: "대변",
               },
               {
                 name: "mixed",
-                color: "green.6",
+                color: "#A0DBF9",
                 label: "혼합",
               },
             ]}
@@ -360,6 +403,13 @@ const RecordGraph = ({ initPeriod = "quarter" }: { initPeriod?: string }) => {
 
       {/* 모든 그래프 렌더링 */}
 
+      {useSymptom && renderSymptomGraphs()}
+
+      {useReport && (
+        <Text fw={700} fz="lg" mb="sm">
+          지난 {period}일 동안의 아기의 상태
+        </Text>
+      )}
       {renderFeedingGraphs()}
       {renderSleepGraphs()}
       {renderTemperatureGraphs()}

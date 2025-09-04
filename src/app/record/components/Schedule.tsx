@@ -37,7 +37,7 @@ const CategoryMapColor = {
   배설: "#A0DBF9",
   수면: "#71E0E0",
   체온: "#FFB6D7",
-  "몸무게/키": "#FFDE79",
+  신체정보: "#FFDE79",
   머리둘레: "#BEBEFA",
   감정: "#EAC2FF",
   특이증상: "#FFB7B8",

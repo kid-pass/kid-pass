@@ -163,10 +163,10 @@ const RecordPage = () => {
             <Carousel.Slide key={slide}>
               <UnstyledButton
                 onClick={() => handleSelect(index)}
-                w={100}
                 bg={selectedItems.includes(index) ? "brand.7" : "brand.0"}
                 fw={selectedItems.includes(index) ? 700 : 600}
                 p="md"
+                px={20}
                 py={10}
                 ml={6}
                 c={selectedItems.includes(index) ? "white" : "black"}

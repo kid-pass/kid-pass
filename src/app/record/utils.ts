@@ -26,7 +26,7 @@ const TYPE_MAP = {
   SLEEP: "수면",
   DIAPER: "배설",
   TEMPERATURE: "체온",
-  GROWTH: "몸무게/키",
+  GROWTH: "신체정보",
   HEAD: "머리둘레",
   EMOTION: "감정",
   SYMPTOM: "특이증상",

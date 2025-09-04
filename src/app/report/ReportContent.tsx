@@ -229,10 +229,11 @@ const ReportContent = () => {
             </Box>
           )}
           <Box mt="xl">
-            <Text fw={700} fz="lg" mb="xl">
-              지난 {days}일 동안의 아기의 상태
-            </Text>
-            <RecordGraph initPeriod={days.toString()} />
+            <RecordGraph
+              initPeriod={days.toString()}
+              useSymptom={true}
+              useReport={true}
+            />
           </Box>
           <Box mt="xl">
             <Text fw={700} fz="lg" mb="xl">
