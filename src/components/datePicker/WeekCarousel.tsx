@@ -54,6 +54,8 @@ export default function WeeklyDatePicker({
     <Box
       style={{
         overflow: "hidden",
+        borderBottom: "1px solid #D9D9D9",
+        paddingBottom: "16px",
       }}
     >
       <WeekDays width={width} />
@@ -96,6 +98,8 @@ const Row = ({
   currentDate: Dayjs;
   onSelect: (date: Dayjs) => void;
 }) => {
+  const today = dayjs().format("YYYY-MM-DD");
+
   return (
     <Flex w={width} justify="space-between" p="0 8px">
       {items.map((item, i) => (
@@ -112,6 +116,8 @@ const Row = ({
           bg={
             item.format("YYYY-MM-DD") === currentDate.format("YYYY-MM-DD")
               ? "brand.7"
+              : item.format("YYYY-MM-DD") === today
+              ? "brand.1"
               : undefined
           }
           onClick={() => onSelect(item)}

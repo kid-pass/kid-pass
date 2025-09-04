@@ -95,9 +95,42 @@ async function getGraphData(childId: string, type: string, startDate: Date) {
       return await getTemperatureGraphData(childId, startDate);
     case "DIAPER":
       return await getDiaperGraphData(childId, startDate);
+    case "SYMPTOM":
+      return await getSymptomGraphData(childId, startDate);
     default:
       throw new Error("지원되지 않는 그래프 타입입니다.");
   }
+}
+
+async function getSymptomGraphData(childId: string, startDate: Date) {
+  const records = await prisma.record.findMany({
+    where: {
+      childId,
+      type: "SYMPTOM",
+      startTime: {
+        gte: startDate,
+      },
+    },
+    select: {
+      startTime: true,
+      symptom: true,
+    },
+    orderBy: {
+      startTime: "asc",
+    },
+  });
+
+  // 데이터가 없는 경우 빈 객체 반환
+  if (records.length === 0) {
+    return {
+      total: [],
+      byType: [],
+    };
+  }
+
+  return {
+    records,
+  };
 }
 
 // 수유 그래프 데이터 추출
