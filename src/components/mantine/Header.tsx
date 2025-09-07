@@ -9,11 +9,7 @@ import {
 	Modal,
 	Avatar,
 } from '@mantine/core';
-import {
-	IconChevronLeft,
-	IconCalendar,
-	IconUserCircle,
-} from '@tabler/icons-react';
+import { IconChevronLeft, IconUserCircle } from '@tabler/icons-react';
 import WeeklyDatePicker from '@/components/datePicker/WeekCarousel';
 import useCurrentDateStore from '@/store/useCurrentDateStore';
 import { useAuthStore } from '@/store/useAuthStore';
@@ -22,6 +18,7 @@ import dayjs from 'dayjs';
 import KidsList, { KidData } from './KidsList';
 import { useRouter } from 'next/navigation';
 import { DatePicker } from '@mantine/dates';
+import Image from 'next/image';
 
 interface HeaderProps {
 	type: 'back' | 'profile';
@@ -100,7 +97,12 @@ const Header: React.FC<HeaderProps> = ({
 								}}
 								onClick={() => router.push('/note/calendar')}
 							>
-								<IconCalendar color="#729BED" size={20} />
+								<Image
+									src="/images/Calendar.svg"
+									alt="달력"
+									width={24}
+									height={24}
+								/>
 							</Button>
 						)}
 						{useDatePicker && (
@@ -120,7 +122,12 @@ const Header: React.FC<HeaderProps> = ({
 										setShowDatePicker((prev) => !prev)
 									}
 								>
-									<IconCalendar color="#729BED" size={24} />
+									<Image
+										src="/images/Calendar.svg"
+										alt="달력"
+										width={24}
+										height={24}
+									/>
 								</Button>
 								{showDatePicker && (
 									<Modal
@@ -158,7 +165,7 @@ const Header: React.FC<HeaderProps> = ({
 										radius="xl"
 									/>
 								) : (
-									<IconUserCircle size={20} color="#729BED" />
+									<IconUserCircle size={24} color="#729BED" />
 								)}
 							</Popover.Target>
 							<Popover.Dropdown>
