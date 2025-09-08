@@ -98,7 +98,7 @@ const RecordPage = () => {
       ...bottomModalTheme,
       title: "오늘의 아이 기록하기",
       children: (
-        <Box p="sm" style={{ zIndex: 3 }}>
+        <Box style={{ zIndex: 3, paddingTop: 12 }}>
           <Grid>
             {RECORDS.map((record) => (
               <Grid.Col span={4} key={record.path}>
@@ -119,7 +119,7 @@ const RecordPage = () => {
                     fit="contain"
                   />
                   <Space h={8} />
-                  <Text size="md" ta="center" fw={600}>
+                  <Text style={{ fontSize: 13 }} ta="center" fw={600}>
                     {record.title}
                   </Text>
                 </Card>
@@ -173,6 +173,8 @@ const RecordPage = () => {
                 style={{
                   borderRadius: "20px",
                   textAlign: "center",
+                  whiteSpace: "nowrap",
+                  minWidth: "fit-content",
                 }}
               >
                 {slide}
