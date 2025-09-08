@@ -156,9 +156,10 @@ export default function HospitalScreen() {
             flex: 1,
             padding: "12px",
             border: "none",
-            backgroundColor: searchKeyword === "병원" ? "white" : "#f5f5f5",
-            borderBottom: searchKeyword === "병원" ? "2px solid black" : "none",
+            backgroundColor: "white",
+            borderBottom: "none",
             cursor: "pointer",
+            position: "relative",
           }}
           onClick={() => setSearchKeyword("병원")}
         >
@@ -171,15 +172,28 @@ export default function HospitalScreen() {
           >
             병원
           </span>
+          {searchKeyword === "병원" && (
+            <div
+              style={{
+                position: "absolute",
+                bottom: 0,
+                left: "10%",
+                width: "80%",
+                height: "2px",
+                backgroundColor: "black",
+              }}
+            />
+          )}
         </button>
         <button
           style={{
             flex: 1,
             padding: "12px",
             border: "none",
-            backgroundColor: searchKeyword === "약국" ? "white" : "#f5f5f5",
-            borderBottom: searchKeyword === "약국" ? "2px solid black" : "none",
+            backgroundColor: "white",
+            borderBottom: "none",
             cursor: "pointer",
+            position: "relative",
           }}
           onClick={() => setSearchKeyword("약국")}
         >
@@ -192,6 +206,18 @@ export default function HospitalScreen() {
           >
             약국
           </span>
+          {searchKeyword === "약국" && (
+            <div
+              style={{
+                position: "absolute",
+                bottom: 0,
+                left: "10%",
+                width: "80%",
+                height: "2px",
+                backgroundColor: "black",
+              }}
+            />
+          )}
         </button>
       </div>
 
@@ -200,7 +226,7 @@ export default function HospitalScreen() {
         style={{
           flex: 1,
           position: "relative",
-          minHeight: "400px",
+          height: "50%",
         }}
       >
         <Map

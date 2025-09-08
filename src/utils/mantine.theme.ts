@@ -27,6 +27,7 @@ export const bottomModalTheme = {
     content: {
       height: "50%",
       width: "100%",
+      minHeight: 390,
       maxWidth: "100%",
       padding: 0,
       margin: 0,
